@@ -1,0 +1,49 @@
+using GameServerCore.Enums;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using LeagueSandbox.GameServer.Scripting.CSharp;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects;
+using LeagueSandbox.GameServer.GameObjects.StatsNS;
+using LeagueSandbox.GameServer.GameObjects;
+
+namespace Buffs
+{
+    public class ThreshW : IBuffGameScript
+    {
+        
+        
+        
+        
+
+                public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
+        public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
+        {
+            BuffType = BuffType.COMBAT_ENCHANCER,
+            BuffAddType = BuffAddType.STACKS_AND_CONTINUE
+        };
+
+        public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
+        {
+            // Damned Souls (W): 为范围内友军提供护盾
+            unit.Stats.MagicResist.FlatBonus = 40f;
+            unit.Stats.Armor.FlatBonus = 20f;
+
+            AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "Thresh_W_Icon.troy", unit, buff.Duration);
+        }
+
+        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
+        {
+            unit.Stats.MagicResist.FlatBonus = 0f;
+            unit.Stats.Armor.FlatBonus = 0f;
+        }
+
+        
+    }
+}
+
+
+
+

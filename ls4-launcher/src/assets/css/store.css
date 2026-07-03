@@ -1,0 +1,120 @@
+.storecontent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.storecontent .itemlist {
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.storecontent .itemlist .noItems {
+  width: 75%;
+  padding: 20% 0;
+  margin: auto;
+  text-align: center;
+  font-family: LoLFont2;
+  font-size: 30px;
+}
+
+.storecontent .itemlist .item {
+  width: 150px;
+  height: 200px;
+  margin-bottom: 15px;
+  border: 1px solid #1a1c25;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.storecontent .itemlist .item:not(:nth-child(5n)) {
+  margin-right: 15px;
+}
+
+.storecontent .itemlist .item .background {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7%;
+  width: 100%;
+  height: 93%;
+  background-position: top;
+  z-index: -1;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.storecontent .itemlist .item .title {
+  height: 7%;
+  width: 100%;
+  text-align: center;
+  font-family: LoLFont2;
+  font-size: 14px;
+  color: rgb(207, 207, 207);
+}
+
+.storecontent .itemlist .item .content {
+  height: 93%;
+  width: 100%;
+  position: relative;
+}
+
+.storecontent .itemlist .item .content .foot {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: space-around;
+  padding: 5px;
+  position: absolute;
+  z-index: 3 !important;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: rgba($color: #000000, $alpha: 0.85);
+}
+
+.storecontent .itemlist .item .content .foot span {
+  font-size: 14px;
+  font-family: LoLFont2;
+  padding: 2px 0;
+  color: rgb(214, 214, 214);
+}
+
+.storecontent .itemlist .item .content .foot button {
+  background: linear-gradient(
+    180deg,
+    #1d3041 0%,
+    #112439 45%,
+    #0c1f33 50%,
+    #081627 100%
+  );
+  outline: none;
+  border: none;
+  border-radius: 15px;
+  margin: 0 auto;
+  height: 25px;
+  padding: 5px 20px;
+  font-size: 13px;
+  line-height: 12px;
+  min-width: 66%;
+  width: auto;
+  border: 1px solid #1e2735;
+  color: whitesmoke;
+  font-family: LoLFont2;
+  transition: filter ease-in-out 200ms;
+}
+
+.storecontent .itemlist .item .content button:not(:disabled):hover {
+  filter: brightness(1.25);
+  cursor: pointer;
+}
+
+.storecontent .itemlist .item .content .foot button:disabled {
+  filter: grayscale(100%);
+}

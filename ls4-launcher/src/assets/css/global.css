@@ -1,0 +1,65 @@
+
+.league-check {
+  display: block;
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  text-align: left;
+}
+
+.league-check:hover .checkmark {
+  filter: brightness(1.2);
+}
+
+.league-check input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+.league-check .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 15px;
+  width: 15px;
+  /* background-color: #1c171b; */
+  background-image: url("../images/checkbox-default.png");
+  border: 1px solid rgba(163, 129 50, 0.75);
+}
+
+.league-check:hover input ~ .checkmark {
+  background-color: #241d22;
+}
+
+.league-check input:checked ~ .checkmark {
+  background-color: #1c171b;
+}
+
+.league-check input:checked ~ .checkmark::after {
+  display: block;
+}
+
+.league-check .checkmark::after {
+  display: none;
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 8px;
+  border: solid rgb(0 0 0 / 75%);
+  border-width: 0 2px 2px 0;
+  transform: rotate(35deg);
+}
+
+.shop_colored_name {
+  color: goldenrod !important;
+}

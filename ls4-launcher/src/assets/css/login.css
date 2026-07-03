@@ -1,0 +1,291 @@
+#login {
+  width: 100%;
+  height: 100%;
+}
+
+#login .provider-logo {
+  position: absolute;
+  left: 93px;
+  top: 60px;
+  width: 386px;
+  height: 140px;
+  text-align: center;
+}
+
+#login .provider-logo video {
+  height: 100%;
+  width: 100%;
+  opacity: 0.7;
+  background-image: radial-gradient(
+    circle,
+    transparent 0%,
+    rgb(45 216 255 / 0.4) 20%,
+    transparent 35%
+  );
+}
+
+#login .mockbox {
+  position: absolute;
+  height: 377px;
+  width: 386px;
+  padding: 20px;
+  box-sizing: border-box;
+  background-image: url("../images/login-box.png");
+  display: flex;
+  flex-direction: column;
+}
+
+#login .mockbox .formGroup {
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+/* #login .mockbox .formGroup.filePicker {
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  margin-bottom: 10px;
+} */
+
+#login .mockbox .formGroup.filePicker .pickerWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+#login .mockbox .formGroup.filePicker .pickerWrapper input {
+    width: 85%;
+    height: 100%;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+}
+
+#login .mockbox .formGroup.filePicker .pickerWrapper button {
+    width: 10%;
+    height: 100%;
+    padding: 7px 5px;
+    background-color: rgba(11, 23, 48, 1);
+    outline: none;
+    border: 1px solid rgb(245 245 245 / 0.15);
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: center;
+    transition: filter ease-in-out 200ms;
+}
+
+#login .mockbox .formGroup.filePicker .pickerWrapper button:hover {
+  filter: brightness(1.25);
+}
+
+#login .mockbox .formGroup.updater {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+#login .mockbox .formGroup.updater label {
+  padding: 7px 5px 0 0;
+}
+
+#login .mockbox .formGroup.updater .updateWrapper button {
+  width: 30px;
+  position: relative;
+  height: 30px;
+  padding: 5px;
+  /* background-color: rgb(79, 90, 112); */
+  color: white;
+  background-color: rgba(11, 23, 48, 1);
+  outline: none;
+  border: 1px solid rgb(245 245 245 / 0.15);
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: center;
+  transition: filter ease-in-out 200ms;
+}
+
+#login .mockbox .formGroup.updater .updateWrapper button:hover {
+  filter: brightness(1.25);
+}
+
+#login .mockbox .formGroup.updater .updateWrapper .updateStatus {
+  display: inline;
+  margin-left: 10px;
+  overflow-wrap: break-word;
+}
+
+#login .mockbox .formGroup label {
+  margin-bottom: 5px;
+}
+
+#login .mockbox .formGroup input {
+  height: 30px;
+  outline: none;
+  font-family: LoLFont2;
+}
+
+#login .mockbox .formGroup select {
+  height: 30px;
+  outline: none;
+  font-family: LoLFont2;
+}
+
+#login .mockbox .head {
+  height: 8%;
+  font-family: LoLFont2;
+  margin-bottom: 2%;
+}
+
+#login .mockbox .head > p {
+  margin: 0;
+  text-indent: 5px;
+  height: 100%;
+  background-image: url("../images/login-box-top-separator.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;
+}
+/* SETTINGS BOX */
+#login .settingsbox {
+  left: 493px;
+  top: 210px;
+  display: none;
+}
+
+#login .settingsbox.active {
+  display: block;
+}
+
+#login .settingsbox .inner {
+  height: 100%;
+  padding: 5px 10px;
+  font-family: LoLFont2;
+  font-size: 13px;
+}
+
+/* REGISTER BOX */
+#login .mockbox.register {
+  height: 420px;
+  background-size: 100% 100%;
+  top: 169px; 
+}
+
+#login .mockbox.register .inner {
+  padding: 5px 10px;
+  height: 76%;
+}
+#login .mockbox.register .inner .submitGroup > div {
+  width: 100%;
+  text-align: center;
+}
+
+#login .mockbox.register .foot {
+  height: 14%;
+  padding: 10px;
+}
+
+
+
+/* LOGIN BOX */
+#login .loginbox {
+  left: 93px;
+  top: 210px;
+}
+
+#login .loginbox > div {
+  width: 100%;
+}
+
+#login .loginbox .inner {
+  height: 55%;
+  padding: 5px 10px;
+  font-family: LoLFont2;
+  font-size: 13px;
+  background-image: url("../images/login-box-bottom-separator.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;
+}
+
+#login .loginbox .inner .submitGroup {
+  display: flex;
+}
+
+#login .loginbox .inner .submitGroup > div {
+  width: 50%;
+}
+
+#login .loginbox .inner .submitGroup .login {
+  text-align: right;
+}
+
+#login .loginbox .inner .submitGroup .login button:disabled {
+  background-image: url("../images/button-disabled.png");
+  cursor: auto;
+}
+
+#login .loginbox .inner .submitGroup .login button {
+  background-image: url("../images/button-default.png");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
+  width: auto;
+  height: 25px;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  font-family: LoLFont2;
+  color: white;
+  cursor: pointer;
+}
+
+#login .loginbox .inner .submitGroup .login button:not(:disabled):hover {
+  filter: brightness(1.2);
+}
+
+#login .loginbox .foot {
+  height: 35%;
+  padding: 15px 10px;
+  position: relative;
+}
+
+#login .loginbox .foot p {
+  font-family: LoLFont2;
+  margin-bottom: 5px;
+  margin-top: 0;
+  font-size: 12px;
+}
+
+#login .loginbox .foot p.warning {
+  color: #a5b32d;
+}
+
+#login .loginbox .foot p.error {
+  color: #ce2b21;
+}
+
+#login .loginbox .foot p a {
+  color: #2399d2;
+  font-weight: bold;
+}
+
+#login .loginbox .foot .settingsBtn {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  height: 30px;
+  width: 30px;
+  padding: 7px 5px;
+  background-color: rgba(11, 23, 48, 1);
+  outline: none;
+  border: 1px solid rgb(245 245 245 / 0.15);
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: center;
+  transition: filter ease-in-out 200ms;
+}
+
+#login .loginbox .foot .settingsBtn:hover {
+  filter: brightness(1.2);
+}

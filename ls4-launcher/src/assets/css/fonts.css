@@ -1,0 +1,29 @@
+@font-face {
+    font-family: LoLFont1;
+    src: url("../fonts/GillSansMTPro-Medium.otf");
+  }
+
+  @font-face {
+    font-family: LoLFont2;
+    src: url("../fonts/friz-quadrata-tt.ttf")
+  }
+
+  @font-face {
+    font-family: LoLFont3;
+    src: url("../fonts/Gill Sans W04 Ultra Bold Cond.ttf")
+  }
+
+  @font-face {
+    font-family: LoLFont4;
+    src: url("../fonts/Beaufort-Bold.ttf")
+  }
+
+  @font-face {
+    font-family: LoLFont5;
+    src: url("../fonts/friz-quadrata-tt-thin.ttf")
+  }
+  
+  @font-face {
+    font-family: LoLFont6;
+    src: url("../fonts/perpeta.ttf")
+  }

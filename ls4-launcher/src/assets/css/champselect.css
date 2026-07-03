@@ -1,0 +1,763 @@
+#champselect {
+  width: 100%;
+  height: calc(100% - 69px);
+  position: relative;
+  z-index: 0;
+  margin-top: 20px;
+  display: flex;
+}
+
+#champselect .side {
+  width: 20%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 15 !important;
+}
+
+#champselect .side > .head {
+  height: 5%;
+  width: 100%;
+}
+
+#champselect .side > .head {
+  font-family: LoLFont2;
+  text-align: center;
+  font-size: 16px;
+  padding-top: 10px;
+}
+
+#champselect .side.ally > .head {
+  text-shadow: 0 0 7px #b273f7, 0 0 15px #b470ff;
+}
+
+#champselect .side.enemy > .head {
+  text-shadow: 0 0 7px #4c8fe6, 0 0 15px #4c8fe6;
+}
+
+#champselect .side > .control {
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#champselect .side.ally > .control {
+  padding: 5px 40px 5px 10px;
+}
+
+#champselect .side.enemy > .control {
+  padding: 5px 10px 5px 40px;
+}
+
+#champselect .side > .foot {
+  height: 25%;
+  width: 100%;
+  position: relative;
+  z-index: -1;
+}
+
+#champselect .side.ally > .foot {
+  padding: 0 5px 0 10px;
+}
+
+#champselect .side.enemy > .foot {
+  padding: 0 10px 0 5px;
+}
+
+#champselect .main {
+  width: 60%;
+  height: 100%;
+}
+
+#champselect .main > .head {
+  height: 5%;
+  width: 100%;
+  position: relative;
+  padding-top: 2px;
+}
+
+#champselect .main > .head .phases {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  transform: translateX(-50%);
+  left: 50%;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, #363636 0%, #090b0a 100%);
+  border: 2px solid rgba(95, 95, 95, 0.6);
+  border-radius: 5px;
+  box-shadow: inset 0 0 7px 3px rgba(5, 12, 20, 0.55);
+}
+
+#champselect .main > .head .phases .phase {
+  width: 33%;
+  height: 100%;
+  text-align: center;
+  font-family: LoLFont2;
+  font-size: 16px;
+  opacity: 0.9;
+  line-height: 26px;
+  position: relative;
+}
+
+#champselect .main > .head .phases .phase.inactive {
+  color: #4d4d4d;
+}
+
+#champselect .main > .head .phases .phase.active {
+  border: 2px solid #0066ff;
+  background: linear-gradient(180deg, #0b3471 0%, #163f7c 100%);
+  position: relative;
+  left: -1px;
+  top: -1px;
+  border-radius: 5px;
+}
+
+#champselect .main > .head .phases .phase:not(.active):not(:last-child)::after {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  height: 80%;
+  width: 1.5px;
+  content: "";
+  background-color: black;
+  border-right: 1.5px solid #454545;
+  transform: translateY(-50%);
+}
+
+#champselect .main > .control {
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#champselect .main > .control .status {
+  height: 10%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 2px;
+}
+
+#champselect .main > .control .status .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 100%;
+  width: 11%;
+  background-repeat: no-repeat;
+  background-size: 95% 85%;
+  background-position: center;
+  font-size: 20px;
+  font-family: LoLFont2;
+  text-align: center;
+  line-height: 44px;
+}
+#champselect .main > .control .status .arrow.leftArrow:not(.inactive) {
+  background-image: url("../images/arrow-timer-left.png");
+  left: -3.5%;
+}
+
+#champselect .main > .control .status .arrow.rightArrow:not(.inactive) {
+  background-image: url("../images/arrow-timer-right.png");
+  right: -3.5%;
+  transform: scaleX(1) translateY(-50%);
+}
+
+#champselect .main > .control .status .arrow.inactive {
+  background-image: none;
+  background: linear-gradient(180deg, #1e1e1e 0%, #090909 100%);
+  box-shadow: inset 0 0 7px 3px rgba(5, 12, 20, 0.55);
+  border: 1.5px solid rgba(95, 95, 95, 0.6);
+  border-radius: 5px;
+  height: 70%;
+  width: 7.5%;
+}
+
+#champselect .main > .control .status .arrow.inactive.leftArrow {
+  left: -2px;
+}
+
+#champselect .main > .control .status .arrow.inactive.rightArrow {
+  right: -2px;
+}
+
+#champselect .main > .control .status .info {
+  width: 85%;
+  height: 100%;
+  background: linear-gradient(180deg, #1e1e1e 0%, #090909 100%);
+  box-shadow: inset 0 0 7px 3px rgba(5, 12, 20, 0.55);
+  border: 1.5px solid rgba(95, 95, 95, 0.6);
+  border-radius: 5px;
+}
+
+#champselect .main > .control .status .info .infomessage {
+  font-size: 26px;
+  font-family: LoLFont2;
+  text-align: center;
+  padding: 5px;
+}
+
+#champselect .main > .control .status .info .infomessage span {
+  color: #d38015;
+  font-family: LoLFont1;
+}
+
+#champselect .main > .control .champions {
+  height: 70%;
+  width: 100%;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#champselect .main > .control .champions .head {
+  height: 20%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2px;
+}
+
+#champselect .main > .control .champions .head .tabs {
+  width: 100%;
+  height: 75%;
+  display: flex;
+  position: relative;
+}
+
+#champselect .main > .control .champions .head .tabs .actionInput {
+  width: 25%;
+  height: 50%;
+  display: flex;
+  position: relative;
+  margin: 10px;
+  outline: none;
+}
+
+#champselect .main > .control .champions .head .tabs button {
+  width: 20%;
+  height: 95%;
+  top: 5%;
+  position: relative;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  outline: none;
+  border: 2px solid rgba(95, 95, 95, 1);
+  border-bottom: none;
+  background: linear-gradient(0deg, #0a0a0a 0%, #232323 100%);
+  color: #969696;
+  font-size: 16px;
+  text-align: center;
+  font-family: LoLFont2;
+  /* border: 2px solid rgba(183, 151, 125, 0.5);
+  background-color: ; */
+}
+
+#champselect .main > .control .champions .head .tabs button:not(:last-child) {
+  border-top-right-radius: 0px;
+  border-right: 1px solid rgba(183, 151, 125, 0.5);
+}
+
+#champselect .main > .control .champions .head .tabs button:not(:first-child) {
+  border-top-left-radius: 0px;
+  border-left: 1px solid rgba(183, 151, 125, 0.5);
+}
+
+#champselect .main > .control .champions .head .tabs button:not(.active) {
+  border-bottom: 1px solid rgba(183, 151, 125, 0.5);
+}
+#champselect .main > .control .champions .head .tabs button.active {
+  top: 0;
+  background: linear-gradient(0deg, #b14809 0%, #f59a3a 100%);
+  height: 100%;
+  color: black;
+}
+
+#champselect .main > .control .champions .head .spacer {
+  height: 25%;
+  width: 100%;
+  border: 2px solid rgba(95, 95, 95, 1);
+  border-top-right-radius: 5px;
+  /* border-top: 2px solid rgba(183, 151, 125, 0.5); */
+  border-top: none;
+  border-bottom: none;
+  width: 100%;
+  /* box-shadow: inset 0 0 3px 1px rgba(183, 151, 125, 0.5); */
+  background: linear-gradient(0deg, #ae4401 0%, #ae4e0f 100%);
+}
+
+#champselect .main > .control .champions .list {
+  height: 75%;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 7px 0 7px 7px;
+  box-shadow: inset 0 0 7px 3px rgba(5, 12, 20, 0.55);
+  border-left: 2px solid rgba(95, 95, 95, 1);
+  border-right: 2px solid rgba(95, 95, 95, 1);
+}
+
+#champselect .main > .control .champions .list.skins .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  font-size: 34px;
+  background: linear-gradient(
+    180deg,
+    #3c73b4 0%,
+    #20477e 45%,
+    #1e3e6d 50%,
+    #0e284b 100%
+  );
+  outline: none;
+  border: none;
+  border: 1px solid rgba(48, 75, 105, 0.75);
+  border-radius: 4px;
+  color: #f2dd90;
+  cursor: pointer;
+  transition: filter ease-in-out 200ms;
+}
+
+#champselect .main > .control .champions .list.skins .arrow:hover {
+  filter: brightness(1.25);
+}
+
+#champselect .main > .control .champions .list.skins .arrowPrevious {
+  left: 10px;
+}
+
+#champselect .main > .control .champions .list.skins .arrowNext {
+  right: 10px;
+}
+
+#champselect .main > .control .champions .list.skins {
+  position: relative;
+  display: grid;
+  padding: 0;
+  grid-template-rows: 240px 48px;
+  grid-template-columns: 1fr 30px 30px 30px 30px 30px 1fr;
+  align-items: center;
+  justify-items: center;
+}
+
+#champselect .main > .control .champions .list.skins #carousel {
+  grid-row: 1 / 2;
+  grid-column: 1 / 8;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 200px;
+  --items: 5;
+  --middle: 3;
+  --position: 1;
+  pointer-events: none;
+}
+
+#champselect .main > .control .champions .list.skins #carousel .item {
+  position: absolute;
+  width: 135px;
+  height: 100%;
+  --gap: -155px;
+  --r: calc(var(--position) - var(--offset));
+  --abs: max(calc(var(--r) * -1), var(--r));
+
+  transition: all 0.25s linear;
+  transform: rotateY(calc(-5deg * var(--r)))
+    translateX(calc(var(--gap) * var(--r)));
+  z-index: calc((var(--position) - var(--abs)));
+}
+
+#champselect .main > .control .champions .list.skins #carousel .item.toRight {
+  --r: calc(var(--position) - var(--offset));
+  --gap: -95px;
+  --abs: max(calc(var(--r) * -1), var(--r));
+  --vor-rotation: min(-150deg * var(--r));
+  opacity: 0.95;
+  filter: brightness(0.5);
+
+  transform: rotateY(calc(-5deg * var(--r))) scale(0.9)
+    translateX(calc(var(--gap) * var(--r))) rotateY(-45deg) scale(0.8);
+  z-index: calc((var(--position) - var(--abs)));
+}
+
+#champselect .main > .control .champions .list.skins #carousel .item.toLeft {
+  --gap: -95px;
+  --r: calc(var(--position) - var(--offset));
+  --abs: max(calc(var(--r) * -1), var(--r));
+  --vor-rotation: min(-150deg * var(--r));
+  opacity: 0.95;
+  filter: brightness(0.5);
+
+  transform: rotateY(calc(-5deg * var(--r))) scale(0.9)
+    translateX(calc(var(--gap) * var(--r))) rotateY(45deg) scale(0.8);
+  z-index: calc((var(--position) - var(--abs)));
+}
+
+#champselect .main > .control .champions .footer {
+  height: 5%;
+  width: 100%;
+  border: 2px solid rgba(95, 95, 95, 1);
+  border-top: 2px solid rgba(183, 151, 125, 0.5);
+  width: 100%;
+  box-shadow: inset 0 0 3px 1px rgba(183, 151, 125, 0.5);
+  background: linear-gradient(180deg, #a84507 0%, #ed7c27 100%);
+}
+
+#champselect .main > .control .actions {
+  height: 20%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  z-index: 10;
+}
+
+#champselect .main > .control .actions > div {
+  background: linear-gradient(0deg, #010913 0%, #182b3f 100%);
+  border: 2px solid rgb(107, 131, 157);
+  box-shadow: inset 0 0 3px 1px rgba(26, 62, 98, 0.75);
+  border-radius: 5px;
+}
+
+#champselect .main > .control .actions .rmselect {
+  width: 36.5%;
+  position: relative;
+  height: 100%;
+  z-index: 10;
+}
+
+#champselect .main > .control .actions .rmselect .title {
+  position: absolute;
+  left: 7px;
+  top: 2px;
+  font-size: 12px;
+  font-family: LoLFont2;
+  color: #fe9800;
+  text-shadow: 0 0 3px #fe9800;
+  opacity: 0.85;
+}
+
+#champselect .main > .control .actions .rmselect .editBtn {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 27px;
+  height: 27px;
+  font-size: 12px;
+  text-align: center;
+
+  background: linear-gradient(
+    180deg,
+    #3c73b4 0%,
+    #20477e 45%,
+    #1e3e6d 50%,
+    #0e284b 100%
+  );
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px solid #304b69;
+  color: white;
+  transition: filter ease-in-out 200ms;
+}
+
+#champselect .main > .control .actions .rmselect .editBtn:disabled {
+  filter: grayscale(100%);
+}
+
+#champselect .main > .control .actions .rmselect .editBtn:not(:disabled):hover {
+  cursor: pointer;
+  filter: brightness(1.25);
+}
+
+#champselect .main > .control .actions .rmselect .selects {
+  width: 70%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  padding: 20px 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: space-between;
+}
+
+#champselect .main > .control .actions .spellselect {
+  width: 25%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal {
+  display: none;
+  position: absolute;
+  width: 105%;
+  height: 150%;
+  top: -155%;
+  left: -2.5%;
+  flex-wrap: wrap;
+  background: linear-gradient(0deg, #010913 0%, #182b3f 100%);
+  border: 2px solid rgb(107, 131, 157);
+  box-shadow: inset 0 0 3px 1px rgba(26, 62, 98, 0.75);
+  border-radius: 5px;
+  padding: 3px;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal.aram {
+  height: 100%;
+  top: -105%;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal.visible {
+  display: flex;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal .spell {
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+  transition: filter ease-in-out 200ms;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal .spell:not(:nth-child(5n)) {
+  margin-right: 2px;
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal .spell:hover {
+  filter: brightness(1.25);
+}
+
+#champselect .main > .control .actions .spellselect .spellmodal .spell img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 5px;
+}
+
+#champselect .main > .control .actions .spellselect .spells {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 60%;
+  padding: 2.5px;
+}
+
+#champselect .main > .control .actions .spellselect .spells .spell {
+  height: 40px;
+  width: 40px;
+  border: 1px solid rgb(107, 131, 157);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-left: 5px;
+  cursor: pointer;
+  transition: filter ease-in-out 200ms;
+}
+
+#champselect .main > .control .actions .spellselect .spells .spell:hover {
+  filter: brightness(1.25);
+}
+
+#champselect .main > .control .actions .spellselect .spells .spell img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+#champselect .main > .control .actions .spellselect button {
+  background: linear-gradient(
+    180deg,
+    #3c73b4 0%,
+    #20477e 45%,
+    #1e3e6d 50%,
+    #0e284b 100%
+  );
+  outline: none;
+  border: none;
+  border-radius: 2px;
+  text-align: center;
+  border: 1px solid #304b69;
+  color: white;
+  padding: 5px 10px;
+  width: 97%;
+  margin: 0 auto;
+  font-family: LoLFont2;
+  transition: filter ease-in-out 200ms;
+  cursor: pointer;
+}
+
+#champselect .main > .control .actions .spellselect button:hover {
+  filter: brightness(1.25);
+}
+
+#champselect .main > .control .actions .spellselect .title {
+  position: absolute;
+  left: 7px;
+  top: 2px;
+  font-size: 12px;
+  font-family: LoLFont2;
+  color: #fe9800;
+  text-shadow: 0 0 3px #fe9800;
+  opacity: 0.85;
+}
+
+#champselect .main > .control .actions .lockin {
+  width: 36.5%;
+  height: 100%;
+  position: relative;
+}
+
+#champselect .main > .control .actions .lockin button {
+  background-image: url("../images/button-default.png");
+  background-size: 100% 100%;
+  font-family: LoLFont2;
+  font-size: 24px;
+  color: white;
+  text-align: center;
+  padding: 7px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 60%;
+  border-radius: 5px;
+  outline: none;
+  border: none;
+  position: absolute;
+  transition: filter ease-in-out 200ms;
+}
+
+#champselect .main > .control .actions .lockin button.banbtn {
+  background-color: rgb(199, 2, 2);
+  background-blend-mode: multiply;
+}
+
+#champselect .main > .control .actions .lockin button:disabled {
+  filter: grayscale(100%);
+}
+
+#champselect .main > .control .actions .lockin button:not(:disabled):hover {
+  filter: brightness(1.2);
+  cursor: pointer;
+}
+
+#champselect .main > .foot {
+  height: 25%;
+  width: 100%;
+  /* padding: 0 5px 0 10px; */
+}
+
+#champselect .main > .foot .inner {
+  display: flex;
+  flex-direction: column;
+}
+
+#champselect .main > .foot .inner .messages {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 80%;
+  padding: 0 3px;
+  overflow: auto;
+}
+
+#champselect .main > .foot .inner .messages .message {
+  display: flex;
+  width: 100%;
+  font-family: LoLFont2;
+  font-size: 13px;
+}
+
+#champselect .main > .foot .inner .messages .message .sender {
+  color: #4ca3c1;
+  margin-right: 5px;
+}
+
+#champselect .main > .foot .inner .input {
+  width: 100%;
+  height: 20%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+#champselect .main > .foot .inner .input input {
+  border: 1px solid #404549;
+  border-radius: 3px;
+  box-shadow: inset 0 0 5px 1px #1c2932;
+  width: 89.5%;
+  outline: none;
+}
+
+#champselect .main > .foot .inner .input button {
+  width: 10%;
+  background: linear-gradient(
+    180deg,
+    #3c73b4 0%,
+    #20477e 45%,
+    #1e3e6d 50%,
+    #0e284b 100%
+  );
+  outline: none;
+  border: none;
+  border-radius: 2px;
+  text-align: center;
+  border: 1px solid #304b69;
+  color: white;
+  font-family: LoLFont2;
+  transition: filter ease-in-out 200ms;
+  cursor: pointer;
+}
+
+/* LOLBLOCK */
+
+.lolblock {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(100, 117, 137, 0.75);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.lolblock .head {
+  height: 30px;
+  width: 100%;
+  font-size: 14px;
+  font-family: LoLFont2;
+  padding: 5px;
+  background-image: linear-gradient(
+    180deg,
+    #192e49 0%,
+    #192e49 40%,
+    #172b46 50%,
+    #142131 100%
+  );
+}
+
+.lolblock .inner {
+  background-color: rgba(5, 12, 20, 0.85);
+  width: 100%;
+  height: calc(100% - 30px);
+}
