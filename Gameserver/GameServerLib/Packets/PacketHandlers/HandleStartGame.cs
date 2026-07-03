@@ -1,4 +1,4 @@
-﻿using GameServerCore.Packets.PacketDefinitions.Requests;
+using GameServerCore.Packets.PacketDefinitions.Requests;
 using GameServerCore.Packets.Handlers;
 using LeaguePackets.Game.Events;
 using GameServerCore.NetInfo;
@@ -47,9 +47,15 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
         private void TryStart()
         {
             var players = _playerManager.GetPlayers(false);
+            var allPlayers = _playerManager.GetPlayers(true);
+            var botCount = allPlayers.Count(p => p.PlayerId == -1);
 
             bool isPossibleToStart;
-            if (_shouldStartAsSoonAsPossible)
+            if (botCount > 0)
+            {
+                isPossibleToStart = true;
+            }
+            else if (_shouldStartAsSoonAsPossible)
             {
                 isPossibleToStart = players.Any(p => !p.IsDisconnected);
             }

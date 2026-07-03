@@ -42,8 +42,9 @@ namespace Buffs
             var owner = daspell.CastInfo.Owner as Champion;
             Target = spell.CastInfo.Targets[0].Unit;
             var Elevel = owner.GetSpell("WujuStyle").CastInfo.SpellLevel;
-            var AD = owner.Stats.AttackDamage.Total * 0.35f;
-            var Damage = 30 + (10 * (Elevel - 1)) + AD;
+            var baseDamage = 10f + 5f * (Elevel - 1);
+            var adRatio = 0.10f + 0.025f * (Elevel - 1);
+            var Damage = baseDamage + owner.Stats.AttackDamage.Total * adRatio;
             Target.TakeDamage(owner, Damage, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_PERIODIC, false);
         }
 

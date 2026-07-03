@@ -1,7 +1,6 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
-using            GameServerLib.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
@@ -10,6 +9,7 @@ using GameServerCore.Scripting.CSharp;
 using System;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
@@ -31,26 +31,18 @@ namespace Buffs
             55f
         };
 
-        float[] flatArmorMod =
+        float[] damageReduction =
         {
-            100.0f,
-            150.0f,
-            200.0f,
-            250.0f,
-            300.0f
-        };
-
-        float[] flatSpellBlockMod =
-        {
-            100.0f,
-            150.0f,
-            200.0f,
-            250.0f,
-            300.0f
+            0.40f,
+            0.45f,
+            0.50f,
+            0.55f,
+            0.60f
         };
 
         ObjAIBase owner;
         float tickTime;
+        float elapsedTime;
         float trueHeal;
         int spellLevel;
         Particle buffParticle;
@@ -59,27 +51,28 @@ namespace Buffs
         {
             owner = ownerSpell.CastInfo.Owner;
             spellLevel = ownerSpell.CastInfo.SpellLevel - 1;
+            tickTime = 0f;
+            elapsedTime = 0f;
 
-            StatsModifier.Armor.FlatBonus = flatArmorMod[spellLevel];
-            StatsModifier.MagicResist.FlatBonus = flatSpellBlockMod[spellLevel];
-
-            owner.AddStatModifier(StatsModifier);
-
-            ApiEventManager.OnTakeDamage.AddListener(this, unit, TakeDamage, false);
+            ApiEventManager.OnPreTakeDamage.AddListener(this, unit, PreTakeDamage, false);
 
             buffParticle = AddParticleTarget(unit, unit, "masteryi_base_w_buf", unit, 4.0f, flags: 0);
         }
 
-        public void TakeDamage(DamageData dmg)
+        public void PreTakeDamage(DamageData dmg)
         {
-            var unit = dmg.Target;
-            AddParticleTarget(unit, unit, "masteryi_base_w_dmg", unit, flags: 0);
+            float reduction = damageReduction[spellLevel];
+            if (elapsedTime < 500.0f)
+            {
+                reduction = 0.90f;
+            }
+            dmg.PostMitigationDamage *= (1f - reduction);
         }
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             var missingHealthBonus = healthTick[spellLevel] * ((owner.Stats.HealthPoints.Total - owner.Stats.CurrentHealth) / owner.Stats.HealthPoints.Total);
-            var apBonus = owner.Stats.AbilityPower.Total * 0.3f;
+            var apBonus = owner.Stats.AbilityPower.Total * 0.15f;
             trueHeal = healthTick[spellLevel] + missingHealthBonus + apBonus;
 
             var newHealth = owner.Stats.CurrentHealth + trueHeal;
@@ -95,10 +88,12 @@ namespace Buffs
 
         public void OnUpdate(float diff)
         {
+            elapsedTime += diff;
+
             if (tickTime >= 500.0f)
             {
                 var missingHealthBonus = healthTick[spellLevel] * ((owner.Stats.HealthPoints.Total - owner.Stats.CurrentHealth) / owner.Stats.HealthPoints.Total);
-                var apBonus = owner.Stats.AbilityPower.Total * 0.3f;
+                var apBonus = owner.Stats.AbilityPower.Total * 0.15f;
                 trueHeal = healthTick[spellLevel] + missingHealthBonus + apBonus;
 
                 var newHealth = owner.Stats.CurrentHealth + trueHeal;

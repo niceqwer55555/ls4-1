@@ -52,8 +52,15 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner as Champion;
             var spellLevel = owner.GetSpell("AlphaStrike").CastInfo.SpellLevel;
-            var ADratio = owner.Stats.AttackDamage.Total * 0.9f;
-            var damage = -10 + 35 * spellLevel + ADratio;
+            var baseDamage = 20f + 20f * (spellLevel - 1);
+            var adRatio = owner.Stats.AttackDamage.Total * 0.7f;
+            var damage = baseDamage + adRatio;
+
+            if (target is Minion)
+            {
+                float[] extraDamage = { 60f, 85f, 110f, 135f, 160f };
+                damage += extraDamage[spellLevel - 1];
+            }
 
             AddParticleTarget(owner, target, "MasterYi_Base_Q_Tar.troy", target, 1f, 1f);
             AddParticleTarget(owner, target, ".MasterYi_Base_Q_Tar_Mark", target, 1f, 1f);

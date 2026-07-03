@@ -4,10 +4,11 @@ using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
 using GameServerCore.Scripting.CSharp;
 using System.Linq;
+using System.Collections.Generic;
+using System;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
-using LeagueSandbox.GameServer.Inventory;
 
 namespace AIScripts
 {
@@ -15,29 +16,142 @@ namespace AIScripts
     {
         public AIScriptMetaData AIScriptMetaData { get; set; } = new AIScriptMetaData();
         Champion champion;
-        float aiUpdateTimer = 0f;
-        float skillUseTimer = 0f;
-        float buyItemTimer = 0f;
-        const float AI_UPDATE_INTERVAL = 500f;
-        const float SKILL_USE_INTERVAL = 2000f;
-        const float BUY_ITEM_INTERVAL = 5000f;
+        List<Vector2> laneWaypoints;
+        int currentWaypoint = 0;
+        bool itemsBought = false;
+        bool retreating = false;
+        bool skillsLeveled = false;
+        float lastSpellCheckTime = 0f;
+        float stuckCheckTimer = 0f;
+        Vector2 lastPosition;
+        int stuckCounter = 0;
+        int laneOffset = 0;
+        Random random = new Random();
 
-        int[] startingItems = { 1036, 2003, 2003 };
-        int[] damageItems = { 3074, 3077, 3053, 3031, 3153, 3035 };
-        int[] tankItems = { 3065, 3022, 3068, 3043, 3006, 3092 };
-        int[] apItems = { 3003, 3027, 3116, 3089, 3100, 3124 };
-        int[] supportItems = { 3301, 3069, 3025, 3045, 3107, 3190 };
-
-        bool hasBoughtStartingItems = false;
-        bool hasReachedLane = false;
-        Vector2 laneDestination;
-        string laneRole;
+        const float DETECT_RANGE = 700.0f;
+        const float WAYPOINT_TOLERANCE = 300.0f;
+        const float RETREAT_HP_PERCENT = 0.25f;
+        const float SPELL_CHECK_INTERVAL = 1.5f;
+        const float STUCK_CHECK_INTERVAL = 2.0f;
+        const float STUCK_DISTANCE = 50f;
+        const float TURRET_DANGER_RANGE = 950.0f;
+        const float TURRET_SAFE_RANGE = 1100.0f;
 
         public void OnActivate(ObjAIBase owner)
         {
             champion = owner as Champion;
-            DetermineLaneRole();
-            SetLaneDestination();
+            lastPosition = champion.Position;
+            AssignLaneWaypoints();
+        }
+
+        void AssignLaneWaypoints()
+        {
+            string name = champion.Name;
+            bool isBlue = champion.Team == TeamId.TEAM_BLUE;
+
+            laneWaypoints = new List<Vector2>();
+            Vector2 basePos = isBlue ? new Vector2(0, 1000) : new Vector2(13300, 14600);
+
+            bool isTopLaner = name.Contains("Top") || name.Contains("Jungle");
+            bool isMidLaner = name.Contains("Mid");
+            bool isBotLaner = name.Contains("ADC") || name.Contains("Support");
+
+            if (isTopLaner)
+            {
+                laneOffset = name.Contains("Jungle") ? 1 : 0;
+
+                if (isBlue)
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(800, 6500));
+                    laneWaypoints.Add(new Vector2(575, 10220));
+                    laneWaypoints.Add(new Vector2(2000, 12000));
+                    laneWaypoints.Add(new Vector2(3912, 13655));
+                }
+                else
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(12500, 8000));
+                    laneWaypoints.Add(new Vector2(9700, 12500));
+                    laneWaypoints.Add(new Vector2(5900, 12500));
+                    laneWaypoints.Add(new Vector2(3912, 13655));
+                }
+            }
+            else if (isMidLaner)
+            {
+                if (isBlue)
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(3000, 3500));
+                    laneWaypoints.Add(new Vector2(5448, 6169));
+                    laneWaypoints.Add(new Vector2(7000, 7000));
+                    laneWaypoints.Add(new Vector2(8549, 8289));
+                }
+                else
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(11000, 10000));
+                    laneWaypoints.Add(new Vector2(8549, 8289));
+                    laneWaypoints.Add(new Vector2(7000, 7000));
+                    laneWaypoints.Add(new Vector2(5448, 6169));
+                }
+            }
+            else if (isBotLaner)
+            {
+                laneOffset = name.Contains("Support") ? 1 : 0;
+
+                if (isBlue)
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(6500, 1263));
+                    laneWaypoints.Add(new Vector2(10098, 809));
+                    laneWaypoints.Add(new Vector2(11500, 2500));
+                    laneWaypoints.Add(new Vector2(13460, 4284));
+                }
+                else
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(7500, 13500));
+                    laneWaypoints.Add(new Vector2(4284, 13460));
+                    laneWaypoints.Add(new Vector2(2500, 11500));
+                    laneWaypoints.Add(new Vector2(809, 10098));
+                }
+            }
+            else
+            {
+                if (isBlue)
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(3000, 3500));
+                    laneWaypoints.Add(new Vector2(5448, 6169));
+                }
+                else
+                {
+                    laneWaypoints.Add(basePos);
+                    laneWaypoints.Add(new Vector2(11000, 10000));
+                    laneWaypoints.Add(new Vector2(8549, 8289));
+                }
+            }
+
+            currentWaypoint = 1;
+        }
+
+        Vector2 ApplyLaneOffset(Vector2 target)
+        {
+            if (laneOffset == 0)
+            {
+                return target;
+            }
+
+            Vector2 toTarget = target - champion.Position;
+            if (toTarget.LengthSquared() < 1f)
+            {
+                return target;
+            }
+
+            Vector2 perpendicular = new Vector2(-toTarget.Y, toTarget.X);
+            perpendicular = Vector2.Normalize(perpendicular);
+            return target + perpendicular * 150f;
         }
 
         public void OnUpdate(float diff)
@@ -47,249 +161,459 @@ namespace AIScripts
                 return;
             }
 
-            aiUpdateTimer += diff;
-            skillUseTimer += diff;
-            buyItemTimer += diff;
-
-            if (aiUpdateTimer >= AI_UPDATE_INTERVAL)
+            if (!itemsBought)
             {
-                aiUpdateTimer = 0;
-                UpdateAI();
+                BuyStartingItems();
             }
 
-            if (skillUseTimer >= SKILL_USE_INTERVAL)
+            if (!skillsLeveled && champion.Stats.Level >= 1)
             {
-                skillUseTimer = 0;
-                TryUseSkills();
+                LevelUpStartingSkill();
             }
 
-            if (buyItemTimer >= BUY_ITEM_INTERVAL)
+            if (champion.IsAIPaused())
             {
-                buyItemTimer = 0;
-                TryBuyItems();
-            }
-        }
-
-        private void DetermineLaneRole()
-        {
-            string playerName = champion.Name;
-            
-            if (playerName.Contains("Top"))
-            {
-                laneRole = "Top";
-            }
-            else if (playerName.Contains("Mid"))
-            {
-                laneRole = "Mid";
-            }
-            else if (playerName.Contains("ADC"))
-            {
-                laneRole = "ADC";
-            }
-            else if (playerName.Contains("Support"))
-            {
-                laneRole = "Support";
-            }
-            else if (playerName.Contains("Jungle"))
-            {
-                laneRole = "Jungle";
-            }
-            else
-            {
-                laneRole = "Mid";
-            }
-        }
-
-        private void SetLaneDestination()
-        {
-            bool isBlueTeam = champion.Team == TeamId.TEAM_BLUE;
-
-            switch (laneRole)
-            {
-                case "Top":
-                    laneDestination = isBlueTeam ? new Vector2(3800f, 10500f) : new Vector2(10000f, 3000f);
-                    break;
-                case "Mid":
-                    laneDestination = isBlueTeam ? new Vector2(6000f, 8000f) : new Vector2(7800f, 5800f);
-                    break;
-                case "ADC":
-                case "Support":
-                    laneDestination = isBlueTeam ? new Vector2(8500f, 4500f) : new Vector2(5300f, 9300f);
-                    break;
-                case "Jungle":
-                    laneDestination = isBlueTeam ? new Vector2(5500f, 6500f) : new Vector2(8300f, 7300f);
-                    break;
-                default:
-                    laneDestination = isBlueTeam ? new Vector2(6000f, 8000f) : new Vector2(7800f, 5800f);
-                    break;
-            }
-        }
-
-        private void UpdateAI()
-        {
-            if (!hasReachedLane)
-            {
-                MoveToLane();
                 return;
             }
 
-            if (champion.TargetUnit == null || champion.TargetUnit.IsDead)
+            lastSpellCheckTime += diff / 1000f;
+            stuckCheckTimer += diff / 1000f;
+
+            UpdateBehavior(diff);
+        }
+
+        void BuyStartingItems()
+        {
+            itemsBought = true;
+            champion.AddGold(null, 1000, false);
+
+            string name = champion.Name;
+            var items = GetRecommendedItems(name);
+            foreach (var itemId in items)
             {
-                FindTarget();
+                champion.Shop.HandleItemBuyRequest(itemId);
+            }
+        }
+
+        List<int> GetRecommendedItems(string championName)
+        {
+            if (championName.Contains("Top"))
+            {
+                return new List<int> { 1055, 2003, 3340 };
+            }
+            if (championName.Contains("Jungle"))
+            {
+                return new List<int> { 1039, 2003, 3340 };
+            }
+            if (championName.Contains("Mid"))
+            {
+                return new List<int> { 1056, 2003, 3340 };
+            }
+            if (championName.Contains("ADC"))
+            {
+                return new List<int> { 1055, 2003, 3340 };
+            }
+            if (championName.Contains("Support"))
+            {
+                return new List<int> { 1054, 2003, 3340 };
+            }
+            return new List<int> { 1055, 2003 };
+        }
+
+        void LevelUpStartingSkill()
+        {
+            skillsLeveled = true;
+            byte skillSlot = 0;
+            string name = champion.Name;
+
+            if (name.Contains("Top"))
+            {
+                skillSlot = 0;
+            }
+            else if (name.Contains("Mid"))
+            {
+                skillSlot = 0;
+            }
+            else if (name.Contains("ADC"))
+            {
+                skillSlot = 1;
+            }
+            else if (name.Contains("Support"))
+            {
+                skillSlot = 2;
+            }
+            else if (name.Contains("Jungle"))
+            {
+                skillSlot = 2;
             }
             else
             {
-                float range = champion.Stats.Range.Total * champion.Stats.Range.Total * 2;
-                if (Vector2.DistanceSquared(champion.Position, champion.TargetUnit.Position) > range)
+                skillSlot = 0;
+            }
+
+            if (champion.Spells.ContainsKey(skillSlot))
+            {
+                champion.LevelUpSpell(skillSlot);
+            }
+        }
+
+        void UpdateBehavior(float diff)
+        {
+            float hpPercent = champion.Stats.CurrentHealth / champion.Stats.HealthPoints.Total;
+
+            if (hpPercent < RETREAT_HP_PERCENT)
+            {
+                retreating = true;
+                RetreatToBase();
+                return;
+            }
+
+            if (retreating && hpPercent > 0.9f)
+            {
+                retreating = false;
+                currentWaypoint = 1;
+            }
+
+            if (retreating)
+            {
+                RetreatToBase();
+                return;
+            }
+
+            if (IsInEnemyTurretRange(champion.Position))
+            {
+                RetreatFromTurret();
+                return;
+            }
+
+            if (ScanForTargets())
+            {
+                KeepFocusingTarget();
+                TryCastSpells();
+                return;
+            }
+
+            MoveAlongLane(diff);
+        }
+
+        bool IsInEnemyTurretRange(Vector2 position)
+        {
+            var nearbyUnits = GetUnitsInRange(position, TURRET_DANGER_RANGE, true);
+            foreach (var unit in nearbyUnits)
+            {
+                if (unit is BaseTurret turret
+                    && !turret.IsDead
+                    && turret.Team != champion.Team)
                 {
-                    champion.SetTargetUnit(null, true);
-                    FindTarget();
+                    float turretRange = turret.Stats.Range.Total;
+                    if (Vector2.Distance(position, turret.Position) < turretRange + 50f)
+                    {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
 
-        private void MoveToLane()
+        bool IsTargetInEnemyTurretRange(Vector2 target)
         {
-            float distance = Vector2.Distance(champion.Position, laneDestination);
-            
-            if (distance < 500f)
+            return IsInEnemyTurretRange(target);
+        }
+
+        void RetreatFromTurret()
+        {
+            BaseTurret nearestTurret = null;
+            float nearestDist = float.MaxValue;
+
+            var nearbyUnits = GetUnitsInRange(champion.Position, TURRET_SAFE_RANGE, true);
+            foreach (var unit in nearbyUnits)
             {
-                hasReachedLane = true;
+                if (unit is BaseTurret turret
+                    && !turret.IsDead
+                    && turret.Team != champion.Team)
+                {
+                    float dist = Vector2.Distance(champion.Position, turret.Position);
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearestTurret = turret;
+                    }
+                }
+            }
+
+            if (nearestTurret == null)
+            {
                 return;
             }
 
+            Vector2 away = champion.Position - nearestTurret.Position;
+            if (away.LengthSquared() < 1f)
+            {
+                away = champion.Team == TeamId.TEAM_BLUE
+                    ? new Vector2(-1, -1)
+                    : new Vector2(1, 1);
+            }
+            away = Vector2.Normalize(away);
+            Vector2 safePos = champion.Position + away * 300f;
+
+            var path = GetPath(champion.Position, safePos);
+            if (path != null && path.Count > 1)
+            {
+                champion.SetWaypoints(path);
+            }
+            else
+            {
+                champion.SetWaypoints(new List<Vector2> { champion.Position, safePos });
+            }
+            champion.UpdateMoveOrder(OrderType.MoveTo, true);
+            champion.CancelAutoAttack(false, true);
             champion.SetTargetUnit(null, true);
-            champion.SetWaypoints(new System.Collections.Generic.List<Vector2> { laneDestination });
+        }
+
+        bool ScanForTargets()
+        {
+            if (champion.TargetUnit != null && !champion.TargetUnit.IsDead)
+            {
+                if (IsTargetInEnemyTurretRange(champion.TargetUnit.Position))
+                {
+                    champion.CancelAutoAttack(false, true);
+                    champion.SetTargetUnit(null, true);
+                    return false;
+                }
+                return true;
+            }
+
+            AttackableUnit nextTarget = null;
+            var nextTargetPriority = 14;
+            var nearbyUnits = GetUnitsInRange(champion.Position, DETECT_RANGE, true);
+
+            foreach (var unit in nearbyUnits.OrderBy(x => Vector2.DistanceSquared(champion.Position, x.Position)))
+            {
+                if (!(unit is AttackableUnit u)
+                    || u.IsDead
+                    || u.Team == champion.Team
+                    || !u.IsVisibleByTeam(champion.Team)
+                    || !u.Status.HasFlag(StatusFlags.Targetable))
+                {
+                    continue;
+                }
+
+                if (u is BaseTurret && IsInEnemyTurretRange(u.Position))
+                {
+                    continue;
+                }
+
+                var priority = (int)champion.ClassifyTarget(u);
+                if (priority < nextTargetPriority)
+                {
+                    nextTarget = u;
+                    nextTargetPriority = priority;
+                }
+            }
+
+            if (nextTarget != null)
+            {
+                champion.SetTargetUnit(nextTarget, true);
+                return true;
+            }
+
+            return false;
+        }
+
+        void KeepFocusingTarget()
+        {
+            var target = champion.TargetUnit;
+            if (target == null || target.IsDead)
+            {
+                champion.CancelAutoAttack(false, true);
+                champion.SetTargetUnit(null, true);
+                return;
+            }
+        }
+
+        void TryCastSpells()
+        {
+            if (lastSpellCheckTime < SPELL_CHECK_INTERVAL)
+            {
+                return;
+            }
+            lastSpellCheckTime = 0f;
+
+            var target = champion.TargetUnit;
+            if (target == null || target.IsDead)
+            {
+                return;
+            }
+
+            float distance = Vector2.Distance(champion.Position, target.Position);
+
+            for (byte i = 0; i < 4; i++)
+            {
+                if (!champion.Spells.ContainsKey(i))
+                {
+                    continue;
+                }
+
+                var spell = champion.Spells[i];
+                if (spell == null)
+                {
+                    continue;
+                }
+
+                if (spell.CastInfo.SpellLevel <= 0)
+                {
+                    continue;
+                }
+
+                if (spell.CurrentCooldown > 0)
+                {
+                    continue;
+                }
+
+                float range = spell.GetCurrentCastRange();
+                if (range <= 0 || distance > range)
+                {
+                    continue;
+                }
+
+                var targetingType = spell.SpellData.TargetingType;
+                if (targetingType == TargetingType.Self || targetingType == TargetingType.SelfAOE)
+                {
+                    continue;
+                }
+
+                CastSpell(spell, target);
+                return;
+            }
+        }
+
+        void CastSpell(Spell spell, AttackableUnit target)
+        {
+            var castInfo = spell.CastInfo;
+            castInfo.Targets.Clear();
+            castInfo.AddTarget(target);
+
+            spell.Cast(champion.Position, target.Position, target);
+        }
+
+        void MoveAlongLane(float diff)
+        {
+            if (currentWaypoint >= laneWaypoints.Count)
+            {
+                currentWaypoint = laneWaypoints.Count - 1;
+            }
+
+            Vector2 target = laneWaypoints[currentWaypoint];
+            target = ApplyLaneOffset(target);
+            float distance = Vector2.Distance(champion.Position, target);
+
+            if (distance < WAYPOINT_TOLERANCE && currentWaypoint < laneWaypoints.Count - 1)
+            {
+                currentWaypoint++;
+                target = ApplyLaneOffset(laneWaypoints[currentWaypoint]);
+                stuckCounter = 0;
+            }
+
+            if (IsTargetInEnemyTurretRange(target))
+            {
+                Vector2 retreatDir = champion.Team == TeamId.TEAM_BLUE
+                    ? new Vector2(-1, -1)
+                    : new Vector2(1, 1);
+                retreatDir = Vector2.Normalize(retreatDir);
+                Vector2 safeTarget = target + retreatDir * 400f;
+
+                var path = GetPath(champion.Position, safeTarget);
+                if (path != null && path.Count > 1)
+                {
+                    champion.SetWaypoints(path);
+                }
+                else
+                {
+                    champion.SetWaypoints(new List<Vector2> { champion.Position, safeTarget });
+                }
+                champion.UpdateMoveOrder(OrderType.MoveTo, true);
+                return;
+            }
+
+            CheckStuck(diff);
+
+            var movePath = GetPath(champion.Position, target);
+            if (movePath != null && movePath.Count > 1)
+            {
+                champion.SetWaypoints(movePath);
+            }
+            else
+            {
+                champion.SetWaypoints(new List<Vector2> { champion.Position, target });
+            }
             champion.UpdateMoveOrder(OrderType.MoveTo, true);
         }
 
-        private void FindTarget()
+        void CheckStuck(float diff)
         {
-            float acquisitionRange = champion.Stats.AcquisitionRange.Total;
-            var nearestObjects = GetUnitsInRange(champion.Position, acquisitionRange, true);
-
-            AttackableUnit bestTarget = null;
-            float bestDistance = float.MaxValue;
-
-            foreach (var obj in nearestObjects)
-            {
-                if (obj is AttackableUnit unit &&
-                    !unit.IsDead &&
-                    unit.Team != champion.Team &&
-                    unit.IsVisibleByTeam(champion.Team) &&
-                    unit.Status.HasFlag(StatusFlags.Targetable))
-                {
-                    float distance = Vector2.DistanceSquared(champion.Position, unit.Position);
-                    if (distance < bestDistance)
-                    {
-                        bestDistance = distance;
-                        bestTarget = unit;
-                    }
-                }
-            }
-
-            if (bestTarget != null)
-            {
-                champion.SetTargetUnit(bestTarget, true);
-                champion.UpdateMoveOrder(OrderType.AttackTo, true);
-            }
-        }
-
-        private void TryUseSkills()
-        {
-            if (champion.TargetUnit == null || champion.TargetUnit.IsDead)
+            if (stuckCheckTimer < STUCK_CHECK_INTERVAL)
             {
                 return;
             }
+            stuckCheckTimer = 0f;
 
-            for (int i = 0; i < 4; i++)
+            float moveDist = Vector2.Distance(champion.Position, lastPosition);
+            if (moveDist < STUCK_DISTANCE)
             {
-                Spell spell;
-                if (champion.Spells.TryGetValue((short)i, out spell))
+                stuckCounter++;
+            }
+            else
+            {
+                stuckCounter = 0;
+            }
+            lastPosition = champion.Position;
+
+            if (stuckCounter >= 3)
+            {
+                stuckCounter = 0;
+                Vector2 randDir = new Vector2(
+                    (float)(random.NextDouble() * 2 - 1),
+                    (float)(random.NextDouble() * 2 - 1)
+                );
+                randDir = Vector2.Normalize(randDir);
+                Vector2 bypassPos = champion.Position + randDir * 200f;
+
+                var bypassPath = GetPath(champion.Position, bypassPos);
+                if (bypassPath != null && bypassPath.Count > 1)
                 {
-                    if (spell.CurrentCooldown <= 0 &&
-                        champion.Stats.CurrentMana >= spell.CastInfo.ManaCost &&
-                        CanCastSpellOnTarget(spell, champion.TargetUnit))
-                    {
-                        SpellCast(champion, i, SpellSlotType.SpellSlots, false, champion.TargetUnit, Vector2.Zero);
-                        break;
-                    }
+                    champion.SetWaypoints(bypassPath);
+                }
+                else
+                {
+                    champion.SetWaypoints(new List<Vector2> { champion.Position, bypassPos });
+                }
+                champion.UpdateMoveOrder(OrderType.MoveTo, true);
+
+                if (currentWaypoint < laneWaypoints.Count - 1)
+                {
+                    currentWaypoint++;
                 }
             }
         }
 
-        private bool CanCastSpellOnTarget(Spell spell, AttackableUnit target)
+        void RetreatToBase()
         {
-            float castRange = spell.SpellData.CastRange[0];
-            if (castRange == 0)
-            {
-                castRange = champion.Stats.Range.Total;
-            }
+            Vector2 basePos = champion.Team == TeamId.TEAM_BLUE
+                ? new Vector2(0, 1000)
+                : new Vector2(13300, 14600);
 
-            return Vector2.DistanceSquared(champion.Position, target.Position) <= castRange * castRange;
-        }
-
-        private void TryBuyItems()
-        {
-            if (!hasBoughtStartingItems)
+            var path = GetPath(champion.Position, basePos);
+            if (path != null && path.Count > 1)
             {
-                foreach (int itemId in startingItems)
-                {
-                    if (champion.Stats.Gold >= GetItemPrice(itemId))
-                    {
-                        champion.Shop.HandleItemBuyRequest(itemId);
-                    }
-                }
-                hasBoughtStartingItems = true;
-                return;
+                champion.SetWaypoints(path);
             }
-
-            int[] itemList = GetItemListForChampion();
-            
-            foreach (int itemId in itemList)
+            else
             {
-                float price = GetItemPrice(itemId);
-                if (champion.Stats.Gold >= price)
-                {
-                    champion.Shop.HandleItemBuyRequest(itemId);
-                    return;
-                }
+                champion.SetWaypoints(new List<Vector2> { champion.Position, basePos });
             }
-        }
-
-        private float GetItemPrice(int itemId)
-        {
-            var itemData = GetItemData(itemId);
-            return itemData?.TotalPrice ?? float.MaxValue;
-        }
-
-        private int[] GetItemListForChampion()
-        {
-            string championName = champion.Name;
-            
-            string[] adChampions = { "MasterYi", "LeeSin", "Darius", "JarvanIV", "Zed" };
-            string[] apChampions = { "Ahri" };
-            string[] adcChampions = { "Ezreal", "Caitlyn" };
-            string[] supportChampions = { "Sona", "Thresh" };
-
-            if (adChampions.Contains(championName))
-            {
-                return damageItems;
-            }
-            if (apChampions.Contains(championName))
-            {
-                return apItems;
-            }
-            if (adcChampions.Contains(championName))
-            {
-                return damageItems;
-            }
-            if (supportChampions.Contains(championName))
-            {
-                return supportItems;
-            }
-
-            return damageItems;
+            champion.UpdateMoveOrder(OrderType.MoveTo, true);
+            champion.CancelAutoAttack(false, true);
+            champion.SetTargetUnit(null, true);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 
 namespace GameServerCore.NetInfo
@@ -53,8 +53,8 @@ namespace GameServerCore.NetInfo
             Name = name;
             SummonerSkills = summonerSkills;
             PlayerId = playerId;
-            IsDisconnected = true;
-            IsStartedClient = false;
+            IsDisconnected = playerId != -1;
+            IsStartedClient = playerId == -1;
         }
     }
 }

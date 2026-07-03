@@ -1,4 +1,4 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using GameServerCore.Packets.Handlers;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Chatbox;
@@ -293,11 +293,17 @@ namespace LeagueSandbox.GameServer
 
         public bool CheckIfAllPlayersLeft()
         {
+            var allPlayers = PlayerManager.GetPlayers(true);
+            var botCount = allPlayers.Count(p => p.PlayerId == -1);
+            if (botCount > 0)
+            {
+                return false;
+            }
+
             var players = PlayerManager.GetPlayers(false);
-            // The number of those who are disconnected and not even loads.
             var count = players.Count(p => !p.IsStartedClient && p.IsDisconnected);
             Console.WriteLine($"The number of disconnected players {count}/{players.Count}");
-            if (count == players.Count)
+            if (count == players.Count && players.Count > 0)
             {
                 _logger.Info("All players have left the server. Server exit.");
                 SetToExit = true;
