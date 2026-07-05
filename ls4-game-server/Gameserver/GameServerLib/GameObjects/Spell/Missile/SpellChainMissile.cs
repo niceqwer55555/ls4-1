@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using GameServerCore.Enums;
@@ -75,12 +75,12 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS.Missile
             // Targeted Spell (including auto attack spells)
             if (SpellOrigin != null)
             {
-                SpellOrigin.ApplyEffects(TargetUnit, this);
+                SpellOrigin.ApplyEffects(unit, this);
             }
 
-            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack)
+            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack && unit != null)
             {
-                ai.AutoAttackHit(TargetUnit);
+                ai.AutoAttackHit(unit);
             }
 
             if (!GetNextTarget())

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -185,7 +185,7 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS.Sector
                 SpellOrigin.ApplyEffects(unit, null, this);
             }
 
-            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack)
+            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack && unit != null)
             {
                 ai.AutoAttackHit(unit);
             }

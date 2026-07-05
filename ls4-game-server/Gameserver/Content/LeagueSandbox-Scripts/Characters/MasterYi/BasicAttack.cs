@@ -1,4 +1,4 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;

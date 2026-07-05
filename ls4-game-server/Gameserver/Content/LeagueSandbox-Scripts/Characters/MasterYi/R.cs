@@ -17,7 +17,8 @@ namespace Spells
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            AddBuff("Highlander", 10.0f, 1, spell, owner, owner);
+            float duration = 10f + (spell.CastInfo.SpellLevel - 1) * 5f;
+            AddBuff("Highlander", duration, 1, spell, owner, owner);
         }
     }
 }

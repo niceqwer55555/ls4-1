@@ -185,7 +185,15 @@ namespace AIScripts
         void HandleShopState()
         {
             TryBuyItems();
-            if (buildIndex >= buildOrder.Count)
+            float hpPercent = GetHealthPercent();
+            float manaPercent = GetManaPercent();
+            bool canAffordNextItem = buildIndex >= buildOrder.Count;
+            if (!canAffordNextItem)
+            {
+                var itemData = GetItemData(buildOrder[buildIndex]);
+                canAffordNextItem = itemData != null && champion.Stats.Gold >= itemData.TotalPrice;
+            }
+            if (hpPercent > 0.95f && manaPercent > 0.95f)
             {
                 currentState = BotState.Laning;
             }

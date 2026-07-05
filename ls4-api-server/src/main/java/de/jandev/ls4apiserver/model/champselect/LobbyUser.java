@@ -24,9 +24,9 @@ public class LobbyUser {
 
     private boolean lockedIn;
 
-    private SummonerSpell spell1 = SummonerSpell.SUMMONER_HEAL;
+    private SummonerSpell spell1 = SummonerSpell.SUMMONER_FLASH;
 
-    private SummonerSpell spell2 = SummonerSpell.SUMMONER_FLASH;
+    private SummonerSpell spell2 = SummonerSpell.SUMMONER_TELEPORT;
 
     private boolean visibleToEnemy;
 

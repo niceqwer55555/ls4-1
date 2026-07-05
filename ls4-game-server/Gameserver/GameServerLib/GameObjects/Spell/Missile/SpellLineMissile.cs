@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using GameServerCore.Enums;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -129,9 +129,9 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS.Missile
                 SpellOrigin.ApplyEffects(unit, this);
             }
 
-            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack)
+            if (CastInfo.Owner is ObjAIBase ai && SpellOrigin.CastInfo.IsAutoAttack && unit != null)
             {
-                ai.AutoAttackHit(TargetUnit);
+                ai.AutoAttackHit(unit);
             }
         }
 

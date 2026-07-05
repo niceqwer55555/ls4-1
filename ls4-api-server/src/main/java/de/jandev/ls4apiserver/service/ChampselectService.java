@@ -63,7 +63,7 @@ public class ChampselectService {
     public void setupLobby(GameLobby gameLobby) {
         var lobbyType = gameLobby.getLobbyType();
 
-        if (lobbyType == LobbyType.SUMMONERS_RIFT_DRAFT || lobbyType == LobbyType.TWISTED_TREELINE_DRAFT) {
+        if (lobbyType == LobbyType.SUMMONERS_RIFT_DRAFT || lobbyType == LobbyType.TWISTED_TREELINE_DRAFT || lobbyType == LobbyType.ODIN_DRAFT) {
             gameLobby.setMaxBansTeam1(lobbyType.getMaxBans());
             gameLobby.setMaxBansTeam2(lobbyType.getMaxBans());
 
@@ -79,7 +79,7 @@ public class ChampselectService {
             if (gameLobby.getTeam2().isEmpty()) {
                 gameLobby.setMaxBansTeam2(0);
             }
-        } else if (lobbyType == LobbyType.SUMMONERS_RIFT_BLIND || lobbyType == LobbyType.TWISTED_TREELINE_BLIND) {
+        } else if (lobbyType == LobbyType.SUMMONERS_RIFT_BLIND || lobbyType == LobbyType.TWISTED_TREELINE_BLIND || lobbyType == LobbyType.ODIN_BLIND) {
             gameLobby.setLobbyPhase(LobbyPhase.PICK_BLIND);
             gameLobby.setMaxBansTeam1(0);
             gameLobby.setMaxBansTeam2(0);

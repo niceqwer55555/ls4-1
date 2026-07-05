@@ -7,7 +7,7 @@ if %errorlevel% equ 0 (
     echo.
     echo Build successful!
     echo Copying jar to server directory...
-    xcopy "target\ls4-api-server-0.0.1-SNAPSHOT.jar" "server\" /Y /I
+    xcopy "target\*" "server\" /Y /I
     if %errorlevel% equ 0 (
         echo Copy successful!
     ) else (

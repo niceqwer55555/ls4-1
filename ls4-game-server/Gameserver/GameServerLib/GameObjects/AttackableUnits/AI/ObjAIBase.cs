@@ -268,6 +268,10 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
         /// </summary>
         public virtual void AutoAttackHit(AttackableUnit target)
         {
+            if (target == null)
+            {
+                return;
+            }
             var damage = Stats.AttackDamage.Total;
             if (IsNextAutoCrit)
             {

@@ -1,4 +1,4 @@
-﻿using GameServerCore.Packets.PacketDefinitions.Requests;
+using GameServerCore.Packets.PacketDefinitions.Requests;
 using GameServerCore.Packets.Handlers;
 using LeagueSandbox.GameServer.Logging;
 using log4net;

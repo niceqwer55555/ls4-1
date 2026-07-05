@@ -29,6 +29,8 @@ function setMapByLobbyType(type) {
             break;
         case "ODIN_BLIND":
         case "ODIN_DRAFT":
+        case "ODIN_BOT_BLIND":
+        case "ODIN_BOT_DRAFT":
             map = 8;
             break;
         case "TWISTED_TREELINE_BLIND":

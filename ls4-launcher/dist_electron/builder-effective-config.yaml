@@ -1,0 +1,15 @@
+directories:
+  output: dist_electron
+  buildResources: build
+  app: dist_electron/bundled
+files:
+  - filter:
+      - '**'
+extends: null
+appId: com.leagues4.launcher
+productName: LeagueS4 Launcher
+copyright: Copyright (C) 2020  LeagueS4
+publish:
+  - provider: generic
+    url: https://git.jandev.de
+electronVersion: 13.6.9

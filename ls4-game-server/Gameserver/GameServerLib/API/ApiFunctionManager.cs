@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -1115,6 +1115,11 @@ namespace LeagueSandbox.GameServer.API
         public static void StopTargetingUnit(AttackableUnit unit)
         {
             _game.ObjectManager.StopTargeting(unit);
+        }
+
+        public static int GetMapId()
+        {
+            return _game.Map.Id;
         }
 
         public static Pet CreatePet

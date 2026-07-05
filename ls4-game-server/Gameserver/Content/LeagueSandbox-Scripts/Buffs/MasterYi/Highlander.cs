@@ -46,11 +46,11 @@ namespace Buffs
                 owner.GetSpell("AlphaStrike").SetCooldown(0);
                 owner.GetSpell("Meditate").SetCooldown(0);
                 owner.GetSpell("WujuStyle").SetCooldown(0);
-                RefreshBuffDuration();
+                ExtendBuffDuration();
             }
         }
 
-        public void RefreshBuffDuration()
+        public void ExtendBuffDuration()
         {
             if (thisBuff != null)
             {
