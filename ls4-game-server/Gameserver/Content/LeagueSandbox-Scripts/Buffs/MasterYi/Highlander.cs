@@ -61,6 +61,7 @@ namespace Buffs
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             ApiEventManager.OnKill.RemoveListener(this);
+            unit.RemoveStatModifier(StatsModifier);
             RemoveParticle(highlander);
         }
     }

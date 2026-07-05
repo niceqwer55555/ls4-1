@@ -16,10 +16,13 @@ public class LobbyUserEnemyOut {
 
     private boolean lockedIn;
 
+    private String summonerName;
+
     public LobbyUserEnemyOut(LobbyUser lobbyUser, boolean withChampion) {
         if (withChampion && lobbyUser.getSelectedChampion() != null) {
             this.selectedChampion = new ChampionOut(lobbyUser.getSelectedChampion());
         }
         this.lockedIn = lobbyUser.isLockedIn();
+        this.summonerName = lobbyUser.getUser().getSummonerName();
     }
 }

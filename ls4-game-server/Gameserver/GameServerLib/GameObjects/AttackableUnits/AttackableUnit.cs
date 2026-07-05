@@ -212,15 +212,21 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
                 // Reevaluate our current path to account for the starting position being changed.
                 if (repath)
                 {
-                    Vector2 safeExit = _game.Map.NavigationGrid.GetClosestTerrainExit(Waypoints.Last(), PathfindingRadius);
-                    List<Vector2> safePath = _game.Map.PathingHandler.GetPath(Position, safeExit, PathfindingRadius);
+                    Vector2 safeExit = _game.Map.NavigationGrid.GetClosestTerrainExit(vec, PathfindingRadius);
+                    Vector2 target = PathHasTrueEnd ? PathTrueEnd : (Waypoints.Count > 0 ? Waypoints.Last() : vec);
+                    List<Vector2> recoveryPath = _game.Map.PathingHandler.GetPath(Position, target, PathfindingRadius);
+
+                    if (recoveryPath == null || recoveryPath.Count <= 1)
+                    {
+                        recoveryPath = _game.Map.PathingHandler.GetPath(Position, safeExit, PathfindingRadius);
+                    }
 
                     // TODO: When using this safePath, sometimes we collide with the terrain again, so we use an unsafe path the next collision, however,
                     // sometimes we collide again before we can finish the unsafe path, so we end up looping collisions between safe and unsafe paths, never actually escaping (ex: sharp corners).
                     // This is a more fundamental issue where the pathfinding should be taking into account collision radius, rather than simply pathing from center of an object.
-                    if (safePath != null)
+                    if (recoveryPath != null && recoveryPath.Count > 1)
                     {
-                        SetWaypoints(safePath);
+                        SetWaypoints(recoveryPath);
                     }
                     else
                     {
@@ -277,8 +283,10 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         /// <param name="isTerrain">Whether or not this AI collided with terrain.</param>
         public override void OnCollision(GameObject collider, bool isTerrain = false)
         {
-            // We do not want to teleport out of missiles, sectors, owned regions, or buildings. Buildings in particular are already baked into the Navigation Grid.
-            if (collider is SpellMissile || collider is SpellSector || collider is ObjBuilding || (collider is Region region && region.CollisionUnit == this))
+            // We do not want to teleport out of missiles, sectors, or owned regions. Buildings are usually baked into the Navigation Grid
+            // and thus ignored, BUT units that end up inside a spawn/fountain building should be rescued (teleported out).
+            bool isBuilding = collider is ObjBuilding;
+            if (collider is SpellMissile || collider is SpellSector || (isBuilding == true && !IsInSpawnArea()) || (collider is Region region && region.CollisionUnit == this))
             {
                 return;
             }
@@ -314,9 +322,29 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
                 {
                     exit = _game.Map.NavigationGrid.GetClosestTerrainExit(exit, PathfindingRadius + 1.0f);
                 }
-                SetPosition(exit, false);
+                SetPosition(exit, true);
             }
         }
+
+            private bool IsInSpawnArea()
+            {
+                try
+                {
+                    var regen = GlobalData.SpawnPointVariables.RegenRadius;
+                    var r2 = regen * regen;
+                    var pos = Position;
+                    var mapScript = _game.Map.MapScript;
+                    var blue = mapScript.GetFountainPosition(TeamId.TEAM_BLUE);
+                    var purple = mapScript.GetFountainPosition(TeamId.TEAM_PURPLE);
+                    if (Vector2.DistanceSquared(pos, blue) <= r2) return true;
+                    if (Vector2.DistanceSquared(pos, purple) <= r2) return true;
+                }
+                catch
+                {
+                    // If any errors occur (map doesn't implement fountains), default to false.
+                }
+                return false;
+            }
 
         public override void Sync(int userId, TeamId team, bool visible, bool forceSpawn = false)
         {

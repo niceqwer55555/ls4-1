@@ -1,6 +1,7 @@
 package de.jandev.ls4apiserver.model.champselect;
 
 import de.jandev.ls4apiserver.model.collection.champion.Champion;
+import de.jandev.ls4apiserver.model.lobby.LobbyBot;
 import de.jandev.ls4apiserver.model.lobby.LobbyType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,8 @@ public class GameLobby {
     private List<LobbyUser> team1 = new ArrayList<>();
 
     private List<LobbyUser> team2 = new ArrayList<>();
+
+    private List<LobbyBot> bots = new ArrayList<>();
 
     private List<Champion> bansTeam1 = new ArrayList<>();
 

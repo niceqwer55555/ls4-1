@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -45,9 +45,11 @@
   
   <Target Name="PostBuild" AfterTargets="AfterBuild">
 	<PropertyGroup>
-	  <_SettingsSourceDirectory>$(SolutionDir)GameServerConsole\Settings\.</_SettingsSourceDirectory>
+	  <_SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)\..\</_SolutionDir>
+	  <_SolutionDir Condition="'$(SolutionDir)' != '' And '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</_SolutionDir>
+	  <_SettingsSourceDirectory>$(_SolutionDir)GameServerConsole\Settings\.</_SettingsSourceDirectory>
 	  <_SettingsTargetDirectory>$(TargetDir)Settings\</_SettingsTargetDirectory>
-	  <_LibSourceDirectory>$(SolutionDir)lib\.</_LibSourceDirectory>
+	  <_LibSourceDirectory>$(_SolutionDir)lib\.</_LibSourceDirectory>
 	  <_LibTargetDirectory>$(TargetDir)</_LibTargetDirectory>
 	  <_LENetSourceDirectory>$([System.Environment]::GetFolderPath(SpecialFolder.UserProfile))\.nuget\packages\lenet\1.0.1\lib\netstandard2.0\.</_LENetSourceDirectory>
 	  <_LENetTargetDirectory>$(TargetDir)</_LENetTargetDirectory>

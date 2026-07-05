@@ -8,6 +8,7 @@ import de.jandev.ls4apiserver.model.lobby.Lobby;
 import de.jandev.ls4apiserver.model.user.User;
 import de.jandev.ls4apiserver.model.websocket.ErrorMessage;
 import de.jandev.ls4apiserver.model.websocket.SocketMessage;
+import de.jandev.ls4apiserver.model.websocket.lobby.LobbyBotIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyTypeIn;
 import de.jandev.ls4apiserver.service.UserService;
 import de.jandev.ls4apiserver.utility.LogMessage;
@@ -96,6 +97,14 @@ public class LobbySocketController {
                         break;
                     case LOBBY_SWITCH_TEAM:
                         lobbyMessageHandler.handleLobbySwitchTeam(lobby.get(), user);
+                        break;
+                    case LOBBY_ADD_BOT:
+                        var botIn = mapper.readValue(mapper.writeValueAsString(message.getData()), LobbyBotIn.class);
+                        lobbyMessageHandler.handleLobbyAddBot(lobby.get(), user, botIn);
+                        break;
+                    case LOBBY_REMOVE_BOT:
+                        var botId = (String) message.getData();
+                        lobbyMessageHandler.handleLobbyRemoveBot(lobby.get(), user, botId);
                         break;
                     case LOBBY_CHAMPSELECT_ACCEPT:
                         lobbyMessageHandler.handleLobbyUserMatchmakingReply(lobby.get(), user, true);

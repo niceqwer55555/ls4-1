@@ -56,7 +56,7 @@ namespace Spells
 
         private void PerformHeal(ObjAIBase owner, Spell spell, AttackableUnit target)
         {
-            float healthGain = 75 + (target.Stats.Level * 15);
+            float healthGain = 70 + (owner.Stats.Level * 10);
             if (target.HasBuff("HealCheck"))
             {
                 healthGain *= 0.5f;

@@ -4,9 +4,10 @@ var LobbyFactory = require('./app/factories/LobbyFactory.js');
 var LobbyManagerService = require('./app/services/LobbyManagerService.js');
 "use strict";
 
-var lobbyPort = process.argv[2]; //It is argv[2] because elements 0 and 1 are already populated with env info
+var lobbyPort = process.argv[2];
 var path = process.argv[3];
 var gameServerPort = process.argv[4];
+var lobbyTypeArg = process.argv[5] || "SUMMONERS_RIFT_BLIND";
 const io = require('socket.io')(lobbyPort);
 const repl = require('repl');
 
@@ -16,6 +17,35 @@ const gamemode = LobbyFactory.gameMode;
 var map = 1;
 var player_id = 0;
 var lobbyType = "";
+
+function setMapByLobbyType(type) {
+    lobbyType = type;
+    switch (type) {
+        case "SUMMONERS_RIFT_BLIND":
+        case "SUMMONERS_RIFT_DRAFT":
+        case "SUMMONERS_RIFT_BOT_BLIND":
+        case "SUMMONERS_RIFT_BOT_DRAFT":
+            map = 1;
+            break;
+        case "ODIN_BLIND":
+        case "ODIN_DRAFT":
+            map = 8;
+            break;
+        case "TWISTED_TREELINE_BLIND":
+        case "TWISTED_TREELINE_DRAFT":
+            map = 10;
+            break;
+        case "ARAM_BLIND":
+        case "ARAM_BOT_ARAM":
+            map = 11;
+            break;
+        default:
+            map = 1;
+            break;
+    }
+}
+
+setMapByLobbyType(lobbyTypeArg);
 
 const adminSettings = [{
     binding: "available-champions",

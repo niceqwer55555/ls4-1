@@ -6,11 +6,15 @@ import de.jandev.ls4apiserver.model.champselect.GameLobby;
 import de.jandev.ls4apiserver.model.champselect.LobbyPhase;
 import de.jandev.ls4apiserver.model.champselect.LobbyTeam;
 import de.jandev.ls4apiserver.model.champselect.LobbyUser;
+import de.jandev.ls4apiserver.model.champselect.SummonerSpell;
 import de.jandev.ls4apiserver.model.event.GameLobbyFinalEvent;
 import de.jandev.ls4apiserver.model.event.GameLobbyUpdateEvent;
 import de.jandev.ls4apiserver.model.lobby.Lobby;
+import de.jandev.ls4apiserver.model.lobby.LobbyBot;
 import de.jandev.ls4apiserver.model.lobby.LobbyType;
 import de.jandev.ls4apiserver.model.user.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.jandev.ls4apiserver.model.user.dto.UserPublicOut;
 import de.jandev.ls4apiserver.model.websocket.MessageType;
 import de.jandev.ls4apiserver.model.websocket.SocketMessage;
 import de.jandev.ls4apiserver.model.websocket.champselect.*;
@@ -30,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -149,8 +154,41 @@ public class ChampselectMessageHandler {
         sendAllUpdate(gameLobby);
     }
 
-    public void handleLockChampion(GameLobby gameLobby, LobbyUser lobbyUser, String championId) throws ApplicationException {
+    public void handleLockChampion(GameLobby gameLobby, LobbyUser lobbyUser, Object championData) throws ApplicationException {
+        String championId = null;
+        Object runesData = null;
+        Object talentsData = null;
+
+        if (championData instanceof String) {
+            championId = (String) championData;
+        } else if (championData instanceof java.util.Map) {
+            @SuppressWarnings("unchecked")
+            java.util.Map<String, Object> data = (java.util.Map<String, Object>) championData;
+            Object championIdRaw = data.get("championId");
+            if (championIdRaw != null) {
+                championId = String.valueOf(championIdRaw);
+            }
+            runesData = data.get("runes");
+            talentsData = data.get("talents");
+        }
+
+        if (championId == null) {
+            throw new ApplicationException(org.springframework.http.HttpStatus.BAD_REQUEST, ApplicationExceptionCode.CHAMPSELECT_MESSAGE_FORBIDDEN, "No champion id provided.");
+        }
+
+        var champion = userCollectionService.getChampionByIdWithoutSpellsAndSkins(championId);
+
         champselectService.lockChampion(gameLobby, lobbyUser, championId, true);
+
+        if (runesData != null) {
+            var runes = new ObjectMapper().convertValue(runesData, de.jandev.ls4apiserver.model.game.Runes.class);
+            lobbyUser.setRunes(runes);
+        }
+        if (talentsData != null) {
+            var talents = new ObjectMapper().convertValue(talentsData, de.jandev.ls4apiserver.model.game.Talents.class);
+            lobbyUser.setTalents(talents);
+        }
+
         sendAllUpdate(gameLobby);
     }
 
@@ -205,6 +243,8 @@ public class ChampselectMessageHandler {
         handleVisibility(gameLobby, gameLobby.getTeam1(), gameLobbyOut1, gameLobbyOut2);
         handleVisibility(gameLobby, gameLobby.getTeam2(), gameLobbyOut2, gameLobbyOut1);
 
+        addBotsToTeams(gameLobby, gameLobbyOut1, gameLobbyOut2);
+
         gameLobbyOut1.setTradesTeam(gameLobby.getTrades().stream().filter(c -> c.getLobbyTeam() == LobbyTeam.TEAM1).map(ChampionTradeOut::new).collect(Collectors.toList()));
         gameLobbyOut2.setTradesTeam(gameLobby.getTrades().stream().filter(c -> c.getLobbyTeam() == LobbyTeam.TEAM2).map(ChampionTradeOut::new).collect(Collectors.toList()));
 
@@ -216,6 +256,56 @@ public class ChampselectMessageHandler {
         for (LobbyUser member : gameLobby.getTeam2()) {
             template.convertAndSendToUser(member.getUser().getUserName(), QUEUE_CHAMPSELECT + gameLobby.getUuid(),
                     new SocketMessage(gameLobbyOut2, null, null, MessageType.CHAMPSELECT_UPDATE, LocalDateTime.now()));
+        }
+    }
+
+    private void addBotsToTeams(GameLobby gameLobby, GameLobbyOut out1, GameLobbyOut out2) {
+        for (LobbyBot bot : gameLobby.getBots()) {
+            ChampionOut championOut = bot.getChampionId() != null ? new ChampionOut(bot.getChampionId()) : null;
+            var userPublicOut = new UserPublicOut();
+            String displayName = bot.getChampionDisplayName() != null && !bot.getChampionDisplayName().isEmpty()
+                    ? bot.getChampionDisplayName()
+                    : bot.getName();
+            userPublicOut.setSummonerName(displayName);
+
+            var allyBot = new LobbyUserOut();
+            allyBot.setUser(userPublicOut);
+            allyBot.setSelectedChampion(championOut);
+            allyBot.setLockedIn(true);
+            allyBot.setTeam(bot.getTeam());
+
+            var spells = getDefaultSpellsForRole(bot.getRole());
+            allyBot.setSpell1(spells[0]);
+            allyBot.setSpell2(spells[1]);
+
+            var enemyBot = new LobbyUserEnemyOut();
+            enemyBot.setSelectedChampion(championOut);
+            enemyBot.setLockedIn(true);
+            enemyBot.setSummonerName(displayName);
+
+            if (bot.getTeam() == LobbyTeam.TEAM1) {
+                out1.getTeam().add(allyBot);
+                out2.getEnemyTeam().add(enemyBot);
+            } else {
+                out2.getTeam().add(allyBot);
+                out1.getEnemyTeam().add(enemyBot);
+            }
+        }
+    }
+
+    private SummonerSpell[] getDefaultSpellsForRole(String role) {
+        if (role == null) role = "Top";
+        switch (role) {
+            case "Jungle":
+                return new SummonerSpell[]{SummonerSpell.SUMMONER_SMITE, SummonerSpell.SUMMONER_FLASH};
+            case "Support":
+                return new SummonerSpell[]{SummonerSpell.SUMMONER_EXHAUST, SummonerSpell.SUMMONER_FLASH};
+            case "ADC":
+                return new SummonerSpell[]{SummonerSpell.SUMMONER_HEAL, SummonerSpell.SUMMONER_FLASH};
+            case "Mid":
+                return new SummonerSpell[]{SummonerSpell.SUMMONER_DOT, SummonerSpell.SUMMONER_FLASH};
+            default:
+                return new SummonerSpell[]{SummonerSpell.SUMMONER_TELEPORT, SummonerSpell.SUMMONER_FLASH};
         }
     }
 

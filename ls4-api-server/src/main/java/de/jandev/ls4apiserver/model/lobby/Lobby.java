@@ -27,6 +27,8 @@ public class Lobby {
 
     private List<User> members = new CopyOnWriteArrayList<>();
 
+    private List<LobbyBot> bots = new CopyOnWriteArrayList<>();
+
     private Map<User, InviteStatus> invited = new ConcurrentHashMap<>();
 
     private User owner;
@@ -45,6 +47,7 @@ public class Lobby {
                 "uuid='" + uuid + '\'' +
                 ", lobbyType=" + lobbyType +
                 ", members=" + members +
+                ", bots=" + bots +
                 ", invited=" + invited +
                 ", owner=" + owner +
                 ", joinedQueueTime=" + joinedQueueTime +

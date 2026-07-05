@@ -1,5 +1,5 @@
 
 cd ls4-lobby-server
-node server server.js
+D:\game\ls4-1\Tools\node-v16.20.2-win-x64\node server server.js
 
 pause

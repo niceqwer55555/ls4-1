@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.jandev.ls4apiserver.model.champselect.GameLobby;
 import de.jandev.ls4apiserver.model.champselect.LobbyTeam;
+import de.jandev.ls4apiserver.model.champselect.SummonerSpell;
 import de.jandev.ls4apiserver.model.game.*;
 import de.jandev.ls4apiserver.model.websocket.champselect.GameStartOut;
 import de.jandev.ls4apiserver.utility.LogMessage;
@@ -151,6 +152,10 @@ public class GameManagerService {
         }
 
         for (Player player : config.getPlayers()) {
+            // Skip bot players — they don't connect to the server (controlled by ChampionAI script)
+            if (player.getPlayerId() == -1) {
+                continue;
+            }
             var gameStartOut = new GameStartOut();
             gameStartOut.setIp(gameServerIp);
             gameStartOut.setPort(port);
@@ -214,7 +219,28 @@ public class GameManagerService {
             p.setSummoner2(lobbyUser.getSpell2().getGameServerName());
             p.setRibbon(2);
             p.setIcon(0);
-            p.setRunes(new Runes());
+            p.setRunes(lobbyUser.getRunes() != null ? lobbyUser.getRunes() : new Runes());
+            p.setTalents(lobbyUser.getTalents() != null ? lobbyUser.getTalents() : new Talents());
+            players.add(p);
+        }
+
+        // Inject bot players with playerId = -1 to activate ChampionAI script.
+        // Bot name format: {Team}{Role} (e.g., BlueTop) — used by ChampionAI for role detection.
+        for (var bot : gameLobby.getBots()) {
+            var p = new Player();
+            p.setPlayerId(-1);
+            p.setBlowfishKey("17BLOhi6KZsTtldTsizvHg==");
+            p.setRank("DIAMOND");
+            p.setName(bot.getName());
+            p.setChampion(bot.getChampionId());
+            p.setTeam(bot.getTeam() == LobbyTeam.TEAM1 ? "BLUE" : "RED");
+            p.setSkin(0);
+            p.setSummoner1(getSummoner1ForRole(bot.getName()));
+            p.setSummoner2(SummonerSpell.SUMMONER_FLASH.getGameServerName());
+            p.setRibbon(2);
+            p.setIcon(0);
+            p.setRunes(getRunesForRole(bot.getName()));
+            p.setTalents(getTalentsForRole(bot.getName()));
             players.add(p);
         }
 
@@ -223,6 +249,199 @@ public class GameManagerService {
         config.setPlayers(players);
 
         return config;
+    }
+
+    private Runes getRunesForRole(String name) {
+        Runes r = new Runes();
+        if (name == null) {
+            return r;
+        }
+
+        String role = detectRole(name);
+        switch (role) {
+            case "Mid":
+                r.setOne(Runes.MARK_AP); r.setTwo(Runes.MARK_AP); r.setThree(Runes.MARK_AP);
+                r.setFour(Runes.MARK_AP); r.setFive(Runes.MARK_AP); r.setSix(Runes.MARK_AP);
+                r.setSeven(Runes.MARK_AP); r.setEight(Runes.MARK_AP); r.setNine(Runes.MARK_AP);
+                r.setTen(Runes.SEAL_MANA_REGEN); r.setEleven(Runes.SEAL_MANA_REGEN); r.setTwelve(Runes.SEAL_MANA_REGEN);
+                r.setThirteen(Runes.SEAL_MANA_REGEN); r.setFourteen(Runes.SEAL_MANA_REGEN); r.setFifteen(Runes.SEAL_MANA_REGEN);
+                r.setSixteen(Runes.SEAL_MANA_REGEN); r.setSeventeen(Runes.SEAL_MANA_REGEN); r.setEighteen(Runes.SEAL_MANA_REGEN);
+                r.setNineteen(Runes.GLYPH_AP); r.setTwenty(Runes.GLYPH_AP); r.setTwentyOne(Runes.GLYPH_AP);
+                r.setTwentyTwo(Runes.GLYPH_AP); r.setTwentyThree(Runes.GLYPH_AP); r.setTwentyFour(Runes.GLYPH_AP);
+                r.setTwentyFive(Runes.GLYPH_AP); r.setTwentySix(Runes.GLYPH_AP); r.setTwentySeven(Runes.GLYPH_AP);
+                r.setTwentyEight(Runes.QUINTESSENCE_AP); r.setTwentyNine(Runes.QUINTESSENCE_AP); r.setThirty(Runes.QUINTESSENCE_AP);
+                break;
+            case "Support":
+                r.setOne(Runes.MARK_ARMOR); r.setTwo(Runes.MARK_ARMOR); r.setThree(Runes.MARK_ARMOR);
+                r.setFour(Runes.MARK_ARMOR); r.setFive(Runes.MARK_ARMOR); r.setSix(Runes.MARK_ARMOR);
+                r.setSeven(Runes.MARK_ARMOR); r.setEight(Runes.MARK_ARMOR); r.setNine(Runes.MARK_ARMOR);
+                r.setTen(Runes.SEAL_HEALTH); r.setEleven(Runes.SEAL_HEALTH); r.setTwelve(Runes.SEAL_HEALTH);
+                r.setThirteen(Runes.SEAL_HEALTH); r.setFourteen(Runes.SEAL_HEALTH); r.setFifteen(Runes.SEAL_HEALTH);
+                r.setSixteen(Runes.SEAL_HEALTH); r.setSeventeen(Runes.SEAL_HEALTH); r.setEighteen(Runes.SEAL_HEALTH);
+                r.setNineteen(Runes.GLYPH_MANA_REGEN); r.setTwenty(Runes.GLYPH_MANA_REGEN); r.setTwentyOne(Runes.GLYPH_MANA_REGEN);
+                r.setTwentyTwo(Runes.GLYPH_MANA_REGEN); r.setTwentyThree(Runes.GLYPH_MANA_REGEN); r.setTwentyFour(Runes.GLYPH_MANA_REGEN);
+                r.setTwentyFive(Runes.GLYPH_MANA_REGEN); r.setTwentySix(Runes.GLYPH_MANA_REGEN); r.setTwentySeven(Runes.GLYPH_MANA_REGEN);
+                r.setTwentyEight(Runes.QUINTESSENCE_MOVEMENT_SPEED); r.setTwentyNine(Runes.QUINTESSENCE_MOVEMENT_SPEED); r.setThirty(Runes.QUINTESSENCE_MOVEMENT_SPEED);
+                break;
+            case "ADC":
+                r.setOne(Runes.MARK_AD); r.setTwo(Runes.MARK_AD); r.setThree(Runes.MARK_AD);
+                r.setFour(Runes.MARK_AD); r.setFive(Runes.MARK_AD); r.setSix(Runes.MARK_AD);
+                r.setSeven(Runes.MARK_AD); r.setEight(Runes.MARK_AD); r.setNine(Runes.MARK_AD);
+                r.setTen(Runes.SEAL_ARMOR); r.setEleven(Runes.SEAL_ARMOR); r.setTwelve(Runes.SEAL_ARMOR);
+                r.setThirteen(Runes.SEAL_ARMOR); r.setFourteen(Runes.SEAL_ARMOR); r.setFifteen(Runes.SEAL_ARMOR);
+                r.setSixteen(Runes.SEAL_ARMOR); r.setSeventeen(Runes.SEAL_ARMOR); r.setEighteen(Runes.SEAL_ARMOR);
+                r.setNineteen(Runes.GLYPH_ATTACK_SPEED); r.setTwenty(Runes.GLYPH_ATTACK_SPEED); r.setTwentyOne(Runes.GLYPH_ATTACK_SPEED);
+                r.setTwentyTwo(Runes.GLYPH_ATTACK_SPEED); r.setTwentyThree(Runes.GLYPH_ATTACK_SPEED); r.setTwentyFour(Runes.GLYPH_ATTACK_SPEED);
+                r.setTwentyFive(Runes.GLYPH_ATTACK_SPEED); r.setTwentySix(Runes.GLYPH_ATTACK_SPEED); r.setTwentySeven(Runes.GLYPH_ATTACK_SPEED);
+                r.setTwentyEight(Runes.QUINTESSENCE_ATTACK_SPEED); r.setTwentyNine(Runes.QUINTESSENCE_ATTACK_SPEED); r.setThirty(Runes.QUINTESSENCE_LIFESTEAL);
+                break;
+            case "Jungle":
+                r.setOne(Runes.MARK_AD); r.setTwo(Runes.MARK_AD); r.setThree(Runes.MARK_AD);
+                r.setFour(Runes.MARK_AD); r.setFive(Runes.MARK_AD); r.setSix(Runes.MARK_AD);
+                r.setSeven(Runes.MARK_AD); r.setEight(Runes.MARK_AD); r.setNine(Runes.MARK_AD);
+                r.setTen(Runes.SEAL_ARMOR); r.setEleven(Runes.SEAL_ARMOR); r.setTwelve(Runes.SEAL_ARMOR);
+                r.setThirteen(Runes.SEAL_ARMOR); r.setFourteen(Runes.SEAL_ARMOR); r.setFifteen(Runes.SEAL_ARMOR);
+                r.setSixteen(Runes.SEAL_ARMOR); r.setSeventeen(Runes.SEAL_ARMOR); r.setEighteen(Runes.SEAL_ARMOR);
+                r.setNineteen(Runes.GLYPH_MAGIC_RESIST); r.setTwenty(Runes.GLYPH_MAGIC_RESIST); r.setTwentyOne(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyTwo(Runes.GLYPH_MAGIC_RESIST); r.setTwentyThree(Runes.GLYPH_MAGIC_RESIST); r.setTwentyFour(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyFive(Runes.GLYPH_MAGIC_RESIST); r.setTwentySix(Runes.GLYPH_MAGIC_RESIST); r.setTwentySeven(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyEight(Runes.QUINTESSENCE_AD); r.setTwentyNine(Runes.QUINTESSENCE_AD); r.setThirty(Runes.QUINTESSENCE_HP_REGEN);
+                break;
+            case "Top":
+            default:
+                r.setOne(Runes.MARK_AD); r.setTwo(Runes.MARK_AD); r.setThree(Runes.MARK_AD);
+                r.setFour(Runes.MARK_AD); r.setFive(Runes.MARK_AD); r.setSix(Runes.MARK_AD);
+                r.setSeven(Runes.MARK_AD); r.setEight(Runes.MARK_AD); r.setNine(Runes.MARK_AD);
+                r.setTen(Runes.SEAL_ARMOR); r.setEleven(Runes.SEAL_ARMOR); r.setTwelve(Runes.SEAL_ARMOR);
+                r.setThirteen(Runes.SEAL_ARMOR); r.setFourteen(Runes.SEAL_ARMOR); r.setFifteen(Runes.SEAL_ARMOR);
+                r.setSixteen(Runes.SEAL_ARMOR); r.setSeventeen(Runes.SEAL_ARMOR); r.setEighteen(Runes.SEAL_ARMOR);
+                r.setNineteen(Runes.GLYPH_MAGIC_RESIST); r.setTwenty(Runes.GLYPH_MAGIC_RESIST); r.setTwentyOne(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyTwo(Runes.GLYPH_MAGIC_RESIST); r.setTwentyThree(Runes.GLYPH_MAGIC_RESIST); r.setTwentyFour(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyFive(Runes.GLYPH_MAGIC_RESIST); r.setTwentySix(Runes.GLYPH_MAGIC_RESIST); r.setTwentySeven(Runes.GLYPH_MAGIC_RESIST);
+                r.setTwentyEight(Runes.QUINTESSENCE_HP); r.setTwentyNine(Runes.QUINTESSENCE_HP); r.setThirty(Runes.QUINTESSENCE_HP);
+                break;
+        }
+        return r;
+    }
+
+    private String getSummoner1ForRole(String name) {
+        if (name == null) {
+            return SummonerSpell.SUMMONER_FLASH.getGameServerName();
+        }
+        if (name.contains("Jungle")) {
+            return SummonerSpell.SUMMONER_SMITE.getGameServerName();
+        } else if (name.contains("Support")) {
+            return SummonerSpell.SUMMONER_EXHAUST.getGameServerName();
+        } else if (name.contains("ADC")) {
+            return SummonerSpell.SUMMONER_HEAL.getGameServerName();
+        } else if (name.contains("Mid")) {
+            return SummonerSpell.SUMMONER_DOT.getGameServerName();
+        }
+        return SummonerSpell.SUMMONER_TELEPORT.getGameServerName();
+    }
+
+    private Talents getTalentsForRole(String name) {
+        Talents t = new Talents();
+        if (name == null) {
+            return t;
+        }
+
+        String role = detectRole(name);
+        switch (role) {
+            case "Mid":
+                t.setBrutalForce(0);
+                t.setSorcery(3);
+                t.setFeast(0);
+                t.setVeteranScars(0);
+                t.setMeditation(3);
+                t.setWrath(0);
+                t.setArcaneKnowledge(3);
+                t.setSpellWeaving(1);
+                t.setSpellPiercing(3);
+                t.setArchmage(1);
+                t.setThunderlordsDecree(1);
+                break;
+            case "Support":
+                t.setBrutalForce(0);
+                t.setSorcery(0);
+                t.setFeast(3);
+                t.setVeteranScars(3);
+                t.setMeditation(3);
+                t.setWrath(0);
+                t.setIntelligence(3);
+                t.setHealingMastery(3);
+                t.setNaturalTalent(3);
+                t.setJuggernaut(3);
+                t.setTenacity(1);
+                t.setGraspOfTheUndying(1);
+                break;
+            case "ADC":
+                t.setBrutalForce(3);
+                t.setFury(3);
+                t.setFeast(3);
+                t.setVeteranScars(0);
+                t.setMeditation(0);
+                t.setVampirism(3);
+                t.setWrath(3);
+                t.setPrecision(3);
+                t.setDoubleEdgedSword(1);
+                t.setExecutioner(3);
+                t.setFervorOfBattle(1);
+                break;
+            case "Jungle":
+                t.setBrutalForce(3);
+                t.setFury(3);
+                t.setFeast(3);
+                t.setVeteranScars(3);
+                t.setMeditation(3);
+                t.setWrath(3);
+                t.setPrecision(3);
+                t.setDoubleEdgedSword(1);
+                t.setExecutioner(3);
+                t.setAssassin(1);
+                t.setFervorOfBattle(1);
+                t.setJuggernaut(3);
+                break;
+            case "Top":
+            default:
+                t.setBrutalForce(3);
+                t.setFury(3);
+                t.setFeast(3);
+                t.setVeteranScars(3);
+                t.setMeditation(3);
+                t.setWrath(3);
+                t.setPrecision(3);
+                t.setExecutioner(3);
+                t.setJuggernaut(3);
+                t.setDoubleEdgedSword(1);
+                t.setFervorOfBattle(1);
+                break;
+        }
+        return t;
+    }
+
+    private String detectRole(String name) {
+        if (name == null) {
+            return "Unknown";
+        }
+
+        String normalized = name.toLowerCase(Locale.ROOT);
+        if (normalized.contains("mid")) {
+            return "Mid";
+        }
+        if (normalized.contains("support")) {
+            return "Support";
+        }
+        if (normalized.contains("adc")) {
+            return "ADC";
+        }
+        if (normalized.contains("jungle")) {
+            return "Jungle";
+        }
+        if (normalized.contains("top")) {
+            return "Top";
+        }
+        return "Unknown";
     }
 
     private Settings getGameSettings() {

@@ -9,6 +9,7 @@ import de.jandev.ls4apiserver.model.champselect.PreGameLobby;
 import de.jandev.ls4apiserver.model.event.LobbyRemoveEvent;
 import de.jandev.ls4apiserver.model.event.QueuePopEvent;
 import de.jandev.ls4apiserver.model.lobby.Lobby;
+import de.jandev.ls4apiserver.model.lobby.LobbyBot;
 import de.jandev.ls4apiserver.model.user.User;
 import de.jandev.ls4apiserver.model.user.dto.UserPublicOut;
 import de.jandev.ls4apiserver.model.websocket.MessageType;
@@ -17,6 +18,7 @@ import de.jandev.ls4apiserver.model.websocket.champselect.GameLobbyOut;
 import de.jandev.ls4apiserver.model.websocket.champselect.LobbyUserEnemyOut;
 import de.jandev.ls4apiserver.model.websocket.champselect.LobbyUserOut;
 import de.jandev.ls4apiserver.model.websocket.chat.ChatMessageOut;
+import de.jandev.ls4apiserver.model.websocket.lobby.LobbyBotIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyInviteOut;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyMessageOut;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyTypeIn;
@@ -190,7 +192,10 @@ public class LobbyMessageHandler {
     public void handleLobbyMatchmakingStart(Lobby lobby, User user) throws ApplicationException {
         lobbyService.isOwnerOrThrowException(user, lobby);
 
-        if (lobby.getTeam1().size() > lobby.getLobbyType().getTeamSize() || lobby.getTeam2().size() > lobby.getLobbyType().getTeamSize()) {
+        var team1Bots = lobby.getBots().stream().filter(b -> b.getTeam() == LobbyTeam.TEAM1).count();
+        var team2Bots = lobby.getBots().stream().filter(b -> b.getTeam() == LobbyTeam.TEAM2).count();
+        if (lobby.getTeam1().size() + team1Bots > lobby.getLobbyType().getTeamSize()
+                || lobby.getTeam2().size() + team2Bots > lobby.getLobbyType().getTeamSize()) {
             for (User member : lobby.getMembers()) {
                 template.convertAndSendToUser(member.getUserName(), QUEUE_LOBBY + lobby.getUuid(),
                         new SocketMessage(new ChatMessageOut("SYSTEM", null, "Cannot start matchmaking because one of the teams is too big. Maximum size is: " + lobby.getLobbyType().getTeamSize() + ".", LocalDateTime.now()), null, null, MessageType.LOBBY_CHAT, LocalDateTime.now()));
@@ -224,6 +229,16 @@ public class LobbyMessageHandler {
         } else {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_SWITCH_IMPOSSIBLE, LogMessage.LOBBY_SWITCH_IMPOSSIBLE);
         }
+    }
+
+    public void handleLobbyAddBot(Lobby lobby, User user, LobbyBotIn botIn) throws ApplicationException {
+        var updatedLobby = lobbyService.addBot(lobby, user, botIn);
+        sendLobbyUpdate(updatedLobby);
+    }
+
+    public void handleLobbyRemoveBot(Lobby lobby, User user, String botId) throws ApplicationException {
+        var updatedLobby = lobbyService.removeBot(lobby, user, botId);
+        sendLobbyUpdate(updatedLobby);
     }
 
     public void handleLobbyUserMatchmakingReply(Lobby lobby, User user, boolean accepted) throws ApplicationException {
@@ -334,6 +349,15 @@ public class LobbyMessageHandler {
             }
         }
 
+        // Copy bots to their respective teams
+        for (LobbyBot bot : lobby.getBots()) {
+            if (bot.getTeam() == LobbyTeam.TEAM1) {
+                team1.getBots().add(bot);
+            } else {
+                team2.getBots().add(bot);
+            }
+        }
+
         team1.setUuid(lobby.getUuid());
         team2.setUuid(lobby.getUuid());
 
@@ -353,6 +377,7 @@ public class LobbyMessageHandler {
                 lobbyUser.setTeam(LobbyTeam.TEAM1);
                 gameLobby.getTeam1().add(lobbyUser);
             }
+            gameLobby.getBots().addAll(lobby.getBots());
         }
 
         for (Lobby lobby : preGameLobby.getTeam2()) {
@@ -361,6 +386,7 @@ public class LobbyMessageHandler {
                 lobbyUser.setTeam(LobbyTeam.TEAM2);
                 gameLobby.getTeam2().add(lobbyUser);
             }
+            gameLobby.getBots().addAll(lobby.getBots());
         }
 
         champselectService.setupLobby(gameLobby);

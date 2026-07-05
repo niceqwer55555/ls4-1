@@ -93,6 +93,20 @@ namespace LeagueSandbox.GameServer.Handlers
                 }
             }
 
+            if (newPath.Count <= 1)
+            {
+                var fallbackPath = GetPath(obj.Position, lastWaypoint, obj.PathfindingRadius);
+                if (fallbackPath != null && fallbackPath.Count > 1)
+                {
+                    obj.SetWaypoints(fallbackPath);
+                }
+                else
+                {
+                    obj.StopMovement();
+                }
+                return;
+            }
+
             obj.SetWaypoints(newPath);
         }
 

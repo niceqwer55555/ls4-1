@@ -171,5 +171,41 @@ export default {
     } else {
       state.sidebarComponent = component;
     }
+  },
+  setRunePages(state, pages) {
+    state.runePages = pages;
+  },
+  setMasteryPages(state, pages) {
+    state.masteryPages = pages;
+  },
+  setCurrentRunePage(state, index) {
+    state.currentRunePage = index;
+  },
+  setCurrentMasteryPage(state, index) {
+    state.currentMasteryPage = index;
+  },
+  addRunePage(state, page) {
+    state.runePages.push(page);
+  },
+  editRunePage(state, { index, page }) {
+    state.runePages[index] = page;
+  },
+  deleteRunePage(state, index) {
+    state.runePages.splice(index, 1);
+    if (state.currentRunePage >= state.runePages.length) {
+      state.currentRunePage = Math.max(0, state.runePages.length - 1);
+    }
+  },
+  addMasteryPage(state, page) {
+    state.masteryPages.push(page);
+  },
+  editMasteryPage(state, { index, page }) {
+    state.masteryPages[index] = page;
+  },
+  deleteMasteryPage(state, index) {
+    state.masteryPages.splice(index, 1);
+    if (state.currentMasteryPage >= state.masteryPages.length) {
+      state.currentMasteryPage = Math.max(0, state.masteryPages.length - 1);
+    }
   }
 };

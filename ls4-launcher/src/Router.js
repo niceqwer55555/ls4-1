@@ -14,6 +14,8 @@ import HomeOverview from "@/views/Home/Overview.vue";
 
 import Profile from "@/views/LoggedIn/Profile.vue";
 import ProfileOverview from "@/views/Profile/Overview.vue";
+import ProfileRunes from "@/views/Profile/Runes.vue";
+import ProfileMastery from "@/views/Profile/Mastery.vue";
 
 import Store from "@/views/Store/Store.vue";
 import StoreSkins from "@/views/Store/Skins.vue";
@@ -77,6 +79,16 @@ const routes = [
             path: "/LoggedIn/profile/overview",
             name: "ProfileOverview",
             component: ProfileOverview
+          },
+          {
+            path: "/LoggedIn/profile/runes",
+            name: "ProfileRunes",
+            component: ProfileRunes
+          },
+          {
+            path: "/LoggedIn/profile/mastery",
+            name: "ProfileMastery",
+            component: ProfileMastery
           }
         ]
       },

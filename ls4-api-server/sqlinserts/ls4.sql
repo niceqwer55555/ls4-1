@@ -146,7 +146,9 @@ INSERT INTO `champion` (`id`, `display_name`, `price`, `title`, `availability`) 
 ('Zed', 'Zed', NULL, 'the Master of Shadows', 'PUBLIC'),
 ('Ziggs', 'Ziggs', NULL, 'the Hexplosives Expert', 'PUBLIC'),
 ('Zilean', 'Zilean', NULL, 'the Chronokeeper', 'PUBLIC'),
-('Zyra', 'Zyra', NULL, 'the Rise of the Thorns', 'PUBLIC');
+('Zyra', 'Zyra', NULL, 'the Rise of the Thorns', 'PUBLIC'),
+('Ekko', 'Ekko', NULL, 'the Boy Who Shattered Time', 'PUBLIC'),
+('Urf', 'Urf', NULL, 'the Manatee', 'PUBLIC');
 
 CREATE TABLE IF NOT EXISTS `chat_message` (
 `id` bigINTEGER NOT NULL ,
@@ -1136,7 +1138,10 @@ INSERT INTO `skin` (`id`, `availability`, `name`, `picture_id`, `price`, `champi
 (665, 'PUBLIC', 'default', 0, NULL, 'Zyra'),
 (666, 'PUBLIC', 'Wildfire Zyra', 1, NULL, 'Zyra'),
 (667, 'PUBLIC', 'Haunted Zyra', 2, NULL, 'Zyra'),
-(668, 'PUBLIC', 'SKT T1 Zyra', 3, NULL, 'Zyra');
+(668, 'PUBLIC', 'SKT T1 Zyra', 3, NULL, 'Zyra'),
+(669, 'PUBLIC', 'default', 0, NULL, 'Ekko'),
+(670, 'PUBLIC', 'Project Ekko', 1, NULL, 'Ekko'),
+(671, 'PUBLIC', 'default', 0, NULL, 'Urf');
 
 CREATE TABLE IF NOT EXISTS `spell` (
 `id` text DEFAULT NULL,

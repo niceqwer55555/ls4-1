@@ -16,10 +16,10 @@
     </div>
     <div class="details">
       <div class="name" v-if="champselect.lobbyType != 'CUSTOM'">
-        {{ `Summoner ${index + 1}` }}
+        {{ player.summonerName || `Summoner ${index + 1}` }}
       </div>
       <div class="name" v-else-if="champselect.lobbyType == 'CUSTOM'">
-        {{ `${player.user.summonerName}` }}
+        {{ player.summonerName || (player.user && player.user.summonerName) || `Summoner ${index + 1}` }}
       </div>
     </div>
   </div>

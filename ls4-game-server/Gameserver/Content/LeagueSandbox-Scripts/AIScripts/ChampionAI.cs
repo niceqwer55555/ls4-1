@@ -1,5 +1,6 @@
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using static LeagueSandbox.GameServer.API.ApiMapFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
 using GameServerCore.Scripting.CSharp;
@@ -12,277 +13,230 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
 namespace AIScripts
 {
-    public class ChampionAI : IAIScript
+    public class ChampionAI : BaseAI
     {
-        public AIScriptMetaData AIScriptMetaData { get; set; } = new AIScriptMetaData();
-        Champion champion;
-        List<Vector2> laneWaypoints;
-        int currentWaypoint = 0;
-        bool itemsBought = false;
-        bool retreating = false;
-        bool skillsLeveled = false;
-        float lastSpellCheckTime = 0f;
-        float stuckCheckTimer = 0f;
-        Vector2 lastPosition;
-        int stuckCounter = 0;
-        int laneOffset = 0;
-        Random random = new Random();
+        enum BotState { Idle, Laning, Combat, Chase, Flee, Recall, Shop, Roam }
 
-        const float DETECT_RANGE = 700.0f;
-        const float WAYPOINT_TOLERANCE = 300.0f;
-        const float RETREAT_HP_PERCENT = 0.25f;
-        const float SPELL_CHECK_INTERVAL = 1.5f;
-        const float STUCK_CHECK_INTERVAL = 2.0f;
-        const float STUCK_DISTANCE = 50f;
-        const float TURRET_DANGER_RANGE = 950.0f;
-        const float TURRET_SAFE_RANGE = 1100.0f;
+        BotState currentState = BotState.Laning;
+        AttackableUnit currentTarget;
+        float lastDecisionTime = 0f;
 
-        public void OnActivate(ObjAIBase owner)
+        const float DECISION_INTERVAL = 0.5f;
+        const float SURROUND_FLEE_RANGE = 650f;
+        const float SURROUND_FLEE_HP_PERCENT = 0.45f;
+        const int SURROUND_FLEE_ENEMY_COUNT = 2;
+
+        public override void OnActivate(ObjAIBase owner)
         {
-            champion = owner as Champion;
-            lastPosition = champion.Position;
-            AssignLaneWaypoints();
+            base.OnActivate(owner);
+            currentState = BotState.Laning;
         }
 
-        void AssignLaneWaypoints()
-        {
-            string name = champion.Name;
-            bool isBlue = champion.Team == TeamId.TEAM_BLUE;
-
-            laneWaypoints = new List<Vector2>();
-            Vector2 basePos = isBlue ? new Vector2(0, 1000) : new Vector2(13300, 14600);
-
-            bool isTopLaner = name.Contains("Top") || name.Contains("Jungle");
-            bool isMidLaner = name.Contains("Mid");
-            bool isBotLaner = name.Contains("ADC") || name.Contains("Support");
-
-            if (isTopLaner)
-            {
-                laneOffset = name.Contains("Jungle") ? 1 : 0;
-
-                if (isBlue)
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(800, 6500));
-                    laneWaypoints.Add(new Vector2(575, 10220));
-                    laneWaypoints.Add(new Vector2(2000, 12000));
-                    laneWaypoints.Add(new Vector2(3912, 13655));
-                }
-                else
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(12500, 8000));
-                    laneWaypoints.Add(new Vector2(9700, 12500));
-                    laneWaypoints.Add(new Vector2(5900, 12500));
-                    laneWaypoints.Add(new Vector2(3912, 13655));
-                }
-            }
-            else if (isMidLaner)
-            {
-                if (isBlue)
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(3000, 3500));
-                    laneWaypoints.Add(new Vector2(5448, 6169));
-                    laneWaypoints.Add(new Vector2(7000, 7000));
-                    laneWaypoints.Add(new Vector2(8549, 8289));
-                }
-                else
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(11000, 10000));
-                    laneWaypoints.Add(new Vector2(8549, 8289));
-                    laneWaypoints.Add(new Vector2(7000, 7000));
-                    laneWaypoints.Add(new Vector2(5448, 6169));
-                }
-            }
-            else if (isBotLaner)
-            {
-                laneOffset = name.Contains("Support") ? 1 : 0;
-
-                if (isBlue)
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(6500, 1263));
-                    laneWaypoints.Add(new Vector2(10098, 809));
-                    laneWaypoints.Add(new Vector2(11500, 2500));
-                    laneWaypoints.Add(new Vector2(13460, 4284));
-                }
-                else
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(7500, 13500));
-                    laneWaypoints.Add(new Vector2(4284, 13460));
-                    laneWaypoints.Add(new Vector2(2500, 11500));
-                    laneWaypoints.Add(new Vector2(809, 10098));
-                }
-            }
-            else
-            {
-                if (isBlue)
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(3000, 3500));
-                    laneWaypoints.Add(new Vector2(5448, 6169));
-                }
-                else
-                {
-                    laneWaypoints.Add(basePos);
-                    laneWaypoints.Add(new Vector2(11000, 10000));
-                    laneWaypoints.Add(new Vector2(8549, 8289));
-                }
-            }
-
-            currentWaypoint = 1;
-        }
-
-        Vector2 ApplyLaneOffset(Vector2 target)
-        {
-            if (laneOffset == 0)
-            {
-                return target;
-            }
-
-            Vector2 toTarget = target - champion.Position;
-            if (toTarget.LengthSquared() < 1f)
-            {
-                return target;
-            }
-
-            Vector2 perpendicular = new Vector2(-toTarget.Y, toTarget.X);
-            perpendicular = Vector2.Normalize(perpendicular);
-            return target + perpendicular * 150f;
-        }
-
-        public void OnUpdate(float diff)
+        public override void OnUpdate(float diff)
         {
             if (champion == null || champion.IsDead)
             {
                 return;
             }
 
-            if (!itemsBought)
-            {
-                BuyStartingItems();
-            }
-
-            if (!skillsLeveled && champion.Stats.Level >= 1)
-            {
-                LevelUpStartingSkill();
-            }
+            AutoLevelSkills();
+            TryBuyItems();
 
             if (champion.IsAIPaused())
             {
                 return;
             }
 
+            if (IsInEnemyTurretRange(champion.Position) && !IsAtBase())
+            {
+                currentState = BotState.Flee;
+                HandleFleeState();
+                return;
+            }
+
             lastSpellCheckTime += diff / 1000f;
             stuckCheckTimer += diff / 1000f;
+            lastDecisionTime += diff / 1000f;
 
-            UpdateBehavior(diff);
+            UpdateState(diff);
+            RunStateBehavior(diff);
         }
 
-        void BuyStartingItems()
-        {
-            itemsBought = true;
-            champion.AddGold(null, 1000, false);
+        // Uses base AI auto-level and item-buy behavior unless bot-specific adjustments are required.
 
-            string name = champion.Name;
-            var items = GetRecommendedItems(name);
-            foreach (var itemId in items)
+        void UpdateState(float diff)
+        {
+            if (lastDecisionTime < DECISION_INTERVAL)
             {
-                champion.Shop.HandleItemBuyRequest(itemId);
+                return;
+            }
+
+            lastDecisionTime = 0f;
+
+            float hpPercent = GetHealthPercent();
+            float manaPercent = GetManaPercent();
+            bool lowHealth = hpPercent < RETREAT_HP_PERCENT || manaPercent < RETREAT_MANA_PERCENT;
+            bool inCombat = IsInCombat();
+            bool underEnemyTurret = IsInEnemyTurretRange(champion.Position);
+            bool hasTarget = SelectBestTarget() != null;
+            bool shouldRecall = ShouldRecallToShop(hpPercent, manaPercent, hasTarget);
+            bool shouldShop = IsAtBase() && buildIndex < buildOrder.Count;
+            bool shouldFlee = ShouldFleeFromThreat(hpPercent);
+
+            if (underEnemyTurret && !IsAtBase())
+            {
+                currentState = BotState.Flee;
+                return;
+            }
+
+            if (shouldFlee && !IsAtBase())
+            {
+                currentState = BotState.Flee;
+                return;
+            }
+
+            if (lowHealth && !IsAtBase())
+            {
+                currentState = BotState.Flee;
+                return;
+            }
+
+            if (shouldRecall)
+            {
+                currentState = BotState.Recall;
+                return;
+            }
+
+            if (shouldShop)
+            {
+                currentState = BotState.Shop;
+                return;
+            }
+
+            if (hasTarget || inCombat)
+            {
+                currentState = BotState.Combat;
+                return;
+            }
+
+            currentState = BotState.Laning;
+        }
+
+        void RunStateBehavior(float diff)
+        {
+            switch (currentState)
+            {
+                case BotState.Flee:
+                    HandleFleeState();
+                    break;
+                case BotState.Recall:
+                    HandleRecallState();
+                    break;
+                case BotState.Shop:
+                    HandleShopState();
+                    break;
+                case BotState.Combat:
+                    HandleCombatState();
+                    break;
+                case BotState.Laning:
+                default:
+                    HandleLaningState(diff);
+                    break;
             }
         }
 
-        List<int> GetRecommendedItems(string championName)
+        void HandleFleeState()
         {
-            if (championName.Contains("Top"))
+            float hpPercent = GetHealthPercent();
+            if (IsAtBase())
             {
-                return new List<int> { 1055, 2003, 3340 };
+                currentState = BotState.Laning;
+                retreating = false;
+                return;
             }
-            if (championName.Contains("Jungle"))
-            {
-                return new List<int> { 1039, 2003, 3340 };
-            }
-            if (championName.Contains("Mid"))
-            {
-                return new List<int> { 1056, 2003, 3340 };
-            }
-            if (championName.Contains("ADC"))
-            {
-                return new List<int> { 1055, 2003, 3340 };
-            }
-            if (championName.Contains("Support"))
-            {
-                return new List<int> { 1054, 2003, 3340 };
-            }
-            return new List<int> { 1055, 2003 };
-        }
 
-        void LevelUpStartingSkill()
-        {
-            skillsLeveled = true;
-            byte skillSlot = 0;
-            string name = champion.Name;
+            if (hpPercent > 0.6f && !IsInEnemyTurretRange(champion.Position))
+            {
+                currentState = BotState.Laning;
+                return;
+            }
 
-            if (name.Contains("Top"))
+            if (champion.Stats.Gold >= RECALL_GOLD_THRESHOLD && !IsAtBase())
             {
-                skillSlot = 0;
-            }
-            else if (name.Contains("Mid"))
-            {
-                skillSlot = 0;
-            }
-            else if (name.Contains("ADC"))
-            {
-                skillSlot = 1;
-            }
-            else if (name.Contains("Support"))
-            {
-                skillSlot = 2;
-            }
-            else if (name.Contains("Jungle"))
-            {
-                skillSlot = 2;
+                champion.Recall();
             }
             else
             {
-                skillSlot = 0;
-            }
-
-            if (champion.Spells.ContainsKey(skillSlot))
-            {
-                champion.LevelUpSpell(skillSlot);
+                RetreatToBase();
             }
         }
 
-        void UpdateBehavior(float diff)
+        void HandleRecallState()
         {
-            float hpPercent = champion.Stats.CurrentHealth / champion.Stats.HealthPoints.Total;
-
-            if (hpPercent < RETREAT_HP_PERCENT)
+            if (IsAtBase())
             {
-                retreating = true;
-                RetreatToBase();
+                currentState = BotState.Shop;
                 return;
             }
 
-            if (retreating && hpPercent > 0.9f)
-            {
-                retreating = false;
-                currentWaypoint = 1;
-            }
+            champion.Recall();
+        }
 
-            if (retreating)
+        void HandleShopState()
+        {
+            TryBuyItems();
+            if (buildIndex >= buildOrder.Count)
             {
-                RetreatToBase();
+                currentState = BotState.Laning;
+            }
+        }
+
+        void HandleCombatState()
+        {
+            if (ShouldFleeFromThreat(GetHealthPercent()))
+            {
+                currentState = BotState.Flee;
+                HandleFleeState();
                 return;
             }
 
-            if (IsInEnemyTurretRange(champion.Position))
+            if (IsInEnemyTurretRange(champion.Position) && !IsAtBase())
             {
-                RetreatFromTurret();
+                currentState = BotState.Flee;
+                HandleFleeState();
+                return;
+            }
+
+            if (!ScanForTargets())
+            {
+                if (IsInEnemyTurretRange(champion.Position) && !IsAtBase())
+                {
+                    currentState = BotState.Flee;
+                    HandleFleeState();
+                    return;
+                }
+
+                currentState = BotState.Laning;
+                return;
+            }
+
+            KeepFocusingTarget();
+            TryCastSpells();
+        }
+
+        void HandleLaningState(float diff)
+        {
+            if (ShouldFleeFromThreat(GetHealthPercent()))
+            {
+                currentState = BotState.Flee;
+                HandleFleeState();
+                return;
+            }
+
+            if (IsInEnemyTurretRange(champion.Position) && !IsAtBase())
+            {
+                currentState = BotState.Flee;
+                HandleFleeState();
                 return;
             }
 
@@ -296,98 +250,87 @@ namespace AIScripts
             MoveAlongLane(diff);
         }
 
-        bool IsInEnemyTurretRange(Vector2 position)
+        bool ShouldFleeFromThreat(float hpPercent)
         {
-            var nearbyUnits = GetUnitsInRange(position, TURRET_DANGER_RANGE, true);
+            if (IsAtBase())
+            {
+                return false;
+            }
+
+            int nearbyEnemies = CountNearbyEnemyChampions(champion.Position, SURROUND_FLEE_RANGE);
+            bool lowHealth = hpPercent < RETREAT_HP_PERCENT;
+            bool lowHealthUnderPressure = hpPercent < SURROUND_FLEE_HP_PERCENT && nearbyEnemies >= SURROUND_FLEE_ENEMY_COUNT;
+            bool beingSurrounded = nearbyEnemies >= SURROUND_FLEE_ENEMY_COUNT && hpPercent < 0.6f;
+            bool inCombatAndOutnumbered = nearbyEnemies >= 2 && IsInCombat() && hpPercent < 0.7f;
+
+            return lowHealth || lowHealthUnderPressure || beingSurrounded || inCombatAndOutnumbered;
+        }
+
+        int CountNearbyEnemyChampions(Vector2 position, float range)
+        {
+            int count = 0;
+            var nearbyUnits = GetUnitsInRange(position, range, true);
             foreach (var unit in nearbyUnits)
             {
-                if (unit is BaseTurret turret
-                    && !turret.IsDead
-                    && turret.Team != champion.Team)
+                if (unit is Champion enemyChampion
+                    && !enemyChampion.IsDead
+                    && enemyChampion.Team != champion.Team
+                    && enemyChampion.IsVisibleByTeam(champion.Team))
                 {
-                    float turretRange = turret.Stats.Range.Total;
-                    if (Vector2.Distance(position, turret.Position) < turretRange + 50f)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        bool IsTargetInEnemyTurretRange(Vector2 target)
-        {
-            return IsInEnemyTurretRange(target);
-        }
-
-        void RetreatFromTurret()
-        {
-            BaseTurret nearestTurret = null;
-            float nearestDist = float.MaxValue;
-
-            var nearbyUnits = GetUnitsInRange(champion.Position, TURRET_SAFE_RANGE, true);
-            foreach (var unit in nearbyUnits)
-            {
-                if (unit is BaseTurret turret
-                    && !turret.IsDead
-                    && turret.Team != champion.Team)
-                {
-                    float dist = Vector2.Distance(champion.Position, turret.Position);
-                    if (dist < nearestDist)
-                    {
-                        nearestDist = dist;
-                        nearestTurret = turret;
-                    }
+                    count++;
                 }
             }
 
-            if (nearestTurret == null)
-            {
-                return;
-            }
-
-            Vector2 away = champion.Position - nearestTurret.Position;
-            if (away.LengthSquared() < 1f)
-            {
-                away = champion.Team == TeamId.TEAM_BLUE
-                    ? new Vector2(-1, -1)
-                    : new Vector2(1, 1);
-            }
-            away = Vector2.Normalize(away);
-            Vector2 safePos = champion.Position + away * 300f;
-
-            var path = GetPath(champion.Position, safePos);
-            if (path != null && path.Count > 1)
-            {
-                champion.SetWaypoints(path);
-            }
-            else
-            {
-                champion.SetWaypoints(new List<Vector2> { champion.Position, safePos });
-            }
-            champion.UpdateMoveOrder(OrderType.MoveTo, true);
-            champion.CancelAutoAttack(false, true);
-            champion.SetTargetUnit(null, true);
+            return count;
         }
 
-        bool ScanForTargets()
+        float GetHealthPercent()
         {
-            if (champion.TargetUnit != null && !champion.TargetUnit.IsDead)
+            return champion.Stats.CurrentHealth / champion.Stats.HealthPoints.Total;
+        }
+
+        float GetManaPercent()
+        {
+            if (champion.Stats.ManaPoints.Total <= 0)
             {
-                if (IsTargetInEnemyTurretRange(champion.TargetUnit.Position))
-                {
-                    champion.CancelAutoAttack(false, true);
-                    champion.SetTargetUnit(null, true);
-                    return false;
-                }
+                return 1f;
+            }
+            return champion.Stats.CurrentMana / champion.Stats.ManaPoints.Total;
+        }
+
+        bool ShouldRecallToShop(float hpPercent, float manaPercent, bool hasTarget)
+        {
+            if (buildIndex >= buildOrder.Count)
+            {
+                return false;
+            }
+
+            if (IsAtBase())
+            {
+                return false;
+            }
+
+            if (hpPercent < RETREAT_HP_PERCENT || manaPercent < RETREAT_MANA_PERCENT)
+            {
                 return true;
             }
 
-            AttackableUnit nextTarget = null;
-            var nextTargetPriority = 14;
+            return champion.Stats.Gold >= RECALL_GOLD_THRESHOLD && !hasTarget;
+        }
+
+        AttackableUnit SelectBestTarget()
+        {
+            if (champion.TargetUnit != null && !champion.TargetUnit.IsDead && champion.TargetUnit.Team != champion.Team)
+            {
+                currentTarget = champion.TargetUnit as AttackableUnit;
+                return currentTarget;
+            }
+
+            AttackableUnit bestTarget = null;
+            float bestScore = float.MaxValue;
             var nearbyUnits = GetUnitsInRange(champion.Position, DETECT_RANGE, true);
 
-            foreach (var unit in nearbyUnits.OrderBy(x => Vector2.DistanceSquared(champion.Position, x.Position)))
+            foreach (var unit in nearbyUnits)
             {
                 if (!(unit is AttackableUnit u)
                     || u.IsDead
@@ -398,22 +341,73 @@ namespace AIScripts
                     continue;
                 }
 
-                if (u is BaseTurret && IsInEnemyTurretRange(u.Position))
+                if (IsTargetInEnemyTurretRange(u.Position))
                 {
                     continue;
                 }
 
-                var priority = (int)champion.ClassifyTarget(u);
-                if (priority < nextTargetPriority)
+                int priority = (int)champion.ClassifyTarget(u);
+                float distance = Vector2.Distance(champion.Position, u.Position);
+                float hpPercent = u.Stats.CurrentHealth / u.Stats.HealthPoints.Total;
+                float score = priority * 100f + distance * 0.1f - hpPercent * 50f;
+
+                if (score < bestScore)
                 {
-                    nextTarget = u;
-                    nextTargetPriority = priority;
+                    bestTarget = u;
+                    bestScore = score;
                 }
             }
 
-            if (nextTarget != null)
+            if (bestTarget != null)
             {
-                champion.SetTargetUnit(nextTarget, true);
+                currentTarget = bestTarget;
+                champion.SetTargetUnit(bestTarget, true);
+                return bestTarget;
+            }
+
+            currentTarget = null;
+            return null;
+        }
+
+        bool ScanForTargets()
+        {
+            if (champion.TargetUnit != null && !champion.TargetUnit.IsDead)
+            {
+                if (IsTargetInEnemyTurretRange(champion.TargetUnit.Position))
+                {
+                    champion.CancelAutoAttack(false, true);
+                    champion.SetTargetUnit(null, true);
+                    currentTarget = null;
+                    return false;
+                }
+
+                currentTarget = champion.TargetUnit as AttackableUnit;
+                return true;
+            }
+
+            var bestTarget = SelectBestTarget();
+            if (bestTarget != null)
+            {
+                float distance = Vector2.Distance(champion.Position, bestTarget.Position);
+                float attackRange = champion.Stats.Range.Total;
+
+                if (distance > attackRange + 100f)
+                {
+                    var path = GetPath(champion.Position, bestTarget.Position);
+                    if (path != null && path.Count > 1)
+                    {
+                        champion.SetWaypoints(path);
+                    }
+                    else
+                    {
+                        champion.SetWaypoints(new List<Vector2> { champion.Position, bestTarget.Position });
+                    }
+                    champion.UpdateMoveOrder(OrderType.MoveTo, true);
+                }
+                else
+                {
+                    champion.UpdateMoveOrder(OrderType.AttackMove, true);
+                }
                 return true;
             }
 
@@ -429,191 +423,159 @@ namespace AIScripts
                 champion.SetTargetUnit(null, true);
                 return;
             }
-        }
-
-        void TryCastSpells()
-        {
-            if (lastSpellCheckTime < SPELL_CHECK_INTERVAL)
-            {
-                return;
-            }
-            lastSpellCheckTime = 0f;
-
-            var target = champion.TargetUnit;
-            if (target == null || target.IsDead)
-            {
-                return;
-            }
 
             float distance = Vector2.Distance(champion.Position, target.Position);
+            float attackRange = champion.Stats.Range.Total;
 
-            for (byte i = 0; i < 4; i++)
+            if (distance > attackRange + 100f)
             {
-                if (!champion.Spells.ContainsKey(i))
-                {
-                    continue;
-                }
-
-                var spell = champion.Spells[i];
-                if (spell == null)
-                {
-                    continue;
-                }
-
-                if (spell.CastInfo.SpellLevel <= 0)
-                {
-                    continue;
-                }
-
-                if (spell.CurrentCooldown > 0)
-                {
-                    continue;
-                }
-
-                float range = spell.GetCurrentCastRange();
-                if (range <= 0 || distance > range)
-                {
-                    continue;
-                }
-
-                var targetingType = spell.SpellData.TargetingType;
-                if (targetingType == TargetingType.Self || targetingType == TargetingType.SelfAOE)
-                {
-                    continue;
-                }
-
-                CastSpell(spell, target);
-                return;
-            }
-        }
-
-        void CastSpell(Spell spell, AttackableUnit target)
-        {
-            var castInfo = spell.CastInfo;
-            castInfo.Targets.Clear();
-            castInfo.AddTarget(target);
-
-            spell.Cast(champion.Position, target.Position, target);
-        }
-
-        void MoveAlongLane(float diff)
-        {
-            if (currentWaypoint >= laneWaypoints.Count)
-            {
-                currentWaypoint = laneWaypoints.Count - 1;
-            }
-
-            Vector2 target = laneWaypoints[currentWaypoint];
-            target = ApplyLaneOffset(target);
-            float distance = Vector2.Distance(champion.Position, target);
-
-            if (distance < WAYPOINT_TOLERANCE && currentWaypoint < laneWaypoints.Count - 1)
-            {
-                currentWaypoint++;
-                target = ApplyLaneOffset(laneWaypoints[currentWaypoint]);
-                stuckCounter = 0;
-            }
-
-            if (IsTargetInEnemyTurretRange(target))
-            {
-                Vector2 retreatDir = champion.Team == TeamId.TEAM_BLUE
-                    ? new Vector2(-1, -1)
-                    : new Vector2(1, 1);
-                retreatDir = Vector2.Normalize(retreatDir);
-                Vector2 safeTarget = target + retreatDir * 400f;
-
-                var path = GetPath(champion.Position, safeTarget);
+                var path = GetPath(champion.Position, target.Position);
                 if (path != null && path.Count > 1)
                 {
                     champion.SetWaypoints(path);
                 }
                 else
                 {
-                    champion.SetWaypoints(new List<Vector2> { champion.Position, safeTarget });
+                    champion.SetWaypoints(new List<Vector2> { champion.Position, target.Position });
                 }
                 champion.UpdateMoveOrder(OrderType.MoveTo, true);
-                return;
-            }
-
-            CheckStuck(diff);
-
-            var movePath = GetPath(champion.Position, target);
-            if (movePath != null && movePath.Count > 1)
-            {
-                champion.SetWaypoints(movePath);
             }
             else
             {
-                champion.SetWaypoints(new List<Vector2> { champion.Position, target });
+                champion.UpdateMoveOrder(OrderType.AttackMove, true);
             }
-            champion.UpdateMoveOrder(OrderType.MoveTo, true);
         }
 
-        void CheckStuck(float diff)
+        bool IsInCombat()
         {
-            if (stuckCheckTimer < STUCK_CHECK_INTERVAL)
-            {
-                return;
-            }
-            stuckCheckTimer = 0f;
+            float timeSinceLastCombat = GameTime() - lastCombatTime;
+            float timeSinceLastKill = GameTime() - lastKillTime;
 
-            float moveDist = Vector2.Distance(champion.Position, lastPosition);
-            if (moveDist < STUCK_DISTANCE)
+            if (timeSinceLastCombat < COMBAT_TIMEOUT)
             {
-                stuckCounter++;
+                return true;
             }
-            else
+
+            if (timeSinceLastKill > 0 && timeSinceLastKill < POST_COMBAT_RECALL_DELAY)
             {
-                stuckCounter = 0;
+                return true;
             }
-            lastPosition = champion.Position;
 
-            if (stuckCounter >= 3)
+            return false;
+        }
+
+        void CheckCombatState(float diff)
+        {
+            var nearbyUnits = GetUnitsInRange(champion.Position, COMBAT_RANGE, true);
+            foreach (var unit in nearbyUnits)
             {
-                stuckCounter = 0;
-                Vector2 randDir = new Vector2(
-                    (float)(random.NextDouble() * 2 - 1),
-                    (float)(random.NextDouble() * 2 - 1)
-                );
-                randDir = Vector2.Normalize(randDir);
-                Vector2 bypassPos = champion.Position + randDir * 200f;
-
-                var bypassPath = GetPath(champion.Position, bypassPos);
-                if (bypassPath != null && bypassPath.Count > 1)
+                if (!(unit is AttackableUnit u)
+                    || u.IsDead
+                    || u.Team == champion.Team
+                    || !u.IsVisibleByTeam(champion.Team))
                 {
-                    champion.SetWaypoints(bypassPath);
+                    continue;
                 }
-                else
-                {
-                    champion.SetWaypoints(new List<Vector2> { champion.Position, bypassPos });
-                }
-                champion.UpdateMoveOrder(OrderType.MoveTo, true);
 
-                if (currentWaypoint < laneWaypoints.Count - 1)
+                if (u is Champion || u is BaseTurret || u is Minion)
                 {
-                    currentWaypoint++;
+                    lastCombatTime = GameTime();
+
+                    if (u is Champion)
+                    {
+                        lastKillTime = GameTime();
+                    }
+                    return;
                 }
             }
         }
 
-        void RetreatToBase()
+        bool IsInEnemyTurretRange(Vector2 position)
         {
-            Vector2 basePos = champion.Team == TeamId.TEAM_BLUE
-                ? new Vector2(0, 1000)
-                : new Vector2(13300, 14600);
+            return IsUnderEnemyTurret(position, out _);
+        }
 
-            var path = GetPath(champion.Position, basePos);
+        bool IsTargetInEnemyTurretRange(Vector2 target)
+        {
+            return IsUnderEnemyTurret(target, out _);
+        }
+
+        BaseTurret GetNearestEnemyTurret(Vector2 position)
+        {
+            BaseTurret nearestTurret = null;
+            float nearestDist = float.MaxValue;
+
+            var nearbyUnits = GetUnitsInRange(position, TURRET_SAFE_RANGE, true);
+            foreach (var unit in nearbyUnits)
+            {
+                if (unit is BaseTurret turret
+                    && !turret.IsDead
+                    && turret.Team != champion.Team)
+                {
+                    float dist = Vector2.Distance(position, turret.Position);
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearestTurret = turret;
+                    }
+                }
+            }
+
+            return nearestTurret;
+        }
+
+        bool IsUnderEnemyTurret(Vector2 position, out BaseTurret nearestTurret, float margin = 50f)
+        {
+            nearestTurret = GetNearestEnemyTurret(position);
+            if (nearestTurret == null)
+            {
+                return false;
+            }
+
+            float turretRange = nearestTurret.Stats.Range.Total;
+            return Vector2.Distance(position, nearestTurret.Position) < turretRange + margin;
+        }
+
+        Vector2 GetSafePositionFromTurret(BaseTurret turret, Vector2 fromPosition, float extraDistance = 250f)
+        {
+            Vector2 away = fromPosition - turret.Position;
+            if (away.LengthSquared() < 1f)
+            {
+                away = champion.Team == TeamId.TEAM_BLUE
+                    ? new Vector2(-1, -1)
+                    : new Vector2(1, 1);
+            }
+            away = Vector2.Normalize(away);
+
+            float turretRange = turret.Stats.Range.Total;
+            float safeDistance = turretRange + extraDistance;
+            return turret.Position + away * safeDistance;
+        }
+
+        void RetreatFromTurret()
+        {
+            var nearestTurret = GetNearestEnemyTurret(champion.Position);
+            if (nearestTurret == null)
+            {
+                return;
+            }
+
+            Vector2 safePos = GetSafePositionFromTurret(nearestTurret, champion.Position, 300f);
+
+            var path = GetPath(champion.Position, safePos);
             if (path != null && path.Count > 1)
             {
                 champion.SetWaypoints(path);
             }
             else
             {
-                champion.SetWaypoints(new List<Vector2> { champion.Position, basePos });
+                champion.SetWaypoints(new List<Vector2> { champion.Position, safePos });
             }
             champion.UpdateMoveOrder(OrderType.MoveTo, true);
             champion.CancelAutoAttack(false, true);
             champion.SetTargetUnit(null, true);
         }
+
+        // Custom lane movement and support logic override base movement behavior when needed.
     }
 }

@@ -1,1 +1,0 @@
-LeagueSandbox is a AGPL-3.0 open-source project

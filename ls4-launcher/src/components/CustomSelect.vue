@@ -47,6 +47,16 @@ export default {
       open: false
     };
   },
+  watch: {
+    default(newValue) {
+      this.selected = newValue;
+    },
+    options(newOptions) {
+      if (!newOptions.includes(this.selected)) {
+        this.selected = this.default || newOptions[0] || null;
+      }
+    }
+  },
   mounted() {
     this.$emit("input", this.selected);
   }

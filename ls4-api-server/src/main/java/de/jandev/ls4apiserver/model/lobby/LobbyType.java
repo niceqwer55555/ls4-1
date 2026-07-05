@@ -6,7 +6,11 @@ import lombok.Getter;
 public enum LobbyType {
     SUMMONERS_RIFT_DRAFT(5, 3, 1), SUMMONERS_RIFT_BLIND(5, 0, 1),
     TWISTED_TREELINE_DRAFT(3, 3, 10), TWISTED_TREELINE_BLIND(3, 0, 10),
-    ARAM_BLIND(5, 0, 12);
+    ODIN_DRAFT(5, 3, 8), ODIN_BLIND(5, 0, 8),
+    ARAM_BLIND(5, 0, 12),
+    SUMMONERS_RIFT_BOT_BLIND(5, 0, 1), SUMMONERS_RIFT_BOT_DRAFT(5, 3, 1),
+    ODIN_BOT_BLIND(5, 0, 8), ODIN_BOT_DRAFT(5, 3, 8),
+    ARAM_BOT_ARAM(5, 0, 12);
     // CUSTOM SIZE IS ALWAYS 10 currently (Update: I have no clue what this means.)
 
     private final int teamSize;

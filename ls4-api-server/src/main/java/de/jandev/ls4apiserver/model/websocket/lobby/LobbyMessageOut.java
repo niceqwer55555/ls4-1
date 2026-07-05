@@ -26,6 +26,8 @@ public class LobbyMessageOut {
 
     private List<UserPublicOut> members = new ArrayList<>();
 
+    private List<LobbyBotOut> bots = new ArrayList<>();
+
     private Map<String, InviteStatus> invited = new HashMap<>();
 
     private UserPublicOut owner;
@@ -47,6 +49,10 @@ public class LobbyMessageOut {
 
         for (User member : lobby.getMembers()) {
             this.members.add(new UserPublicOut(member));
+        }
+
+        for (var bot : lobby.getBots()) {
+            this.bots.add(new LobbyBotOut(bot));
         }
 
         for (Map.Entry<User, InviteStatus> member : lobby.getInvited().entrySet()) {

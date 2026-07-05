@@ -2,6 +2,8 @@ package de.jandev.ls4apiserver.model.champselect;
 
 import de.jandev.ls4apiserver.model.collection.champion.Champion;
 import de.jandev.ls4apiserver.model.collection.skin.Skin;
+import de.jandev.ls4apiserver.model.game.Runes;
+import de.jandev.ls4apiserver.model.game.Talents;
 import de.jandev.ls4apiserver.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +35,9 @@ public class LobbyUser {
     private boolean canLockIn;
 
     private LobbyTeam team;
+
+    private Runes runes = new Runes();
+    private Talents talents = new Talents();
 
     public LobbyUser(User user) {
         this.user = user;

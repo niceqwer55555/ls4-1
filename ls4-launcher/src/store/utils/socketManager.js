@@ -847,6 +847,28 @@ export default class SocketManager {
         }
         break;
 
+      case "LOBBY_ADD_BOT":
+        if (flyback) {
+          callback = flyback;
+          payload = params;
+        } else {
+          callback = () => {
+            console.log("Recieved response");
+          };
+        }
+        break;
+
+      case "LOBBY_REMOVE_BOT":
+        if (flyback) {
+          callback = flyback;
+          payload = params;
+        } else {
+          callback = () => {
+            console.log("Recieved response");
+          };
+        }
+        break;
+
       case "LOBBY_CHAMPSELECT_ACCEPT":
         if (flyback) {
           callback = flyback;

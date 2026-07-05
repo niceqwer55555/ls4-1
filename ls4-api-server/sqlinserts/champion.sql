@@ -242,3 +242,7 @@ INSERT INTO champion (id, display_name, price, title, availability)
 VALUES ('Zilean', 'Zilean', null, 'the Chronokeeper', 'PUBLIC');
 INSERT INTO champion (id, display_name, price, title, availability)
 VALUES ('Zyra', 'Zyra', null, 'the Rise of the Thorns', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Ekko', 'Ekko', null, 'the Boy Who Shattered Time', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Urf', 'Urf', null, 'the Manatee', 'PUBLIC');

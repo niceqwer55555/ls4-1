@@ -1,6 +1,10 @@
 import fs from "fs";
 import axios from "axios";
 import SocketManager from "../utils/socketManager";
+import {
+  getDefaultRunePages,
+  getDefaultMasteryPages
+} from "../../utils/runeMasteryData";
 
 export default {
   registerUser({ commit, state }, formData) {
@@ -364,5 +368,128 @@ export default {
   },
   deductUserCoins({ commit }, deductable) {
     commit("deductUserCoins", deductable);
+  },
+  loadRuneMasteryPages({ commit, state }) {
+    return state.rememberTokenPath.then(result => {
+      let runePages = getDefaultRunePages();
+      let masteryPages = getDefaultMasteryPages();
+      let currentRunePage = 0;
+      let currentMasteryPage = 0;
+
+      const convertRunePage = page => {
+        if (!page) return page;
+        if (page.runes) return page;
+        if (Array.isArray(page.slots)) {
+          const runes = {};
+          page.slots.forEach(slot => {
+            if (slot && slot.slot && slot.runeId) {
+              runes[slot.slot] = slot.runeId;
+            }
+          });
+          return {
+            ...page,
+            runes
+          };
+        }
+        return {
+          ...page,
+          runes: page.runes || {}
+        };
+      };
+
+      const convertMasteryPage = page => {
+        if (!page) return page;
+        if (page.masteries) return page;
+        if (page.talents && typeof page.talents === "object") {
+          return {
+            ...page,
+            masteries: page.talents
+          };
+        }
+        return {
+          ...page,
+          masteries: page.masteries || {}
+        };
+      };
+
+      const dataPath = result.replace("remember.json", "runemastery.json");
+      if (fs.existsSync(dataPath)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+          if (data.runePages && data.runePages.length > 0) {
+            runePages = data.runePages.map(convertRunePage);
+          }
+          if (data.masteryPages && data.masteryPages.length > 0) {
+            masteryPages = data.masteryPages.map(convertMasteryPage);
+          }
+          if (typeof data.currentRunePage === "number") {
+            currentRunePage = data.currentRunePage;
+          }
+          if (typeof data.currentMasteryPage === "number") {
+            currentMasteryPage = data.currentMasteryPage;
+          }
+        } catch (e) {
+          console.error("Failed to load rune/mastery data:", e);
+        }
+      }
+
+      if (currentRunePage < 0 || currentRunePage >= runePages.length) {
+        currentRunePage = 0;
+      }
+      if (currentMasteryPage < 0 || currentMasteryPage >= masteryPages.length) {
+        currentMasteryPage = 0;
+      }
+
+      commit("setRunePages", runePages);
+      commit("setMasteryPages", masteryPages);
+      commit("setCurrentRunePage", currentRunePage);
+      commit("setCurrentMasteryPage", currentMasteryPage);
+      return { runePages, masteryPages, currentRunePage, currentMasteryPage };
+    });
+  },
+  saveRuneMasteryPages({ state }) {
+    return state.rememberTokenPath.then(result => {
+      const dataPath = result.replace("remember.json", "runemastery.json");
+      const data = {
+        runePages: state.runePages,
+        masteryPages: state.masteryPages,
+        currentRunePage: state.currentRunePage,
+        currentMasteryPage: state.currentMasteryPage
+      };
+      fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+      return true;
+    });
+  },
+  selectRunePage({ commit, dispatch }, index) {
+    commit("setCurrentRunePage", index);
+    dispatch("saveRuneMasteryPages");
+  },
+  selectMasteryPage({ commit, dispatch }, index) {
+    commit("setCurrentMasteryPage", index);
+    dispatch("saveRuneMasteryPages");
+  },
+  addRunePage({ commit, dispatch }, page) {
+    commit("addRunePage", page);
+    dispatch("saveRuneMasteryPages");
+  },
+  editRunePage({ commit, dispatch }, { index, page }) {
+    commit("editRunePage", { index, page });
+    dispatch("saveRuneMasteryPages");
+  },
+  deleteRunePage({ commit, dispatch }, index) {
+    commit("deleteRunePage", index);
+    dispatch("saveRuneMasteryPages");
+  },
+  addMasteryPage({ commit, dispatch }, page) {
+    commit("addMasteryPage", page);
+    dispatch("saveRuneMasteryPages");
+  },
+  editMasteryPage({ commit, dispatch }, { index, page }) {
+    commit("editMasteryPage", { index, page });
+    dispatch("saveRuneMasteryPages");
+  },
+  deleteMasteryPage({ commit, dispatch }, index) {
+    commit("deleteMasteryPage", index);
+    dispatch("saveRuneMasteryPages");
   }
 };

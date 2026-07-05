@@ -17,7 +17,8 @@ function LobbyFactory(){
         gameMode: options.gamemodeName,
         requirePassword: false,
         address: "http://localhost",
-        port: port
+        port: port,
+        lobbyType: options.lobbyType || "SUMMONERS_RIFT_BLIND"
     };
     module.exports = {
         name: options.name,
@@ -27,11 +28,11 @@ function LobbyFactory(){
         gameMode: options.gamemodeName,
         requirePassword: false,
         address: "http://localhost",
-        port: port
+        port: port,
+        lobbyType: options.lobbyType || "SUMMONERS_RIFT_BLIND"
     };
     var fork = require('child_process').fork;
-    //We start a Lobby process and we send the port
-    var child = fork('lobby', [port, configPath, GameServerPort]);
+    var child = fork('lobby', [port, configPath, GameServerPort, options.lobbyType || "SUMMONERS_RIFT_BLIND"]);
     return lobby;
   }
 }

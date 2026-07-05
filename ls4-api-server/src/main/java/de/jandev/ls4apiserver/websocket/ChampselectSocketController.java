@@ -65,7 +65,7 @@ public class ChampselectSocketController {
                             champselectMessageHandler.handleBanLockChampion(gameLobby.get(), lobbyUser.get(), (String) message.getData());
                             break;
                         case CHAMPSELECT_LOCK_CHAMPION:
-                            champselectMessageHandler.handleLockChampion(gameLobby.get(), lobbyUser.get(), (String) message.getData());
+                            champselectMessageHandler.handleLockChampion(gameLobby.get(), lobbyUser.get(), message.getData());
                             break;
                         case CHAMPSELECT_SELECT_SPELL_1:
                             champselectMessageHandler.handleSelectSpell(gameLobby.get(), lobbyUser.get(), (String) message.getData(), true);

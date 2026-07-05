@@ -1,4 +1,4 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -31,7 +31,8 @@ namespace Buffs
         {
             Owner = ownerSpell.CastInfo.Owner;
             Target = unit;
-            damage = 10 + Owner.Stats.Level * 4;
+            damage = 20 + Owner.Stats.Level * 10;
+            unit.AddStatModifier(StatsModifier);
             ignite = AddParticleTarget(Owner, unit, "Global_SS_Ignite", unit, buff.Duration, bone: "C_BUFFBONE_GLB_CHEST_LOC");
         }
 

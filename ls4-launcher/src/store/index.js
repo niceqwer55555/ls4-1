@@ -68,12 +68,12 @@ export default new Vuex.Store({
           process.env.VUE_APP_API !== "undefined" &&
           process.env.VUE_APP_API !== undefined
             ? `https://${process.env.VUE_APP_API}`
-            : "http://127.0.0.1:8080", //https://api.leagues4.com
+            : "http://127.0.0.1:3000",
         port:
           process.env.VUE_APP_API_PORT !== "undefined" &&
           process.env.VUE_APP_API_PORT !== undefined
-            ? 8080 //process.env.VUE_APP_API_PORT
-            : 443
+            ? process.env.VUE_APP_API_PORT
+            : 3000
       },
       path: {
         client: ""
@@ -125,7 +125,11 @@ export default new Vuex.Store({
       "SummonerBarrier",
       "SummonerOdinGarrison",
       "SummonerClairvoyance"
-    ]
+    ],
+    runePages: [],
+    masteryPages: [],
+    currentRunePage: 0,
+    currentMasteryPage: 0
   },
   mutations: {
     ...systemMutations,

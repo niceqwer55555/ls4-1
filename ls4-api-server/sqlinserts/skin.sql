@@ -1334,3 +1334,9 @@ INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
 VALUES (667, 'PUBLIC', 'Haunted Zyra', 2, null, 'Zyra');
 INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
 VALUES (668, 'PUBLIC', 'SKT T1 Zyra', 3, null, 'Zyra');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (669, 'PUBLIC', 'default', 0, null, 'Ekko');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (670, 'PUBLIC', 'Project Ekko', 1, null, 'Ekko');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (671, 'PUBLIC', 'default', 0, null, 'Urf');

@@ -147,26 +147,21 @@
             <div class="title">
               {{ t("CS_LABEL_RUNES_MASTERIES") }}
             </div>
-            <button disabled class="editBtn disabled">
+            <button class="editBtn" @click="editRuneMastery">
               <i class="fas fa-pencil"></i>
             </button>
             <div class="selects">
               <CustomSelect
-                :options="['Runepage #1', 'Runepage #2', 'Runepage #3']"
-                :default="'Runepage #1'"
+                :options="runePageOptions"
+                :default="runePageOptions[currentRunePage]"
                 class="select"
-                @input="selectedRunePage"
+                @input="onRunePageSelected"
               />
               <CustomSelect
-                :options="[
-                  'Masterypage #1',
-                  'Masterypage #2',
-                  'Masterypage #3'
-                ]"
-                :default="'Masterypage #1'"
+                :options="masteryPageOptions"
+                :default="masteryPageOptions[currentMasteryPage]"
                 class="select"
-                style="z-index: -1"
-                @input="selectedMasteryPage"
+                @input="onMasteryPageSelected"
               />
             </div>
           </div>
@@ -282,6 +277,10 @@
         </div>
       </div>
     </div>
+    <RuneMasteryEditor
+      :visible="showRuneMasteryEditor"
+      @close="closeRuneMasteryEditor"
+    />
   </div>
 </template>
 
@@ -293,6 +292,7 @@ import EnemyPlayer from "../components/ChampSelect/EnemyPlayer.vue";
 import Champion from "../components/ChampSelect/Champion.vue";
 import Skin from "../components/ChampSelect/Skin.vue";
 import ChampionBan from "../components/ChampSelect/ChampionBan.vue";
+import RuneMasteryEditor from "../components/RuneMasteryEditor.vue";
 
 export default {
   components: {
@@ -301,10 +301,12 @@ export default {
     Champion,
     Skin,
     ChampionBan,
-    CustomSelect
+    CustomSelect,
+    RuneMasteryEditor
   },
   mounted() {
     this.$sound.template("CHAMPSELECT_INTRO");
+    this.$store.dispatch("loadRuneMasteryPages");
     setTimeout(() => {
       if (this.champselect.lobbyType === "SUMMONERS_RIFT_DRAFT") {
         this.audioId = this.$sound.template("CHAMPSELECT_MUSIC_DRAFT");
@@ -326,7 +328,8 @@ export default {
       lastState: "",
       wasTrading: false,
       lastMessages: null,
-      audioId: null
+      audioId: null,
+      showRuneMasteryEditor: false
     };
   },
   created() {
@@ -464,11 +467,42 @@ export default {
     selectedMasteryPage() {
       console.log("RUNEPAGE SELECTED");
     },
+    onRunePageSelected(option) {
+      const index = this.runePageOptions.indexOf(option);
+      if (index >= 0) {
+        this.$store.dispatch("selectRunePage", index);
+      }
+    },
+    onMasteryPageSelected(option) {
+      const index = this.masteryPageOptions.indexOf(option);
+      if (index >= 0) {
+        this.$store.dispatch("selectMasteryPage", index);
+      }
+    },
+    editRuneMastery() {
+      this.showRuneMasteryEditor = true;
+    },
+    closeRuneMasteryEditor() {
+      this.showRuneMasteryEditor = false;
+    },
     lockedInChampion() {
       if (this.currentPlayer && !this.currentPlayer.selectedChampion) return;
+      const currentRunePage = this.runePages[this.currentRunePage] || {
+        runes: {}
+      };
+      const currentMasteryPage = this.masteryPages[this.currentMasteryPage] || {
+        masteries: {}
+      };
+
       this.$socket.sendChampSelectMessage(
         "CHAMPSELECT_LOCK_CHAMPION",
-        { data: this.currentPlayer.selectedChampion.id },
+        {
+          data: {
+            championId: this.currentPlayer.selectedChampion.id,
+            runes: currentRunePage.runes,
+            talents: currentMasteryPage.masteries
+          }
+        },
         (response, error) => {
           if (error) {
             console.log("Flyback error:");
@@ -711,72 +745,98 @@ export default {
       );
     }
   },
-  computed: mapState({
-    champions: state => state.collection.champions,
-    chatMessages: state => state.champselectMessages,
-    champselect: state => state.champselect,
-    enemyTeam: state => state.csEnemyTeam,
-    allyBans: state => state.csAllyBans,
-    enemyBans: state => state.csEnemyBans,
-    globalState: state => state.csGlobalState,
-    currentPlayer: state => state.csCurrentPlayer,
-    isTradingTarget: state => {
-      if (state.champselect == {}) return false;
-
-      const myTrades = state.champselect.tradesTeam.filter(trade => {
-        return (
-          trade.target.user.summonerName ==
-          state.csCurrentPlayer.user.summonerName
-        );
-      });
-
-      if (myTrades.length == 0) {
-        return false;
-      } else {
-        return true;
+  computed: {
+    runePageOptions() {
+      if (this.runePages && this.runePages.length > 0) {
+        return this.runePages.map(p => p.name);
       }
+      return [
+        this.t("CS_RUNEPAGE_1"),
+        this.t("CS_RUNEPAGE_2"),
+        this.t("CS_RUNEPAGE_3")
+      ];
     },
-    isTrading: state => {
-      if (state.champselect == {}) return false;
+    masteryPageOptions() {
+      if (this.masteryPages && this.masteryPages.length > 0) {
+        return this.masteryPages.map(p => p.name);
+      }
+      return [
+        this.t("CS_MASTERYPAGE_1"),
+        this.t("CS_MASTERYPAGE_2"),
+        this.t("CS_MASTERYPAGE_3")
+      ];
+    },
+    ...mapState({
+      champions: state => state.collection.champions,
+      chatMessages: state => state.champselectMessages,
+      champselect: state => state.champselect,
+      enemyTeam: state => state.csEnemyTeam,
+      allyBans: state => state.csAllyBans,
+      enemyBans: state => state.csEnemyBans,
+      globalState: state => state.csGlobalState,
+      currentPlayer: state => state.csCurrentPlayer,
+      runePages: state => state.runePages,
+      masteryPages: state => state.masteryPages,
+      currentRunePage: state => state.currentRunePage,
+      currentMasteryPage: state => state.currentMasteryPage,
+      isTradingTarget: state => {
+        if (state.champselect == {}) return false;
 
-      const myTrades = state.champselect.tradesTeam.filter(trade => {
-        return (
-          trade.initiator.user.summonerName ==
-            state.csCurrentPlayer.user.summonerName ||
-          trade.target.user.summonerName ==
+        const myTrades = state.champselect.tradesTeam.filter(trade => {
+          return (
+            trade.target.user.summonerName ==
             state.csCurrentPlayer.user.summonerName
-        );
-      });
+          );
+        });
 
-      if (myTrades.length == 0) {
-        return false;
-      } else {
-        return true;
-      }
-    },
-    filteredChampions: state => {
-      return state.collection.champions.filter(c => c.shouldShow);
-    },
-    filteredSpells: state => {
-      return state.availableSpells.filter(c => {
-        if (state.champselect.lobbyType == "ARAM_BLIND") {
-          if (
-            c === "SummonerOdinGarrison" ||
-            c === "SummonerClairvoyance" ||
-            c === "SummonerTeleport" ||
-            c === "SummonerSmite"
-          ) {
-            return false;
-          }
+        if (myTrades.length == 0) {
+          return false;
         } else {
-          if (c === "SummonerOdinGarrison") {
-            return false;
-          }
+          return true;
         }
-        return true;
-      });
-    }
-  }),
+      },
+      isTrading: state => {
+        if (state.champselect == {}) return false;
+
+        const myTrades = state.champselect.tradesTeam.filter(trade => {
+          return (
+            trade.initiator.user.summonerName ==
+              state.csCurrentPlayer.user.summonerName ||
+            trade.target.user.summonerName ==
+              state.csCurrentPlayer.user.summonerName
+          );
+        });
+
+        if (myTrades.length == 0) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+      filteredChampions: state => {
+        return state.collection.champions.filter(c => c.shouldShow);
+      },
+      filteredSpells: state => {
+        return state.availableSpells.filter(c => {
+          if (state.champselect.lobbyType == "ARAM_BLIND") {
+            if (
+              c === "SummonerOdinGarrison" ||
+              c === "SummonerClairvoyance" ||
+              c === "SummonerTeleport" ||
+              c === "SummonerSmite"
+            ) {
+              return false;
+            }
+          } else {
+            if (c === "SummonerOdinGarrison") {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+    })
+  },
   updated() {
     if (this.wasTrading && !this.isTrading) {
       this.wasTrading = false;

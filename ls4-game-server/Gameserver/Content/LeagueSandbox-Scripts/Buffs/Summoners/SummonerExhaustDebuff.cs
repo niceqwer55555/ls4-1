@@ -1,4 +1,4 @@
-﻿using GameServerCore.Enums;
+using GameServerCore.Enums;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
@@ -20,10 +20,10 @@ namespace Buffs
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            StatsModifier.MoveSpeed.PercentBonus = -0.3f;
-            StatsModifier.AttackSpeed.PercentBonus = -0.3f;
-            StatsModifier.Armor.BaseBonus = -10;
-            StatsModifier.MagicResist.BaseBonus = -10;
+            StatsModifier.MoveSpeed.PercentBonus = -0.4f;
+            StatsModifier.AttackSpeed.PercentBonus = -0.4f;
+            StatsModifier.AttackDamage.PercentBonus = -0.7f;
+            StatsModifier.AbilityPower.PercentBonus = -0.7f;
             unit.AddStatModifier(StatsModifier);
         }
     }

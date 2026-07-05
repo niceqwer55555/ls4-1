@@ -3,11 +3,15 @@ package de.jandev.ls4apiserver.service;
 import de.jandev.ls4apiserver.exception.ApplicationException;
 import de.jandev.ls4apiserver.exception.ApplicationExceptionCode;
 import de.jandev.ls4apiserver.model.champselect.LobbyTeam;
+import de.jandev.ls4apiserver.model.collection.champion.Champion;
 import de.jandev.ls4apiserver.model.event.LobbyRemoveEvent;
+import de.jandev.ls4apiserver.model.lobby.BotDifficulty;
 import de.jandev.ls4apiserver.model.lobby.InviteStatus;
 import de.jandev.ls4apiserver.model.lobby.Lobby;
+import de.jandev.ls4apiserver.model.lobby.LobbyBot;
 import de.jandev.ls4apiserver.model.lobby.LobbyType;
 import de.jandev.ls4apiserver.model.user.User;
+import de.jandev.ls4apiserver.model.websocket.lobby.LobbyBotIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyTypeIn;
 import de.jandev.ls4apiserver.utility.LogMessage;
 import org.slf4j.Logger;
@@ -27,11 +31,13 @@ public class LobbyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LobbyService.class);
     private final Map<String, Lobby> lobbies = new ConcurrentHashMap<>();
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserCollectionService userCollectionService;
     @Value("${user.max.lobby.invites}")
     private int userMaxLobbyInvites;
 
-    public LobbyService(ApplicationEventPublisher applicationEventPublisher) {
+    public LobbyService(ApplicationEventPublisher applicationEventPublisher, UserCollectionService userCollectionService) {
         this.applicationEventPublisher = applicationEventPublisher;
+        this.userCollectionService = userCollectionService;
     }
 
     public Lobby createLobby(User user, LobbyTypeIn lobbyTypeIn) throws ApplicationException {
@@ -72,9 +78,10 @@ public class LobbyService {
 
         // Only allow type switch if lobby fits in new size
         // Custom games are always * 2 the size of the teamSize
+        var totalOccupancy = lobby.getMembers().size() + lobby.getBots().size();
         if (lobbyType.isPresent()
-                && (lobby.getMembers().size() <= lobbyType.get().getTeamSize()
-                || lobbyTypeIn.isCustom() && lobby.getMembers().size() <= (lobbyType.get().getTeamSize() * 2))) {
+                && (totalOccupancy <= lobbyType.get().getTeamSize()
+                || lobbyTypeIn.isCustom() && totalOccupancy <= (lobbyType.get().getTeamSize() * 2))) {
 
             lobby.setCustom(lobbyTypeIn.isCustom());
 
@@ -164,8 +171,9 @@ public class LobbyService {
                 throw new ApplicationException(HttpStatus.CONFLICT, ApplicationExceptionCode.LOBBY_ALREADY_MEMBER,
                         MessageFormatter.format(LogMessage.LOBBY_ALREADY_MEMBER, invited.getSummonerName(), lobbyUuid).getMessage());
             } else {
-                if (lobby.getMembers().size() != lobby.getLobbyType().getTeamSize()
-                        || lobby.isCustom() && lobby.getMembers().size() != (lobby.getLobbyType().getTeamSize() * 2)) {
+                var totalOccupancy = lobby.getMembers().size() + lobby.getBots().size();
+                if (totalOccupancy != lobby.getLobbyType().getTeamSize()
+                        || lobby.isCustom() && totalOccupancy != (lobby.getLobbyType().getTeamSize() * 2)) {
                     lobby.getMembers().add(invited);
 
                     // Initialized on create
@@ -271,6 +279,84 @@ public class LobbyService {
         }
 
         return false;
+    }
+
+    public Lobby addBot(Lobby lobby, User user, LobbyBotIn botIn) throws ApplicationException {
+        isOwnerOrThrowException(user, lobby);
+
+        if (!lobby.isCustom()) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_TYPE_INVALID, "Bots can only be added to custom lobbies");
+        }
+
+        // Parse team
+        LobbyTeam team;
+        try {
+            team = LobbyTeam.valueOf(botIn.getTeam());
+        } catch (IllegalArgumentException e) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_TYPE_INVALID, "Invalid team: " + botIn.getTeam());
+        }
+
+        // Parse difficulty
+        BotDifficulty difficulty;
+        try {
+            difficulty = BotDifficulty.valueOf(botIn.getDifficulty().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_TYPE_INVALID, "Invalid difficulty: " + botIn.getDifficulty());
+        }
+
+        // Validate role
+        var validRoles = java.util.Set.of("Top", "Jungle", "Mid", "ADC", "Support");
+        if (!validRoles.contains(botIn.getRole())) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_TYPE_INVALID, "Invalid role: " + botIn.getRole());
+        }
+
+        // Check team size (members + bots on this team)
+        var teamHumans = team == LobbyTeam.TEAM1 ? lobby.getTeam1().size() : lobby.getTeam2().size();
+        var teamBots = lobby.getBots().stream().filter(b -> b.getTeam() == team).count();
+        if (teamHumans + teamBots >= lobby.getLobbyType().getTeamSize()) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_FULL, "Team is full");
+        }
+
+        // Check role uniqueness in team
+        boolean roleTaken = lobby.getBots().stream()
+                .anyMatch(b -> b.getTeam() == team && b.getRole().equalsIgnoreCase(botIn.getRole()));
+        if (roleTaken) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.LOBBY_ALREADY_INVITED, "Role already taken in team: " + botIn.getRole());
+        }
+
+        // Validate champion exists
+        Champion champion = userCollectionService.getChampionByIdWithoutSpellsAndSkins(botIn.getChampionId());
+
+        // Build bot name: Team prefix (Blue/Red) + Role
+        var teamPrefix = team == LobbyTeam.TEAM1 ? "Blue" : "Red";
+        var botName = teamPrefix + botIn.getRole();
+
+        var bot = new LobbyBot();
+        bot.setName(botName);
+        bot.setChampionId(champion.getId());
+        bot.setChampionDisplayName(champion.getDisplayName());
+        bot.setDifficulty(difficulty);
+        bot.setTeam(team);
+        bot.setRole(botIn.getRole());
+
+        lobby.getBots().add(bot);
+
+        LOGGER.info("Bot {} added to lobby {} by {} (team={}, difficulty={})", botName, lobby.getUuid(), user.getUserName(), team, difficulty);
+
+        return lobby;
+    }
+
+    public Lobby removeBot(Lobby lobby, User user, String botId) throws ApplicationException {
+        isOwnerOrThrowException(user, lobby);
+
+        boolean removed = lobby.getBots().removeIf(b -> b.getBotId().equals(botId));
+        if (!removed) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, ApplicationExceptionCode.LOBBY_NOT_FOUND, "Bot not found: " + botId);
+        }
+
+        LOGGER.info("Bot {} removed from lobby {} by {}", botId, lobby.getUuid(), user.getUserName());
+
+        return lobby;
     }
 
     private void teamCheckTypeSwitch(Lobby lobby) {

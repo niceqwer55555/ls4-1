@@ -24,8 +24,8 @@ exports.startGameServer = function(players, gameServerPort, path, map, lobbyType
             playerObj.champion = dictChamps[players[count].championId];
             playerObj.team = dictTeams[players[count].teamId];
             playerObj.skin = players[count].skinIndex;
-            playerObj.summoner1 = "HEAL";
-            playerObj.summoner2 = "FLASH";
+            playerObj.summoner1 = "FLASH";
+            playerObj.summoner2 = "TELEPORT";
             playerObj.ribbon = 2;
             playerObj.icon = 0;
             playerObj["runes"] = fillRune();
@@ -40,9 +40,8 @@ exports.startGameServer = function(players, gameServerPort, path, map, lobbyType
         }
         
         if (isBotGame) {
-            var botNames = ["BotTop", "BotJungle", "BotMid", "BotADC", "BotSupport"];
+            var botNames = ["Top", "Jungle", "Mid", "ADC", "Support"];
             var botChamps = [86, 107, 81, 67, 412];
-            var botIdCounter = 100;
             
             for (var i = team1Players.length; i < 5; i++) {
                 var bot = new Object();
@@ -52,12 +51,12 @@ exports.startGameServer = function(players, gameServerPort, path, map, lobbyType
                 bot.champion = dictChamps[botChamps[i]];
                 bot.team = "BLUE";
                 bot.skin = 0;
-                bot.summoner1 = "HEAL";
-                bot.summoner2 = "FLASH";
+                bot.summoner1 = "FLASH";
+                bot.summoner2 = "TELEPORT";
                 bot.ribbon = 2;
                 bot.icon = 0;
                 bot["runes"] = fillRune();
-                bot.playerId = -botIdCounter--;
+                bot.playerId = -1;
                 team1Players.push(bot);
             }
             
@@ -69,12 +68,12 @@ exports.startGameServer = function(players, gameServerPort, path, map, lobbyType
                 bot.champion = dictChamps[botChamps[i]];
                 bot.team = "PURPLE";
                 bot.skin = 0;
-                bot.summoner1 = "HEAL";
-                bot.summoner2 = "FLASH";
+                bot.summoner1 = "FLASH";
+                bot.summoner2 = "TELEPORT";
                 bot.ribbon = 2;
                 bot.icon = 0;
                 bot["runes"] = fillRune();
-                bot.playerId = -botIdCounter--;
+                bot.playerId = -1;
                 team2Players.push(bot);
             }
         }
@@ -238,5 +237,6 @@ var dictChamps = {
     238: "Zed",
     115: "Ziggs",
     26: "Zilean",
-    143: "Zyra"
+    143: "Zyra",
+    245: "Ekko"
 };

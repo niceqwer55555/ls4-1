@@ -23,4 +23,5 @@ public class Player {
     private int ribbon; // Selected ribbon id
     private int icon; // Selected icon id
     private Runes runes;
+    private Talents talents;
 }

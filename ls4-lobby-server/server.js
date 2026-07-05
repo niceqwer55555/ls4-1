@@ -36,11 +36,30 @@ io.on('connection', function(client){
 
     client.on('lobby.create', function(options){
         var newLobby = LobbyManagerService.create(options, path);
-        //We send all the info to let clients add the new server to the list
         broadcast('lobbylist-add', {
             newLobby
         });
         console.log("New lobby created with ID " + LobbyManagerService.lobbyCount);
+    });
+
+    client.on('LOBBY_CREATE', function(data){
+        var lobbyType = data.data ? data.data.lobbyType : "SUMMONERS_RIFT_BLIND";
+        var options = {
+            name: "Lobby " + LobbyManagerService.lobbyCount,
+            creator: "System",
+            playerLimit: 10,
+            gamemodeName: "Classic",
+            lobbyType: lobbyType
+        };
+        var newLobby = LobbyManagerService.create(options, path);
+        broadcast('lobbylist-add', {
+            newLobby
+        });
+        console.log("New lobby created with type: " + lobbyType);
+    });
+
+    client.on('LOBBY_CHANGE_TYPE', function(data){
+        console.log("LOBBY_CHANGE_TYPE received: ", data);
     });
 
     client.on('disconnect', function(){
