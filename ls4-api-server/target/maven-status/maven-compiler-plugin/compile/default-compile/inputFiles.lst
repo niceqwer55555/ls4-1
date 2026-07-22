@@ -17,6 +17,7 @@ D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\shop\Cat
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\websocket\GeneralSocketController.java
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\websocket\lobby\LobbyBotIn.java
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\websocket\MessageType.java
+D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\websocket\lobby\LobbyMatchmakingStartIn.java
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\user\Email.java
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\service\LobbyService.java
 D:\game\ls4-1\ls4-api-server\src\main\java\de\jandev\ls4apiserver\model\websocket\champselect\GameStartOut.java

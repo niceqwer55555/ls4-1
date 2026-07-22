@@ -132,6 +132,46 @@
                   {{ getQueueType() }}
                 </p>
               </div>
+              <div class="map-switch" v-if="owner">
+                <label>切换地图:</label>
+                <select v-model="selectedMapOption" @change="onMapChange">
+                  <option v-for="(mapOpt, idx) in mapOptions" :key="idx" :value="mapOpt.lobbyType">
+                    {{ mapOpt.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="runes lolblock">
+            <div class="head">
+              符文 / 天赋
+            </div>
+            <div class="inner">
+              <div class="select-row">
+                <label>符文页</label>
+                <select v-model="selectedRunePage" @change="onRunePageChange">
+                  <option
+                    v-for="(page, index) in runePages"
+                    :key="'rune-' + index"
+                    :value="index"
+                  >
+                    {{ page.name || ('符文页 ' + (index + 1)) }}
+                  </option>
+                </select>
+              </div>
+              <div class="select-row">
+                <label>天赋页</label>
+                <select v-model="selectedMasteryPage" @change="onMasteryPageChange">
+                  <option
+                    v-for="(page, index) in masteryPages"
+                    :key="'mastery-' + index"
+                    :value="index"
+                  >
+                    {{ page.name || ('天赋页 ' + (index + 1)) }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="invites lolblock">
@@ -220,6 +260,11 @@ import BotPlayer from "@/components/Lobby/BotPlayer.vue";
 import SideBar from "@/components/SideBar.vue";
 import ChatMessage from "@/components/Lobby/ChatMessage.vue";
 import { mapState } from "vuex";
+// eslint-disable-next-line no-unused-vars
+import RUNE_DATA from "@/utils/runeData";
+// eslint-disable-next-line no-unused-vars
+import MASTERY_DATA from "@/utils/masteryData";
+
 
 export default {
   components: {
@@ -234,6 +279,29 @@ export default {
       queueNumber: "-",
       botModalVisible: false,
       botRoles: ["Top", "Mid", "Jungle", "ADC", "Support"],
+      selectedRunePage: 0,
+      selectedMasteryPage: 0,
+      selectedMapOption: "",
+      mapOptions: [
+        { label: "召唤师峡谷 (盲选) 5v5", lobbyType: "SUMMONERS_RIFT_BLIND", mapId: 1 },
+        { label: "召唤师峡谷 (征召) 5v5", lobbyType: "SUMMONERS_RIFT_DRAFT", mapId: 1 },
+        { label: "召唤师峡谷 (人机-盲选) 5v5", lobbyType: "SUMMONERS_RIFT_BOT_BLIND", mapId: 1 },
+        { label: "召唤师峡谷 (人机-征召) 5v5", lobbyType: "SUMMONERS_RIFT_BOT_DRAFT", mapId: 1 },
+        { label: "召唤师峡谷-新 (盲选) 5v5", lobbyType: "SUMMONERS_RIFT_NEW_BLIND", mapId: 11 },
+        { label: "召唤师峡谷-新 (征召) 5v5", lobbyType: "SUMMONERS_RIFT_NEW_DRAFT", mapId: 11 },
+        { label: "召唤师峡谷-新 (人机-盲选) 5v5", lobbyType: "SUMMONERS_RIFT_NEW_BOT_BLIND", mapId: 11 },
+        { label: "召唤师峡谷-新 (人机-征召) 5v5", lobbyType: "SUMMONERS_RIFT_NEW_BOT_DRAFT", mapId: 11 },
+        { label: "扭曲森林 (盲选) 3v3", lobbyType: "TWISTED_TREELINE_BLIND", mapId: 10 },
+        { label: "扭曲森林 (征召) 3v3", lobbyType: "TWISTED_TREELINE_DRAFT", mapId: 10 },
+        { label: "扭曲森林-旧 (盲选) 3v3", lobbyType: "TWISTED_TREELINE_OLD_BLIND", mapId: 4 },
+        { label: "扭曲森林-旧 (人机-盲选) 3v3", lobbyType: "TWISTED_TREELINE_OLD_BOT_BLIND", mapId: 4 },
+        { label: "水晶之痕 (盲选) 5v5", lobbyType: "ODIN_BLIND", mapId: 8 },
+        { label: "水晶之痕 (征召) 5v5", lobbyType: "ODIN_DRAFT", mapId: 8 },
+        { label: "水晶之痕 (人机-盲选) 5v5", lobbyType: "ODIN_BOT_BLIND", mapId: 8 },
+        { label: "水晶之痕 (人机-征召) 5v5", lobbyType: "ODIN_BOT_DRAFT", mapId: 8 },
+        { label: "嚎哭深渊 (ARAM) 5v5", lobbyType: "ARAM_BLIND", mapId: 12 },
+        { label: "嚎哭深渊 (人机-ARAM) 5v5", lobbyType: "ARAM_BOT_ARAM", mapId: 12 }
+      ],
       botForm: {
         team: null,
         championId: null,
@@ -280,6 +348,10 @@ export default {
       inQueue: state => state.lobby.inQueue,
       owner: state => state.lobbyOwner,
       serverCount: state => state.serverCount,
+      runePages: state => state.runePages,
+      masteryPages: state => state.masteryPages,
+      currentRunePage: state => state.currentRunePage,
+      currentMasteryPage: state => state.currentMasteryPage,
       currentLobbyPlayer: state => {
         return state.lobby.members.filter(member => {
           return member.summonerName == state.user.summonerName;
@@ -288,6 +360,28 @@ export default {
     })
   },
   methods: {
+    onRunePageChange() {
+      this.$store.dispatch("selectRunePage", this.selectedRunePage);
+    },
+    onMasteryPageChange() {
+      this.$store.dispatch("selectMasteryPage", this.selectedMasteryPage);
+    },
+    onMapChange() {
+      if (!this.selectedMapOption) return;
+      this.$socket.sendLobbyMessage(
+        "LOBBY_CHANGE_TYPE",
+        { data: { lobbyType: this.selectedMapOption, isCustom: true } },
+        (response, error) => {
+          if (error) {
+            console.log("Map change error:", error);
+          }
+        }
+      );
+    },
+    initMapOption() {
+      const currentType = this.$store.state.lobby?.lobbyType || "";
+      this.selectedMapOption = currentType;
+    },
     canJoinTeam(team) {
       if (this.players1 && this.players2) {
         if (team == 2) {
@@ -431,43 +525,86 @@ export default {
         case "SUMMONERS_RIFT_DRAFT":
         case "TWISTED_TREELINE_DRAFT":
         case "ODIN_DRAFT":
+        case "SUMMONERS_RIFT_NEW_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BOT_DRAFT":
+        case "ODIN_BOT_DRAFT":
+        case "SUMMONERS_RIFT_BOT_DRAFT":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_QT_DRAFT");
         case "SUMMONERS_RIFT_BLIND":
         case "TWISTED_TREELINE_BLIND":
         case "ODIN_BLIND":
+        case "SUMMONERS_RIFT_NEW_BLIND":
+        case "TWISTED_TREELINE_OLD_BLIND":
+        case "SUMMONERS_RIFT_BOT_BLIND":
+        case "ODIN_BOT_BLIND":
+        case "SUMMONERS_RIFT_NEW_BOT_BLIND":
+        case "TWISTED_TREELINE_OLD_BOT_BLIND":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_QT_BLIND");
         case "ARAM_BLIND":
+        case "ARAM_BOT_ARAM":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_QT_ARAM");
+        default:
+          return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_QT_BLIND");
       }
     },
     getMapPreview() {
       switch (this.$store.state.lobby.lobbyType) {
         case "SUMMONERS_RIFT_DRAFT":
         case "SUMMONERS_RIFT_BLIND":
+        case "SUMMONERS_RIFT_BOT_BLIND":
+        case "SUMMONERS_RIFT_BOT_DRAFT":
           return "static/images/general/sr-preview.png";
         case "TWISTED_TREELINE_DRAFT":
         case "TWISTED_TREELINE_BLIND":
           return "static/images/general/tt-preview.png";
         case "ARAM_BLIND":
+        case "ARAM_BOT_ARAM":
           return "static/images/general/ha-preview.png";
         case "ODIN_BLIND":
         case "ODIN_DRAFT":
+        case "ODIN_BOT_BLIND":
+        case "ODIN_BOT_DRAFT":
           return "static/images/general/odin-preview.png";
+        case "SUMMONERS_RIFT_NEW_BLIND":
+        case "SUMMONERS_RIFT_NEW_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BOT_BLIND":
+        case "SUMMONERS_RIFT_NEW_BOT_DRAFT":
+          return "static/images/general/new-sr-preview.png";
+        case "TWISTED_TREELINE_OLD_BLIND":
+        case "TWISTED_TREELINE_OLD_BOT_BLIND":
+          return "static/images/general/old-tt-preview.png";
+        default:
+          return "static/images/general/sr-preview.png";
       }
     },
     getMapType() {
       switch (this.$store.state.lobby.lobbyType) {
         case "SUMMONERS_RIFT_DRAFT":
         case "SUMMONERS_RIFT_BLIND":
+        case "SUMMONERS_RIFT_BOT_BLIND":
+        case "SUMMONERS_RIFT_BOT_DRAFT":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_SR");
         case "TWISTED_TREELINE_DRAFT":
         case "TWISTED_TREELINE_BLIND":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_TT");
         case "ARAM_BLIND":
+        case "ARAM_BOT_ARAM":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_HA");
         case "ODIN_BLIND":
         case "ODIN_DRAFT":
+        case "ODIN_BOT_BLIND":
+        case "ODIN_BOT_DRAFT":
           return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_ODIN");
+        case "SUMMONERS_RIFT_NEW_BLIND":
+        case "SUMMONERS_RIFT_NEW_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BOT_BLIND":
+        case "SUMMONERS_RIFT_NEW_BOT_DRAFT":
+          return "召唤师峡谷 (新)";
+        case "TWISTED_TREELINE_OLD_BLIND":
+        case "TWISTED_TREELINE_OLD_BOT_BLIND":
+          return "扭曲森林 (旧)";
+        default:
+          return this.$translate.text("LOBBY_MAP_OPTIONS_VALUE_SR");
       }
     },
     getTeamSize() {
@@ -477,10 +614,23 @@ export default {
         case "ARAM_BLIND":
         case "ODIN_BLIND":
         case "ODIN_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BLIND":
+        case "SUMMONERS_RIFT_NEW_DRAFT":
+        case "SUMMONERS_RIFT_BOT_BLIND":
+        case "SUMMONERS_RIFT_BOT_DRAFT":
+        case "ODIN_BOT_BLIND":
+        case "ODIN_BOT_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BOT_BLIND":
+        case "SUMMONERS_RIFT_NEW_BOT_DRAFT":
+        case "ARAM_BOT_ARAM":
           return "5x5";
         case "TWISTED_TREELINE_DRAFT":
         case "TWISTED_TREELINE_BLIND":
+        case "TWISTED_TREELINE_OLD_BLIND":
+        case "TWISTED_TREELINE_OLD_BOT_BLIND":
           return "3x3";
+        default:
+          return "5x5";
       }
     },
     sendLobbyChatMessage() {
@@ -520,7 +670,12 @@ export default {
 
       this.$socket.sendLobbyMessage(
         "LOBBY_MATCHMAKING_START",
-        {},
+        {
+          data: {
+            runePage: this.runePages[this.selectedRunePage]?.runes || null,
+            masteryPage: this.masteryPages[this.selectedMasteryPage]?.masteries || null
+          }
+        },
         (response, error) => {
           if (error) {
             console.log("Flyback error:");
@@ -584,6 +739,8 @@ export default {
   },
   created() {
     this.$store.dispatch("getServerCount");
+    this.$store.dispatch("loadRuneMasteryPages");
+    this.initMapOption();
   }
 };
 </script>
@@ -881,6 +1038,44 @@ export default {
   color: #c8a91a;
 }
 
+
+.content .mainblock .game .runes {
+  width: 100%;
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content .mainblock .game .runes .inner {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 8px;
+}
+
+.content .mainblock .game .runes .inner .select-row {
+  display: flex;
+  flex-direction: column;
+  font-family: LoLFont2;
+  font-size: 12px;
+}
+
+.content .mainblock .game .runes .inner .select-row label {
+  margin-bottom: 3px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.content .mainblock .game .runes .inner .select-row select {
+  background: #0a1320;
+  color: white;
+  border: 1px solid #304b69;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-family: LoLFont2;
+  font-size: 12px;
+  outline: none;
+}
+
 /* ADD BOT BUTTON */
 
 .content .mainblock .lobby .players .team .inner .addBot {
@@ -1090,5 +1285,29 @@ export default {
 .botModal .foot button:disabled {
   filter: grayscale(70%);
   cursor: not-allowed;
+}
+
+.content .mainblock .game .map .inner .map-switch {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 4px;
+}
+
+.content .mainblock .game .map .inner .map-switch label {
+  font-family: LoLFont2;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.content .mainblock .game .map .inner .map-switch select {
+  background: #0a1320;
+  color: white;
+  border: 1px solid #304b69;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-family: LoLFont2;
+  font-size: 12px;
+  outline: none;
 }
 </style>

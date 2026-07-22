@@ -9,6 +9,7 @@ import de.jandev.ls4apiserver.model.user.User;
 import de.jandev.ls4apiserver.model.websocket.ErrorMessage;
 import de.jandev.ls4apiserver.model.websocket.SocketMessage;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyBotIn;
+import de.jandev.ls4apiserver.model.websocket.lobby.LobbyMatchmakingStartIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyTypeIn;
 import de.jandev.ls4apiserver.service.UserService;
 import de.jandev.ls4apiserver.utility.LogMessage;
@@ -90,7 +91,8 @@ public class LobbySocketController {
                         lobbyMessageHandler.handleLobbyLeave(lobby.get(), user);
                         break;
                     case LOBBY_MATCHMAKING_START:
-                        lobbyMessageHandler.handleLobbyMatchmakingStart(lobby.get(), user);
+                        var matchmakingStartIn = mapper.readValue(mapper.writeValueAsString(message.getData()), LobbyMatchmakingStartIn.class);
+                        lobbyMessageHandler.handleLobbyMatchmakingStart(lobby.get(), user, matchmakingStartIn);
                         break;
                     case LOBBY_MATCHMAKING_STOP:
                         lobbyMessageHandler.handleLobbyMatchmakingStop(lobby.get());

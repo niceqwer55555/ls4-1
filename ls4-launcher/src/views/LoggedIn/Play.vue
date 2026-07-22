@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <div class="pingdisplay">PING: {{ ping }}</div>
     <div class="modeblock">
@@ -160,6 +160,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_SR"),
                   sub: "5x5",
                   code: "SUMMONERS_RIFT",
+                  mapId: 1,
                   selected: false,
                   types: [
                     {
@@ -183,6 +184,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_TT"),
                   sub: "3x3",
                   code: "TWISTED_TREELINE",
+                  mapId: 10,
                   selected: false,
                   types: [
                     {
@@ -202,10 +204,52 @@ export default {
                   ]
                 },
                 {
+                  id: 6,
+                  name: "召唤师峡谷 (新)",
+                  sub: "5x5",
+                  code: "SUMMONERS_RIFT_NEW",
+                  mapId: 11,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BLIND"
+                    },
+                    {
+                      id: 2,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_DRAFT"),
+                      selected: false,
+                      code: "DRAFT"
+                    }
+                  ]
+                },
+                {
+                  id: 7,
+                  name: "扭曲森林 (旧)",
+                  sub: "3x3",
+                  code: "TWISTED_TREELINE_OLD",
+                  mapId: 4,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BLIND"
+                    }
+                  ]
+                },
+                {
                   id: 3,
                   name: this.$translate.text("PLAY_DATA_MAP_ODIN"),
                   sub: "5x5",
                   code: "ODIN",
+                  mapId: 8,
                   selected: false,
                   types: [
                     {
@@ -237,6 +281,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_HA"),
                   sub: "5x5",
                   code: "ARAM",
+                  mapId: 12,
                   selected: false,
                   types: [
                     {
@@ -270,6 +315,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_SR"),
                   sub: "5x5",
                   code: "SUMMONERS_RIFT",
+                  mapId: 1,
                   selected: false,
                   types: [
                     {
@@ -293,6 +339,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_ODIN"),
                   sub: "5x5",
                   code: "ODIN",
+                  mapId: 8,
                   selected: false,
                   types: [
                     {
@@ -310,6 +357,40 @@ export default {
                       code: "BOT_DRAFT"
                     }
                   ]
+                },
+                {
+                  id: 6,
+                  name: "召唤师峡谷 (新)",
+                  sub: "5x5",
+                  code: "SUMMONERS_RIFT_NEW",
+                  mapId: 11,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BOT_BLIND"
+                    }
+                  ]
+                },
+                {
+                  id: 7,
+                  name: "扭曲森林 (旧)",
+                  sub: "3x3",
+                  code: "TWISTED_TREELINE_OLD",
+                  mapId: 4,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BOT_BLIND"
+                    }
+                  ]
                 }
               ]
             },
@@ -325,6 +406,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_HA"),
                   sub: "5x5",
                   code: "ARAM",
+                  mapId: 12,
                   selected: false,
                   types: [
                     {
@@ -357,6 +439,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_SR"),
                   sub: "5x5",
                   code: "SUMMONERS_RIFT",
+                  mapId: 1,
                   selected: false,
                   types: [
                     {
@@ -380,6 +463,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_TT"),
                   sub: "3x3",
                   code: "TWISTED_TREELINE",
+                  mapId: 10,
                   selected: false,
                   types: [
                     {
@@ -403,6 +487,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_ODIN"),
                   sub: "5x5",
                   code: "ODIN",
+                  mapId: 8,
                   selected: false,
                   types: [
                     {
@@ -420,6 +505,47 @@ export default {
                       code: "DRAFT"
                     }
                   ]
+                },
+                {
+                  id: 6,
+                  name: "召唤师峡谷 (新)",
+                  sub: "5x5",
+                  code: "SUMMONERS_RIFT_NEW",
+                  mapId: 11,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BLIND"
+                    },
+                    {
+                      id: 2,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_DRAFT"),
+                      selected: false,
+                      code: "DRAFT"
+                    }
+                  ]
+                },
+                {
+                  id: 7,
+                  name: "扭曲森林 (旧)",
+                  sub: "3x3",
+                  code: "TWISTED_TREELINE_OLD",
+                  mapId: 4,
+                  selected: false,
+                  types: [
+                    {
+                      id: 1,
+                      name: this.$translate.text("PLAY_DATA_TYPE_NORMAL"),
+                      sub: this.$translate.text("PLAY_DATA_PICK_BLIND"),
+                      selected: false,
+                      code: "BLIND"
+                    }
+                  ]
                 }
               ]
             },
@@ -434,6 +560,7 @@ export default {
                   name: this.$translate.text("PLAY_DATA_MAP_HA"),
                   sub: "5x5",
                   code: "ARAM",
+                  mapId: 12,
                   selected: false,
                   types: [
                     {
@@ -488,12 +615,13 @@ export default {
       this.$sound.template("OVERVIEW_CLICK");
       const custom = this.selectedMode.custom;
       const lobbyType = `${this.selectedGameMap.code}_${this.selectedGameType.code}`;
+      const mapId = this.selectedGameMap.mapId || 1;
       const router = this.$router;
 
       if (this.$store.state.lobby.owner) {
         this.$socket.sendLobbyMessage(
           "LOBBY_CHANGE_TYPE",
-          { data: { lobbyType: lobbyType, isCustom: custom } },
+          { data: { lobbyType: lobbyType, isCustom: custom, mapId: mapId } },
           (response, error) => {
             if (error) {
               console.log("Flyback error:");
@@ -510,7 +638,7 @@ export default {
       } else {
         this.$socket.sendSystemMessage(
           "LOBBY_CREATE",
-          { data: { lobbyType: lobbyType, isCustom: custom } },
+          { data: { lobbyType: lobbyType, isCustom: custom, mapId: mapId } },
           (response, error) => {
             if (error) {
               console.log("Flyback error:");
@@ -856,3 +984,5 @@ export default {
   font-size: 11px;
 }
 </style>
+
+

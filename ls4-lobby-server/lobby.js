@@ -27,6 +27,12 @@ function setMapByLobbyType(type) {
         case "SUMMONERS_RIFT_BOT_DRAFT":
             map = 1;
             break;
+        case "SUMMONERS_RIFT_NEW_BLIND":
+        case "SUMMONERS_RIFT_NEW_DRAFT":
+        case "SUMMONERS_RIFT_NEW_BOT_BLIND":
+        case "SUMMONERS_RIFT_NEW_BOT_DRAFT":
+            map = 11;
+            break;
         case "ODIN_BLIND":
         case "ODIN_DRAFT":
         case "ODIN_BOT_BLIND":
@@ -37,9 +43,13 @@ function setMapByLobbyType(type) {
         case "TWISTED_TREELINE_DRAFT":
             map = 10;
             break;
+        case "TWISTED_TREELINE_OLD_BLIND":
+        case "TWISTED_TREELINE_OLD_BOT_BLIND":
+            map = 4;
+            break;
         case "ARAM_BLIND":
         case "ARAM_BOT_ARAM":
-            map = 11;
+            map = 12;
             break;
         default:
             map = 1;

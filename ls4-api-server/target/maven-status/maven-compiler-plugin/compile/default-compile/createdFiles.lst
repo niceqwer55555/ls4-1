@@ -30,6 +30,7 @@ de\jandev\ls4apiserver\model\collection\icon\Icon.class
 de\jandev\ls4apiserver\utility\QueuePopEndTask.class
 de\jandev\ls4apiserver\configuration\WebSecurityConfig.class
 de\jandev\ls4apiserver\model\lobby\LobbyType.class
+de\jandev\ls4apiserver\model\websocket\lobby\LobbyMatchmakingStartIn.class
 de\jandev\ls4apiserver\model\alert\AlertType.class
 de\jandev\ls4apiserver\model\alert\dto\AlertOut.class
 de\jandev\ls4apiserver\configuration\WebSocketConfig.class

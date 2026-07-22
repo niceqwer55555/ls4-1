@@ -43,6 +43,9 @@ module.exports = defineConfig({
         appId: "com.leagues4.launcher",
         productName: "LeagueS4 Launcher",
         copyright: "Copyright (C) 2020  LeagueS4",
+        directories: {
+          output: "D:/game/ls4-1/ls4-launcher/dist-build2"
+        },
         publish: [
           {
             provider: "generic",

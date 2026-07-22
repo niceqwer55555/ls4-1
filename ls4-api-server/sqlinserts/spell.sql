@@ -974,3 +974,237 @@ INSERT INTO spell (id, display_name, champion_id)
 VALUES ('ZyraQFissure', 'Deadly Bloom', 'Zyra');
 INSERT INTO spell (id, display_name, champion_id)
 VALUES ('ZyraSeed', 'Rampant Growth', 'Zyra');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CometOfLegend', 'Comet of Legend', 'AurelionSol');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('VoiceOfLight', 'Voice of Light', 'AurelionSol');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CenterOfTheUniverse', 'Center of the Universe', 'AurelionSol');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('FallingStar', 'Falling Star', 'AurelionSol');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('BardQ', 'Cosmic Binding', 'Bard');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('BardW', 'Caretaker's Shrine', 'Bard');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('BardE', 'Magical Journey', 'Bard');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('BardR', 'Tempered Fate', 'Bard');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CamilleQ', 'Precision Protocol', 'Camille');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CamilleW', 'Tactical Sweep', 'Camille');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CamilleE', 'Hookshot', 'Camille');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('CamilleR', 'The Hextech Ultimatum', 'Camille');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IllaoiQ', 'Tentacle Smash', 'Illaoi');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IllaoiW', 'Harsh Lesson', 'Illaoi');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IllaoiE', 'Test of Spirit', 'Illaoi');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IllaoiR', 'Leap of Faith', 'Illaoi');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IvernQ', 'Rootcaller', 'Ivern');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IvernW', 'Brushmaker', 'Ivern');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IvernE', 'Triggerseed', 'Ivern');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('IvernR', 'Daisy!', 'Ivern');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('JhinQ', 'Dancing Grenade', 'Jhin');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('JhinW', 'Deadly Flourish', 'Jhin');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('JhinE', 'Captive Audience', 'Jhin');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('JhinR', 'Curtain Call', 'Jhin');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaisaQ', 'Icathian Rain', 'Kaisa');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaisaW', 'Void Seeker', 'Kaisa');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaisaE', 'Supercharge', 'Kaisa');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaisaR', 'Killer Instinct', 'Kaisa');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaynQ', 'Reaping Slash', 'Kayn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaynW', 'Shadow Step', 'Kayn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaynE', 'Shadow Assault', 'Kayn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KaynR', 'Umbral Trespass', 'Kayn');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KindredQ', 'Dance of Arrows', 'Kindred');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KindredW', 'Wolf's Frenzy', 'Kindred');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KindredE', 'Mounting Dread', 'Kindred');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KindredR', 'Lamb's Respite', 'Kindred');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KledQ', 'Bear Trap on a Rope', 'Kled');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KledW', 'Violent Tendencies', 'Kled');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KledE', 'Jousting', 'Kled');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('KledR', 'Chaaaaaaaarge!!!', 'Kled');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NaafiriQ', 'Darkin Daggers', 'Naafiri');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NaafiriW', 'Hounds' Pursuit', 'Naafiri');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NaafiriE', 'Eviscerate', 'Naafiri');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NaafiriR', 'The Call of the Pack', 'Naafiri');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NilahQ', 'Formless Blade', 'Nilah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NilahW', 'Apotheosis', 'Nilah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NilahE', 'Slipstream', 'Nilah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('NilahR', 'Apotheosis', 'Nilah');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('OrnnQ', 'Volcanic Rupture', 'Ornn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('OrnnW', 'Bellows Breath', 'Ornn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('OrnnE', 'Searing Charge', 'Ornn');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('OrnnR', 'Call of the Forge God', 'Ornn');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('PykeQ', 'Bone Skewer', 'Pyke');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('PykeW', 'Phantom Undertow', 'Pyke');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('PykeE', 'Ghostwater Dive', 'Pyke');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('PykeR', 'Death from Below', 'Pyke');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RakanQ', 'Gleaming Quill', 'Rakan');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RakanW', 'Grand Entrance', 'Rakan');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RakanE', 'Battle Dance', 'Rakan');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RakanR', 'The Quickness', 'Rakan');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RekSaiQ', 'Queen's Wrath', 'RekSai');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RekSaiW', 'Burrow', 'RekSai');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RekSaiE', 'Furious Bite', 'RekSai');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RekSaiR', 'Void Rush', 'RekSai');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RellQ', 'Shattering Strike', 'Rell');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RellW', 'Ferromancy', 'Rell');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RellE', 'Full Tilt', 'Rell');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('RellR', 'Magnetosphere', 'Rell');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SennaQ', 'Piercing Darkness', 'Senna');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SennaW', 'Last Embrace', 'Senna');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SennaE', 'Curse of the Black Mist', 'Senna');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SennaR', 'Dawning Shadow', 'Senna');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SeraphineQ', 'High Note', 'Seraphine');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SeraphineW', 'Stage Presence', 'Seraphine');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SeraphineE', 'Beat Drop', 'Seraphine');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SeraphineR', 'Encore', 'Seraphine');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SettQ', 'Knuckle Down', 'Sett');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SettW', 'Haymaker', 'Sett');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SettE', 'Facebreaker', 'Sett');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SettR', 'The Show Stopper', 'Sett');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SmolderQ', 'Super Scorcher Breath', 'Smolder');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SmolderW', 'Achoo!', 'Smolder');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SmolderE', 'Flap Flap Flap', 'Smolder');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SmolderR', 'MMOOOMMMMM!', 'Smolder');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SylasQ', 'Chain Lash', 'Sylas');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SylasW', 'Kingslayer', 'Sylas');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SylasE', 'Abscond', 'Sylas');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('SylasR', 'Hijack', 'Sylas');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TahmKenchQ', 'Tongue Lash', 'TahmKench');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TahmKenchW', 'Devour', 'TahmKench');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TahmKenchE', 'Thick Skin', 'TahmKench');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TahmKenchR', 'Abyssal Voyage', 'TahmKench');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TaliyahQ', 'Threaded Volley', 'Taliyah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TaliyahW', 'Seismic Shove', 'Taliyah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TaliyahE', 'Rock Surfing', 'Taliyah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('TaliyahR', 'Weaver's Wall', 'Taliyah');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('XayahQ', 'Double Daggers', 'Xayah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('XayahW', 'Deadly Plumage', 'Xayah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('XayahE', 'Bladecaller', 'Xayah');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('XayahR', 'Featherstorm', 'Xayah');
+
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('ZoeQ', 'Paddle Star', 'Zoe');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('ZoeW', 'Spell Thief', 'Zoe');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('ZoeE', 'Sleepy Trouble Bubble', 'Zoe');
+INSERT INTO spell (id, display_name, champion_id)
+VALUES ('ZoeR', 'Portal Jump', 'Zoe');
+

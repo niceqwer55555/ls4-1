@@ -63,7 +63,7 @@ public class ChampselectService {
     public void setupLobby(GameLobby gameLobby) {
         var lobbyType = gameLobby.getLobbyType();
 
-        if (lobbyType == LobbyType.SUMMONERS_RIFT_DRAFT || lobbyType == LobbyType.TWISTED_TREELINE_DRAFT || lobbyType == LobbyType.ODIN_DRAFT) {
+        if (lobbyType == LobbyType.SUMMONERS_RIFT_DRAFT || lobbyType == LobbyType.TWISTED_TREELINE_DRAFT || lobbyType == LobbyType.ODIN_DRAFT || lobbyType == LobbyType.SUMMONERS_RIFT_NEW_DRAFT) {
             gameLobby.setMaxBansTeam1(lobbyType.getMaxBans());
             gameLobby.setMaxBansTeam2(lobbyType.getMaxBans());
 
@@ -79,7 +79,7 @@ public class ChampselectService {
             if (gameLobby.getTeam2().isEmpty()) {
                 gameLobby.setMaxBansTeam2(0);
             }
-        } else if (lobbyType == LobbyType.SUMMONERS_RIFT_BLIND || lobbyType == LobbyType.TWISTED_TREELINE_BLIND || lobbyType == LobbyType.ODIN_BLIND) {
+        } else if (lobbyType == LobbyType.SUMMONERS_RIFT_BLIND || lobbyType == LobbyType.TWISTED_TREELINE_BLIND || lobbyType == LobbyType.ODIN_BLIND || lobbyType == LobbyType.SUMMONERS_RIFT_NEW_BLIND || lobbyType == LobbyType.TWISTED_TREELINE_OLD_BLIND) {
             gameLobby.setLobbyPhase(LobbyPhase.PICK_BLIND);
             gameLobby.setMaxBansTeam1(0);
             gameLobby.setMaxBansTeam2(0);
@@ -89,6 +89,22 @@ public class ChampselectService {
             gameLobby.setMaxBansTeam2(0);
 
             generateRandomChampions(gameLobby);
+        }
+
+        // Bot lobby types
+        else if (lobbyType == LobbyType.ARAM_BOT_ARAM) {
+            gameLobby.setLobbyPhase(LobbyPhase.PRE_START_ARAM);
+            gameLobby.setMaxBansTeam1(0);
+            gameLobby.setMaxBansTeam2(0);
+
+            generateRandomChampions(gameLobby);
+        } else if (lobbyType == LobbyType.SUMMONERS_RIFT_BOT_BLIND || lobbyType == LobbyType.SUMMONERS_RIFT_BOT_DRAFT
+                || lobbyType == LobbyType.SUMMONERS_RIFT_NEW_BOT_BLIND || lobbyType == LobbyType.SUMMONERS_RIFT_NEW_BOT_DRAFT
+                || lobbyType == LobbyType.ODIN_BOT_BLIND || lobbyType == LobbyType.ODIN_BOT_DRAFT
+                || lobbyType == LobbyType.TWISTED_TREELINE_OLD_BOT_BLIND) {
+            gameLobby.setLobbyPhase(LobbyPhase.PICK_BLIND);
+            gameLobby.setMaxBansTeam1(0);
+            gameLobby.setMaxBansTeam2(0);
         }
 
         updatePlayersWhoCanPickAndBan(gameLobby);
@@ -200,7 +216,7 @@ public class ChampselectService {
     }
 
     private void setEnemyVisibilityAndUpdate(GameLobby gameLobby) {
-        if (gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_DRAFT || gameLobby.getLobbyType() == LobbyType.TWISTED_TREELINE_DRAFT) {
+        if (gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_DRAFT || gameLobby.getLobbyType() == LobbyType.TWISTED_TREELINE_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_NEW_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_BOT_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_NEW_BOT_DRAFT || gameLobby.getLobbyType() == LobbyType.ODIN_BOT_DRAFT) {
             for (LobbyUser lobbyUser : gameLobby.getAllUsers()) {
                 lobbyUser.setVisibleToEnemy(lobbyUser.isCanBan() || lobbyUser.isCanLockIn() || lobbyUser.isLockedIn());
             }
@@ -214,7 +230,7 @@ public class ChampselectService {
     }
 
     public void banLockChampion(GameLobby gameLobby, LobbyUser lobbyUser, String championId) throws ApplicationException {
-        if (gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_DRAFT && gameLobby.getLobbyType() != LobbyType.TWISTED_TREELINE_DRAFT) {
+        if (gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_DRAFT && gameLobby.getLobbyType() != LobbyType.TWISTED_TREELINE_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_NEW_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_BOT_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_NEW_BOT_DRAFT && gameLobby.getLobbyType() != LobbyType.ODIN_BOT_DRAFT) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, ApplicationExceptionCode.CHAMPSELECT_MESSAGE_FORBIDDEN, LogMessage.CHAMPSELECT_MESSAGE_FORBIDDEN);
         }
 
@@ -247,7 +263,7 @@ public class ChampselectService {
         if (lobbyUser.isCanLockIn() && !gameLobby.getAllBans().contains(champion)) {
             var bothTeams = true;
 
-            if (gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_DRAFT || gameLobby.getLobbyType() == LobbyType.TWISTED_TREELINE_DRAFT) {
+            if (gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_DRAFT || gameLobby.getLobbyType() == LobbyType.TWISTED_TREELINE_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_NEW_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_BOT_DRAFT || gameLobby.getLobbyType() == LobbyType.SUMMONERS_RIFT_NEW_BOT_DRAFT || gameLobby.getLobbyType() == LobbyType.ODIN_BOT_DRAFT) {
                 if (gameLobby.getAllPickedChampions().contains(champion)) {
                     throw new ApplicationException(HttpStatus.FORBIDDEN, ApplicationExceptionCode.CHAMPSELECT_PICK_FORBIDDEN, LogMessage.CHAMPSELECT_PICK_FORBIDDEN);
                 }
@@ -316,7 +332,7 @@ public class ChampselectService {
     }
 
     private boolean checkSpellForGameMode(GameLobby gameLobby, SummonerSpell summonerSpell) {
-        if (gameLobby.getLobbyType() == LobbyType.ARAM_BLIND) {
+        if (gameLobby.getLobbyType() == LobbyType.ARAM_BLIND || gameLobby.getLobbyType() == LobbyType.ARAM_BOT_ARAM) {
             return summonerSpell != SummonerSpell.SUMMONER_ODIN_GARRISON
                     && summonerSpell != SummonerSpell.SUMMONER_CLAIRVOYANCE
                     && summonerSpell != SummonerSpell.SUMMONER_TELEPORT
@@ -456,7 +472,7 @@ public class ChampselectService {
     }
 
     private boolean isNotInTradeGameMode(GameLobby gameLobby) {
-        return gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_DRAFT && gameLobby.getLobbyType() != LobbyType.ARAM_BLIND && gameLobby.getLobbyType() != LobbyType.TWISTED_TREELINE_DRAFT;
+        return gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_DRAFT && gameLobby.getLobbyType() != LobbyType.ARAM_BLIND && gameLobby.getLobbyType() != LobbyType.ARAM_BOT_ARAM && gameLobby.getLobbyType() != LobbyType.TWISTED_TREELINE_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_NEW_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_BOT_DRAFT && gameLobby.getLobbyType() != LobbyType.SUMMONERS_RIFT_NEW_BOT_DRAFT && gameLobby.getLobbyType() != LobbyType.ODIN_BOT_DRAFT;
     }
 
     private boolean isNotTrading(GameLobby gameLobby, LobbyUser lobbyUser) {
@@ -485,3 +501,5 @@ public class ChampselectService {
     }
 
 }
+
+

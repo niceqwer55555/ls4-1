@@ -72,10 +72,44 @@
                     {{ getQueueType() }}
                   </p>
                 </div>
+            </div>
+          </div>
+          <div class="runes lolblock">
+            <div class="head">
+              符文 / 天赋
+            </div>
+            <div class="inner">
+              <div class="select-row">
+                <label>符文页</label>
+                <select v-model="selectedRunePage" @change="onRunePageChange">
+                  <option
+                    v-for="(page, index) in runePages"
+                    :key="'rune-' + index"
+                    :value="index"
+                  >
+                    {{ page.name || ('符文页 ' + (index + 1)) }}
+                  </option>
+                </select>
+              </div>
+              <div class="select-row">
+                <label>天赋页</label>
+                <select v-model="selectedMasteryPage" @change="onMasteryPageChange">
+                  <option
+                    v-for="(page, index) in masteryPages"
+                    :key="'mastery-' + index"
+                    :value="index"
+                  >
+                    {{ page.name || ('天赋页 ' + (index + 1)) }}
+                  </option>
+                </select>
+              </div>
+              <div class="edit-row">
+                <button class="editBtn" @click="openRuneMasteryEditor">编辑符文/天赋</button>
               </div>
             </div>
-            <div class="invites lolblock">
-              <div class="head">
+          </div>
+          <div class="invites lolblock">
+            <div class="head">
                 {{ t("LOBBY_INVITES_TITLE") }}
               </div>
               <div class="inner">
@@ -138,7 +172,9 @@ export default {
   },
   data() {
     return {
-      lastMessages: null
+      lastMessages: null,
+      selectedRunePage: 0,
+      selectedMasteryPage: 0
     };
   },
   computed: mapState({
@@ -148,9 +184,22 @@ export default {
     inQueue: state => state.lobby.inQueue,
     owner: state => state.lobbyOwner,
     queueNumber: state => state.lobbyQueueCount,
-    serverCount: state => state.serverCount
+    serverCount: state => state.serverCount,
+    runePages: state => state.runePages,
+    masteryPages: state => state.masteryPages,
+    currentRunePage: state => state.currentRunePage,
+    currentMasteryPage: state => state.currentMasteryPage
   }),
   methods: {
+    onRunePageChange() {
+      this.$store.dispatch("selectRunePage", this.selectedRunePage);
+    },
+    onMasteryPageChange() {
+      this.$store.dispatch("selectMasteryPage", this.selectedMasteryPage);
+    },
+    openRuneMasteryEditor() {
+      this.$store.dispatch("setRuneMasteryEditorVisible", true);
+    },
     getInviteStatus(status) {
       // return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
       return this.$translate.text(`LOBBY_INVITE_STATUS_${status}`);
@@ -275,7 +324,12 @@ export default {
 
       this.$socket.sendLobbyMessage(
         "LOBBY_MATCHMAKING_START",
-        {},
+        {
+          data: {
+            runePage: this.runePages[this.currentRunePage] || null,
+            masteryPage: this.masteryPages[this.currentMasteryPage] || null
+          }
+        },
         (response, error) => {
           if (error) {
             console.log("Flyback error:");
@@ -348,8 +402,9 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch("getQueueCount");
-    this.$store.dispatch("getServerCount");
+    this.$store.dispatch('getQueueCount');
+    this.$store.dispatch('getServerCount');
+    this.$store.dispatch('loadRuneMasteryPages');
   }
 };
 </script>
@@ -513,8 +568,68 @@ export default {
 
 .content .mainblock .lobby .game .invites {
   width: 100%;
-  height: 45%;
+  height: 30%;
   overflow: auto;
+}
+
+
+.content .mainblock .lobby .game .runes {
+  width: 100%;
+  height: 20%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content .mainblock .lobby .game .runes .inner {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 6px;
+}
+
+.content .mainblock .lobby .game .runes .inner .select-row {
+  display: flex;
+  flex-direction: column;
+  font-family: LoLFont2;
+  font-size: 12px;
+}
+
+.content .mainblock .lobby .game .runes .inner .select-row label {
+  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.content .mainblock .lobby .game .runes .inner .select-row select {
+  background: #0a1320;
+  color: white;
+  border: 1px solid #304b69;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-family: LoLFont2;
+  font-size: 12px;
+  outline: none;
+}
+
+.content .mainblock .lobby .game .runes .inner .edit-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.content .mainblock .lobby .game .runes .inner .edit-row .editBtn {
+  background: linear-gradient(180deg, #3c73b4 0%, #20477e 45%, #1e3e6d 50%, #0e284b 100%);
+  border: 1px solid #304b69;
+  border-radius: 2px;
+  color: white;
+  font-family: LoLFont2;
+  font-size: 11px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition: filter ease-in-out 200ms;
+}
+
+.content .mainblock .lobby .game .runes .inner .edit-row .editBtn:hover {
+  filter: brightness(1.25);
 }
 
 .content .mainblock .lobby .game .invites .inner {

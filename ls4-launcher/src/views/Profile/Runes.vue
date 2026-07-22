@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div id="RuneMasteryPage">
     <div class="runeMasteryContainer">
       <div class="pageHeader">
@@ -149,6 +149,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { RUNE_DATA, STAT_NAMES } from "@/utils/runeData";
 
 export default {
   data() {
@@ -156,82 +157,7 @@ export default {
       currentPageName: "",
       showRuneSelector: false,
       selectedSlot: null,
-      selectedSlotType: null,
-      runeData: {
-        mark: [
-          { id: 5245, name: "Mark of Attack Damage", effect: "+0.95 AD" },
-          { id: 5246, name: "Greater Mark of Attack Damage", effect: "+1.89 AD" },
-          { id: 5247, name: "Lesser Mark of Attack Damage", effect: "+2.84 AD" },
-          { id: 5273, name: "Mark of Attack Speed", effect: "+1.08% AS" },
-          { id: 5274, name: "Greater Mark of Attack Speed", effect: "+2.16% AS" },
-          { id: 5275, name: "Lesser Mark of Attack Speed", effect: "+3.23% AS" },
-          { id: 5320, name: "Mark of Critical Strike", effect: "+1.86% Crit" },
-          { id: 5321, name: "Greater Mark of Critical Strike", effect: "+3.73% Crit" },
-          { id: 5322, name: "Lesser Mark of Critical Strike", effect: "+5.59% Crit" },
-          { id: 5265, name: "Mark of Gold per 10", effect: "+0.35 Gp10" },
-          { id: 5266, name: "Greater Mark of Gold per 10", effect: "+0.7 Gp10" },
-          { id: 5267, name: "Lesser Mark of Gold per 10", effect: "+1.05 Gp10" },
-          { id: 5311, name: "Mark of Spell Vamp", effect: "+0.5% Spell Vamp" },
-          { id: 5312, name: "Greater Mark of Spell Vamp", effect: "+1.0% Spell Vamp" },
-          { id: 5313, name: "Lesser Mark of Spell Vamp", effect: "+1.5% Spell Vamp" },
-          { id: 5302, name: "Mark of Cooldown Reduction", effect: "+0.83% CDR" },
-          { id: 5303, name: "Greater Mark of Cooldown Reduction", effect: "+1.66% CDR" },
-          { id: 5304, name: "Lesser Mark of Cooldown Reduction", effect: "+2.5% CDR" },
-          { id: 5286, name: "Mark of Mana Regeneration", effect: "+0.26 MP5" },
-          { id: 5287, name: "Greater Mark of Mana Regeneration", effect: "+0.51 MP5" },
-          { id: 5288, name: "Lesser Mark of Mana Regeneration", effect: "+0.77 MP5" },
-        ],
-        seal: [
-          { id: 5289, name: "Seal of Armor", effect: "+1.41 Armor" },
-          { id: 5290, name: "Greater Seal of Armor", effect: "+2.81 Armor" },
-          { id: 5291, name: "Lesser Seal of Armor", effect: "+4.21 Armor" },
-          { id: 5277, name: "Seal of Health", effect: "+5.35 HP" },
-          { id: 5278, name: "Greater Seal of Health", effect: "+10.7 HP" },
-          { id: 5279, name: "Lesser Seal of Health", effect: "+16.05 HP" },
-          { id: 5280, name: "Seal of Health Regeneration", effect: "+0.41 HP5" },
-          { id: 5281, name: "Greater Seal of Health Regeneration", effect: "+0.81 HP5" },
-          { id: 5282, name: "Lesser Seal of Health Regeneration", effect: "+1.22 HP5" },
-          { id: 5296, name: "Seal of Movement Speed", effect: "+0.45% MS" },
-          { id: 5297, name: "Greater Seal of Movement Speed", effect: "+0.9% MS" },
-          { id: 5298, name: "Lesser Seal of Movement Speed", effect: "+1.35% MS" },
-          { id: 5302, name: "Seal of Cooldown Reduction", effect: "+0.83% CDR" },
-          { id: 5303, name: "Greater Seal of Cooldown Reduction", effect: "+1.66% CDR" },
-          { id: 5304, name: "Lesser Seal of Cooldown Reduction", effect: "+2.5% CDR" },
-        ],
-        glyph: [
-          { id: 5335, name: "Glyph of Magic Resist", effect: "+1.41 MR" },
-          { id: 5336, name: "Greater Glyph of Magic Resist", effect: "+2.81 MR" },
-          { id: 5337, name: "Lesser Glyph of Magic Resist", effect: "+4.21 MR" },
-          { id: 5317, name: "Glyph of Ability Power", effect: "+1.19 AP" },
-          { id: 5318, name: "Greater Glyph of Ability Power", effect: "+2.38 AP" },
-          { id: 5319, name: "Lesser Glyph of Ability Power", effect: "+3.57 AP" },
-          { id: 5286, name: "Glyph of Mana Regeneration", effect: "+0.26 MP5" },
-          { id: 5287, name: "Greater Glyph of Mana Regeneration", effect: "+0.51 MP5" },
-          { id: 5288, name: "Lesser Glyph of Mana Regeneration", effect: "+0.77 MP5" },
-          { id: 5283, name: "Glyph of Mana", effect: "+8.18 Mana" },
-          { id: 5284, name: "Greater Glyph of Mana", effect: "+16.36 Mana" },
-          { id: 5285, name: "Lesser Glyph of Mana", effect: "+24.54 Mana" },
-          { id: 5302, name: "Glyph of Cooldown Reduction", effect: "+0.83% CDR" },
-          { id: 5303, name: "Greater Glyph of Cooldown Reduction", effect: "+1.66% CDR" },
-          { id: 5304, name: "Lesser Glyph of Cooldown Reduction", effect: "+2.5% CDR" },
-        ],
-        quint: [
-          { id: 5305, name: "Quintessence of Life Steal", effect: "+0.5% Lifesteal" },
-          { id: 5306, name: "Greater Quintessence of Life Steal", effect: "+1.0% Lifesteal" },
-          { id: 5307, name: "Lesser Quintessence of Life Steal", effect: "+1.5% Lifesteal" },
-          { id: 5319, name: "Quintessence of Ability Power", effect: "+3.57 AP" },
-          { id: 5247, name: "Quintessence of Attack Damage", effect: "+2.84 AD" },
-          { id: 5298, name: "Quintessence of Movement Speed", effect: "+1.35% MS" },
-          { id: 5275, name: "Quintessence of Attack Speed", effect: "+3.23% AS" },
-          { id: 5279, name: "Quintessence of Health", effect: "+16.05 HP" },
-          { id: 5267, name: "Quintessence of Gold per 10", effect: "+1.05 Gp10" },
-          { id: 5291, name: "Quintessence of Armor", effect: "+4.21 Armor" },
-          { id: 5337, name: "Quintessence of Magic Resist", effect: "+4.21 MR" },
-          { id: 5322, name: "Quintessence of Critical Strike", effect: "+5.59% Crit" },
-          { id: 5313, name: "Quintessence of Spell Vamp", effect: "+1.5% Spell Vamp" },
-          { id: 5304, name: "Quintessence of Cooldown Reduction", effect: "+2.5% CDR" },
-        ]
-      }
+      selectedSlotType: null
     };
   },
   computed: {
@@ -240,88 +166,41 @@ export default {
       currentRunePage: state => state.currentRunePage
     }),
     availableRunes() {
-      return this.runeData[this.selectedSlotType] || [];
+      if (!this.selectedSlotType) return [];
+      const typeMap = { mark: "mark", seal: "seal", glyph: "glyph", quint: "quintessence" };
+      const runeType = typeMap[this.selectedSlotType] || this.selectedSlotType;
+      return Object.entries(RUNE_DATA)
+        .filter(([, r]) => r.type === runeType && r.tier === 3)
+        .map(([id, r]) => ({
+          id: parseInt(id),
+          name: r.name,
+          effect: this.formatRuneEffect(r.stats)
+        }));
     },
     runeEffects() {
-      const effects = {
-        AttackDamage: 0,
-        AbilityPower: 0,
-        Armor: 0,
-        MagicResist: 0,
-        AttackSpeed: 0,
-        MovementSpeed: 0,
-        LifeSteal: 0,
-        SpellVamp: 0,
-        GoldPer10: 0,
-        Health: 0,
-        HealthRegen: 0,
-        Mana: 0,
-        ManaRegen: 0,
-        CooldownReduction: 0,
-        CriticalStrike: 0
-      };
-
       const currentPage = this.runePages[this.currentRunePage];
-      if (!currentPage || !currentPage.runes) return effects;
+      if (!currentPage || !currentPage.runes) return {};
 
-      const runeData = {
-        5245: { type: "AttackDamage", value: 0.95 },
-        5246: { type: "AttackDamage", value: 1.89 },
-        5247: { type: "AttackDamage", value: 2.84 },
-        5317: { type: "AbilityPower", value: 1.19 },
-        5318: { type: "AbilityPower", value: 2.38 },
-        5319: { type: "AbilityPower", value: 3.57 },
-        5289: { type: "Armor", value: 1.41 },
-        5290: { type: "Armor", value: 2.81 },
-        5291: { type: "Armor", value: 4.21 },
-        5335: { type: "MagicResist", value: 1.41 },
-        5336: { type: "MagicResist", value: 2.81 },
-        5337: { type: "MagicResist", value: 4.21 },
-        5273: { type: "AttackSpeed", value: 1.08 },
-        5274: { type: "AttackSpeed", value: 2.16 },
-        5275: { type: "AttackSpeed", value: 3.23 },
-        5296: { type: "MovementSpeed", value: 0.45 },
-        5297: { type: "MovementSpeed", value: 0.9 },
-        5298: { type: "MovementSpeed", value: 1.35 },
-        5305: { type: "LifeSteal", value: 0.5 },
-        5306: { type: "LifeSteal", value: 1.0 },
-        5307: { type: "LifeSteal", value: 1.5 },
-        5311: { type: "SpellVamp", value: 0.5 },
-        5312: { type: "SpellVamp", value: 1.0 },
-        5313: { type: "SpellVamp", value: 1.5 },
-        5265: { type: "GoldPer10", value: 0.35 },
-        5266: { type: "GoldPer10", value: 0.7 },
-        5267: { type: "GoldPer10", value: 1.05 },
-        5277: { type: "Health", value: 5.35 },
-        5278: { type: "Health", value: 10.7 },
-        5279: { type: "Health", value: 16.05 },
-        5280: { type: "HealthRegen", value: 0.41 },
-        5281: { type: "HealthRegen", value: 0.81 },
-        5282: { type: "HealthRegen", value: 1.22 },
-        5283: { type: "Mana", value: 8.18 },
-        5284: { type: "Mana", value: 16.36 },
-        5285: { type: "Mana", value: 24.54 },
-        5286: { type: "ManaRegen", value: 0.26 },
-        5287: { type: "ManaRegen", value: 0.51 },
-        5288: { type: "ManaRegen", value: 0.77 },
-        5302: { type: "CooldownReduction", value: 0.83 },
-        5303: { type: "CooldownReduction", value: 1.66 },
-        5304: { type: "CooldownReduction", value: 2.5 },
-        5320: { type: "CriticalStrike", value: 1.86 },
-        5321: { type: "CriticalStrike", value: 3.73 },
-        5322: { type: "CriticalStrike", value: 5.59 }
-      };
-
+      const aggregated = {};
       Object.keys(currentPage.runes).forEach(slot => {
         const runeId = currentPage.runes[slot];
-        if (runeData[runeId]) {
-          effects[runeData[runeId].type] += runeData[runeId].value;
+        const runeInfo = RUNE_DATA[runeId];
+        if (runeInfo && runeInfo.stats) {
+          Object.keys(runeInfo.stats).forEach(statKey => {
+            const statName = STAT_NAMES[statKey] || statKey;
+            if (!aggregated[statName]) aggregated[statName] = 0;
+            aggregated[statName] += Math.abs(runeInfo.stats[statKey]);
+          });
         }
       });
 
-      return Object.fromEntries(
-        Object.entries(effects).filter(([, v]) => v > 0)
-      );
+      const result = {};
+      Object.keys(aggregated).forEach(key => {
+        const val = aggregated[key];
+        const isPercent = key.includes("%") || key.includes("几率") || key.includes("缩减") || key.includes("穿透");
+        result[key] = isPercent ? `+${(val * 100).toFixed(2)}%` : `+${val.toFixed(2)}`;
+      });
+      return result;
     }
   },
   methods: {
@@ -333,14 +212,28 @@ export default {
     },
     getRuneImage(runeId) {
       if (!runeId) return "";
-      const { host, port } = this.$store.state.config.download;
-      return `${host}:${port}/rune/${runeId}.png`;
+      const runeInfo = RUNE_DATA[runeId];
+      if (runeInfo && runeInfo.icon) {
+        const { host, port } = this.$store.state.config.download;
+        return `${host}:${port}/rune/${runeInfo.icon}.png`;
+      }
+      return "";
     },
     getRuneName(runeId) {
       if (!runeId) return "Empty";
-      const allRunes = [...this.runeData.mark, ...this.runeData.seal, ...this.runeData.glyph, ...this.runeData.quint];
-      const rune = allRunes.find(r => r.id === runeId);
-      return rune ? rune.name : "Unknown Rune";
+      const runeInfo = RUNE_DATA[runeId];
+      return runeInfo ? runeInfo.name : "未知符文";
+    },
+    formatRuneEffect(stats) {
+      if (!stats) return "";
+      return Object.entries(stats)
+        .map(([key, val]) => {
+          const name = STAT_NAMES[key] || key;
+          const isPercent = key.includes("percent") || key.includes("chance") || key.includes("reduction") || key.includes("penetration") || (key.includes("speed") && key.includes("percent")) || key.includes("vamp") || key.includes("steal");
+          const absVal = Math.abs(val);
+          return `${name} +${isPercent ? (absVal * 100).toFixed(2) + "%" : absVal.toFixed(2)}`;
+        })
+        .join(", ");
     },
     saveCurrentPageName() {
       if (this.currentPageName.trim()) {
@@ -355,7 +248,7 @@ export default {
     },
     openRuneSelector(slot, type) {
       this.selectedSlot = slot;
-      this.selectedSlotType = type;
+      this.selectedSlotType = type === "quint" ? "quintessence" : type;
       this.showRuneSelector = true;
     },
     closeRuneSelector() {
@@ -387,13 +280,13 @@ export default {
   beforeMount() {
     this.$store.dispatch("changeBackgroundState", "PROFILE");
   }
-};
+}
 </script>
 
 <style lang="css" scoped>
 #RuneMasteryPage {
   width: 100%;
-  height: calc(100% - 115px);
+  height: calc(100vh - 115px);
   margin-top: 77px;
   position: relative;
   display: flex;
@@ -402,20 +295,21 @@ export default {
 
 .runeMasteryContainer {
   width: 100%;
-  padding: 20px 30px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .pageHeader {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
 .pageHeader h2 {
   font-family: LoLFont2;
-  font-size: 26px;
+  font-size: clamp(18px, 2.5vw, 26px);
   color: #f2d030;
   margin: 0;
   -webkit-text-stroke: 1px black;
@@ -423,21 +317,22 @@ export default {
 
 .pageHeader p {
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: clamp(10px, 1.2vw, 13px);
   color: rgba(255, 255, 255, 0.7);
   margin: 3px 0 0 0;
 }
 
 .runeMasteryContent {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .runePagesList {
-  width: 180px;
-  min-width: 150px;
+  width: clamp(120px, 14vw, 180px);
+  min-width: 110px;
   background-color: rgba(5, 12, 20, 0.9);
   border: 1px solid rgba(100, 117, 137, 0.75);
   border-radius: 5px;
@@ -447,9 +342,9 @@ export default {
 }
 
 .listHeader {
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: 12px;
   background-image: linear-gradient(180deg, #192e49 0%, #192e49 40%, #172b46 50%, #142131 100%);
   border-bottom: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
@@ -470,9 +365,9 @@ export default {
 }
 
 .pageItem {
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-family: LoLFont2;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -494,18 +389,18 @@ export default {
 }
 
 .pageActions {
-  padding: 8px 12px;
+  padding: 6px 10px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   border-top: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
 }
 
 .actionBtn {
   flex: 1;
-  padding: 6px 10px;
+  padding: 5px 8px;
   font-family: LoLFont2;
-  font-size: 11px;
+  font-size: 10px;
   border: none;
   border-radius: 3px;
   cursor: pointer;
@@ -541,10 +436,11 @@ export default {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
 .editorHeader {
-  padding: 10px 15px;
+  padding: 8px 12px;
   background-image: linear-gradient(180deg, #192e49 0%, #192e49 40%, #172b46 50%, #142131 100%);
   border-bottom: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
@@ -552,14 +448,15 @@ export default {
 
 .pageNameInput {
   width: 100%;
-  padding: 6px 10px;
+  padding: 5px 8px;
   background-color: #0a1320;
   border: 1px solid #304b69;
   border-radius: 3px;
   color: white;
   font-family: LoLFont2;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
+  box-sizing: border-box;
 }
 
 .pageNameInput:focus {
@@ -568,11 +465,12 @@ export default {
 
 .runeSlots {
   flex: 1;
-  padding: 15px 20px;
+  padding: 10px 14px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .runeSlots::-webkit-scrollbar {
@@ -587,27 +485,29 @@ export default {
 .runeRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .rowLabel {
-  width: 90px;
-  min-width: 90px;
+  width: clamp(60px, 8vw, 90px);
+  min-width: 55px;
   font-family: LoLFont2;
-  font-size: 12px;
+  font-size: clamp(10px, 1.1vw, 12px);
   color: rgba(255, 255, 255, 0.7);
   text-align: right;
+  flex-shrink: 0;
 }
 
 .slotGroup {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
 .runeSlot {
-  width: 44px;
-  height: 44px;
+  width: clamp(32px, 4.5vw, 44px);
+  height: clamp(32px, 4.5vw, 44px);
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -631,8 +531,8 @@ export default {
 }
 
 .runeSlot img {
-  width: 34px;
-  height: 34px;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
 }
 
@@ -649,25 +549,20 @@ export default {
 }
 
 .quintSlot {
-  width: 52px;
-  height: 52px;
+  width: clamp(38px, 5vw, 52px);
+  height: clamp(38px, 5vw, 52px);
   border-color: rgba(139, 92, 246, 0.5);
-}
-
-.quintSlot img {
-  width: 42px;
-  height: 42px;
 }
 
 .slotNumber {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background-color: #0a1320;
   border-radius: 50%;
-  font-size: 8px;
+  font-size: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -677,29 +572,40 @@ export default {
 }
 
 .runeEffects {
-  padding: 8px 15px;
+  padding: 6px 12px;
   border-top: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.runeEffects::-webkit-scrollbar {
+  width: 3px;
+}
+
+.runeEffects::-webkit-scrollbar-thumb {
+  background: rgba(100, 117, 137, 0.5);
+  border-radius: 2px;
 }
 
 .effectsHeader {
   font-family: LoLFont2;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
+  margin-bottom: 4px;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .effectsList {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 20px;
+  gap: 6px 14px;
 }
 
 .effectItem {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   font-family: LoLFont2;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .effectName {
@@ -727,21 +633,21 @@ export default {
   background-color: rgba(5, 12, 20, 0.95);
   border: 1px solid rgba(100, 117, 137, 0.75);
   border-radius: 5px;
-  width: 480px;
+  width: clamp(320px, 50vw, 480px);
   max-height: 70vh;
   display: flex;
   flex-direction: column;
 }
 
 .modalHeader {
-  padding: 12px 15px;
+  padding: 10px 14px;
   background-image: linear-gradient(180deg, #192e49 0%, #192e49 40%, #172b46 50%, #142131 100%);
   border-bottom: 1px solid rgba(100, 117, 137, 0.75);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: LoLFont2;
-  font-size: 15px;
+  font-size: 14px;
   flex-shrink: 0;
 }
 
@@ -749,7 +655,7 @@ export default {
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   padding: 0 5px;
 }
@@ -761,7 +667,7 @@ export default {
 .runeList {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 10px;
+  padding: 6px 8px;
 }
 
 .runeList::-webkit-scrollbar {
@@ -776,8 +682,8 @@ export default {
 .runeOption {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 6px 8px;
   cursor: pointer;
   border-radius: 3px;
   transition: all ease-in-out 200ms;
@@ -793,8 +699,8 @@ export default {
 }
 
 .runeOption img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -806,7 +712,7 @@ export default {
 
 .runeName {
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: 12px;
   color: white;
   white-space: nowrap;
   overflow: hidden;
@@ -815,7 +721,57 @@ export default {
 
 .runeEffect {
   font-family: LoLFont2;
-  font-size: 11px;
+  font-size: 10px;
   color: #f2d030;
+}
+
+/* Responsive: narrow screens */
+@media (max-width: 900px) {
+  .runeMasteryContent {
+    flex-direction: column;
+  }
+  .runePagesList {
+    width: 100%;
+    min-width: 0;
+    max-height: 100px;
+  }
+  .pageList {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    padding: 4px;
+  }
+  .pageItem {
+    flex-shrink: 0;
+    border-bottom: none;
+    border-right: 1px solid rgba(100, 117, 137, 0.2);
+  }
+  .runeRow {
+    flex-wrap: wrap;
+  }
+  .slotGroup {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-height: 700px) {
+  .runeMasteryContainer {
+    padding: 6px 10px;
+  }
+  .pageHeader {
+    margin-bottom: 4px;
+  }
+  .pageHeader h2 {
+    font-size: 16px;
+  }
+  .runeSlots {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+  .runeEffects {
+    max-height: 60px;
+    padding: 4px 8px;
+  }
 }
 </style>

@@ -209,16 +209,22 @@ public class ChampselectMessageHandler {
 
             List<GameStartOut> gameStartOuts = gameManagerService.start(gameLobbyFinalEvent.getGameLobby());
 
-            for (var i = 0; i < gameLobbyFinalEvent.getGameLobby().getAllUsers().size(); i++) {
-                LobbyUser member = gameLobbyFinalEvent.getGameLobby().getAllUsers().get(i);
-
-                if (gameStartOuts.size() == gameLobbyFinalEvent.getGameLobby().getAllUsers().size()) {
-                    template.convertAndSendToUser(member.getUser().getUserName(), QUEUE_CHAMPSELECT + gameLobbyFinalEvent.getGameLobby().getUuid(),
-                            new SocketMessage(gameStartOuts.get(i), null, null, MessageType.CHAMPSELECT_GAME_START, LocalDateTime.now()));
-                } else {
-                    template.convertAndSendToUser(member.getUser().getUserName(), QUEUE_CHAMPSELECT + gameLobbyFinalEvent.getGameLobby().getUuid(),
-                            new SocketMessage(null, null, null, MessageType.CHAMPSELECT_GAME_START, LocalDateTime.now()));
+            // Build a map from player name to GameStartOut for reliable matching
+            // This handles both normal games and games with bots (where gameStartOuts may be smaller than getAllUsers)
+            java.util.Map<String, GameStartOut> startOutMap = new java.util.HashMap<>();
+            for (GameStartOut out : gameStartOuts) {
+                // Find the matching LobbyUser by playerId index
+                int pid = out.getPlayerId();
+                if (pid >= 1 && pid <= gameLobbyFinalEvent.getGameLobby().getAllUsers().size()) {
+                    LobbyUser matchingUser = gameLobbyFinalEvent.getGameLobby().getAllUsers().get(pid - 1);
+                    startOutMap.put(matchingUser.getUser().getUserName(), out);
                 }
+            }
+
+            for (LobbyUser member : gameLobbyFinalEvent.getGameLobby().getAllUsers()) {
+                GameStartOut out = startOutMap.get(member.getUser().getUserName());
+                template.convertAndSendToUser(member.getUser().getUserName(), QUEUE_CHAMPSELECT + gameLobbyFinalEvent.getGameLobby().getUuid(),
+                        new SocketMessage(out, null, null, MessageType.CHAMPSELECT_GAME_START, LocalDateTime.now()));
             }
 
             // We don't need to remove the lobby from lobbyService as the client is already unsubscribing. We shouldn't rely on the client, but this is an intended behavior as of now in case we want to keep the lobby in the future.

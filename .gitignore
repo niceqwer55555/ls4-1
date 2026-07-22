@@ -1,0 +1,53 @@
+﻿# === Game Client binaries (6GB+) ===
+Client/
+
+# === Game Settings ===
+Settings/
+
+# === Build tools and runtimes ===
+Tools/
+
+# === Air preferences ===
+air/
+
+# === Node.js ===
+node_modules/
+**/node_modules/
+
+# === Build outputs ===
+dist/
+dist-build2/
+dist_electron/
+**/dist/
+**/dist_electron/
+
+# === Logs ===
+*.log
+logs/
+server_output*.txt
+server_error*.txt
+server_full*.txt
+build_output*.txt
+lobby_stdout*.log
+lobby_stderr*.log
+gs_stdout*.log
+gs_stderr*.log
+lobby_output*.txt
+lobby_error*.txt
+launcher_build*.txt
+
+# === IDE ===
+.vscode/
+.idea/
+.trae/
+.agents/
+
+# === OS ===
+Thumbs.db
+.DS_Store
+
+# === Runtime / temp ===
+*.tmp
+*.bak
+*.swp
+*~

@@ -68,12 +68,12 @@ export default new Vuex.Store({
           process.env.VUE_APP_API !== "undefined" &&
           process.env.VUE_APP_API !== undefined
             ? `https://${process.env.VUE_APP_API}`
-            : "http://127.0.0.1:3000",
+            : "http://127.0.0.1:8080",
         port:
           process.env.VUE_APP_API_PORT !== "undefined" &&
           process.env.VUE_APP_API_PORT !== undefined
             ? process.env.VUE_APP_API_PORT
-            : 3000
+            : 8080
       },
       path: {
         client: ""

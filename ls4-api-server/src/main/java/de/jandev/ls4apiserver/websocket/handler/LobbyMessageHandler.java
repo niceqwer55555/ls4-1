@@ -20,11 +20,15 @@ import de.jandev.ls4apiserver.model.websocket.champselect.LobbyUserOut;
 import de.jandev.ls4apiserver.model.websocket.chat.ChatMessageOut;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyBotIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyInviteOut;
+import de.jandev.ls4apiserver.model.websocket.lobby.LobbyMatchmakingStartIn;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyMessageOut;
 import de.jandev.ls4apiserver.model.websocket.lobby.LobbyTypeIn;
 import de.jandev.ls4apiserver.service.ChampselectService;
 import de.jandev.ls4apiserver.service.LobbyService;
 import de.jandev.ls4apiserver.service.MatchmakingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.jandev.ls4apiserver.model.game.Runes;
+import de.jandev.ls4apiserver.model.game.Talents;
 import de.jandev.ls4apiserver.utility.LogMessage;
 import de.jandev.ls4apiserver.utility.QueuePopEndTask;
 import org.slf4j.Logger;
@@ -189,8 +193,25 @@ public class LobbyMessageHandler {
         sendLobbyUpdate(updatedLobby);
     }
 
-    public void handleLobbyMatchmakingStart(Lobby lobby, User user) throws ApplicationException {
+    public void handleLobbyMatchmakingStart(Lobby lobby, User user, LobbyMatchmakingStartIn matchmakingStartIn) throws ApplicationException {
         lobbyService.isOwnerOrThrowException(user, lobby);
+
+        // Process rune and mastery page data from the launcher
+        if (matchmakingStartIn != null) {
+            var objectMapper = new ObjectMapper();
+            try {
+                if (matchmakingStartIn.getRunePage() != null) {
+                    var runes = objectMapper.convertValue(matchmakingStartIn.getRunePage(), Runes.class);
+                    lobby.getMemberRunePages().put(user.getUserName(), runes);
+                }
+                if (matchmakingStartIn.getMasteryPage() != null) {
+                    var talents = objectMapper.convertValue(matchmakingStartIn.getMasteryPage(), Talents.class);
+                    lobby.getMemberMasteryPages().put(user.getUserName(), talents);
+                }
+            } catch (IllegalArgumentException e) {
+                LOGGER.warn("Failed to parse rune/mastery page data for user {}: {}", user.getUserName(), e.getMessage());
+            }
+        }
 
         var team1Bots = lobby.getBots().stream().filter(b -> b.getTeam() == LobbyTeam.TEAM1).count();
         var team2Bots = lobby.getBots().stream().filter(b -> b.getTeam() == LobbyTeam.TEAM2).count();
@@ -361,6 +382,12 @@ public class LobbyMessageHandler {
         team1.setUuid(lobby.getUuid());
         team2.setUuid(lobby.getUuid());
 
+        // Copy rune/mastery page data from the original lobby
+        team1.setMemberRunePages(lobby.getMemberRunePages());
+        team1.setMemberMasteryPages(lobby.getMemberMasteryPages());
+        team2.setMemberRunePages(lobby.getMemberRunePages());
+        team2.setMemberMasteryPages(lobby.getMemberMasteryPages());
+
         preGameLobby.setTeam1(Collections.singletonList(team1));
         preGameLobby.setTeam2(Collections.singletonList(team2));
 
@@ -375,6 +402,13 @@ public class LobbyMessageHandler {
             for (User user : lobby.getMembers()) {
                 var lobbyUser = new LobbyUser(user);
                 lobbyUser.setTeam(LobbyTeam.TEAM1);
+                // Apply rune/mastery page data from lobby if available
+                if (lobby.getMemberRunePages().containsKey(user.getUserName())) {
+                    lobbyUser.setRunes(lobby.getMemberRunePages().get(user.getUserName()));
+                }
+                if (lobby.getMemberMasteryPages().containsKey(user.getUserName())) {
+                    lobbyUser.setTalents(lobby.getMemberMasteryPages().get(user.getUserName()));
+                }
                 gameLobby.getTeam1().add(lobbyUser);
             }
             gameLobby.getBots().addAll(lobby.getBots());
@@ -384,6 +418,13 @@ public class LobbyMessageHandler {
             for (User user : lobby.getMembers()) {
                 var lobbyUser = new LobbyUser(user);
                 lobbyUser.setTeam(LobbyTeam.TEAM2);
+                // Apply rune/mastery page data from lobby if available
+                if (lobby.getMemberRunePages().containsKey(user.getUserName())) {
+                    lobbyUser.setRunes(lobby.getMemberRunePages().get(user.getUserName()));
+                }
+                if (lobby.getMemberMasteryPages().containsKey(user.getUserName())) {
+                    lobbyUser.setTalents(lobby.getMemberMasteryPages().get(user.getUserName()));
+                }
                 gameLobby.getTeam2().add(lobbyUser);
             }
             gameLobby.getBots().addAll(lobby.getBots());

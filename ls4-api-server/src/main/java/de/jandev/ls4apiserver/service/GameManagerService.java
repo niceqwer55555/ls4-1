@@ -88,13 +88,6 @@ public class GameManagerService {
             return Collections.emptyList();
         }
 
-//        try (var s = new ServerSocket(0)) {
-//            port = s.getLocalPort();
-//        } catch (IOException e) {
-//            LOGGER.error(LogMessage.UNHANDLED_EXCEPTION, e);
-//            return Collections.emptyList();
-//        }
-
         var settingsDir = new File(gameServerPath + "/Settings");
 
         // This checks if the directory doesn't exist yet and if it doesn't exists if it could be created
@@ -109,17 +102,6 @@ public class GameManagerService {
         }
 
         try {
-            /*
-            This is a fun one.
-
-            Starting the GameServer without cmd /c results it in being a subprocess to the java process.
-            This would be fine, but the GameServer is using blocking stdout (text in console) which the java process is the parent of and needs to handle.
-            So if we're not handling it, the buffer of those streams fill up and the GameServer will be 'blocked'.
-            To fix this, we can detach the process with cmd /c and hide it with <nul 2<&1 or we need to empty the streams continually.
-
-            We need to check the platform, because on Linux we cannot use cmd /c, but we can use >/dev/null 2>&1 there.
-             */
-
             Process p;
             ProcessBuilder pB;
             if (OS.contains("win")) {
@@ -152,7 +134,7 @@ public class GameManagerService {
         }
 
         for (Player player : config.getPlayers()) {
-            // Skip bot players — they don't connect to the server (controlled by ChampionAI script)
+            // Skip bot players -- they don't connect to the server (controlled by ChampionAI script)
             if (player.getPlayerId() == -1) {
                 continue;
             }
@@ -183,13 +165,14 @@ public class GameManagerService {
         game.setMap(gameLobby.getLobbyType().getMapType());
         game.setDataPackage("LeagueSandbox-Scripts");
 
-        // Set to ARAM if map is ARAM
-        if (gameLobby.getLobbyType().getMapType() == 12) {
-            game.setGameMode("ARAM");
+
+        // Map8 = CrystalScar, Map12 = HowlingAbyss
+        // Both use ODIN GameMode in GameServer scripts (class ODIN : IMapScript)
+        if (gameLobby.getLobbyType().getMapType() == 12 || gameLobby.getLobbyType().getMapType() == 8) {
+            game.setGameMode("ODIN");
         } else {
             game.setGameMode("CLASSIC");
         }
-
         String contentPath = getContentPath();
 
         if (contentPath == null) {
@@ -225,7 +208,7 @@ public class GameManagerService {
         }
 
         // Inject bot players with playerId = -1 to activate ChampionAI script.
-        // Bot name format: {Team}{Role} (e.g., BlueTop) — used by ChampionAI for role detection.
+        // Bot name format: {Team}{Role} (e.g., BlueTop) -- used by ChampionAI for role detection.
         for (var bot : gameLobby.getBots()) {
             var p = new Player();
             p.setPlayerId(-1);
@@ -260,9 +243,9 @@ public class GameManagerService {
         String role = detectRole(name);
         switch (role) {
             case "Mid":
-                r.setOne(Runes.MARK_AP); r.setTwo(Runes.MARK_AP); r.setThree(Runes.MARK_AP);
-                r.setFour(Runes.MARK_AP); r.setFive(Runes.MARK_AP); r.setSix(Runes.MARK_AP);
-                r.setSeven(Runes.MARK_AP); r.setEight(Runes.MARK_AP); r.setNine(Runes.MARK_AP);
+                r.setOne(Runes.MARK_MAGIC_PEN); r.setTwo(Runes.MARK_MAGIC_PEN); r.setThree(Runes.MARK_MAGIC_PEN);
+                r.setFour(Runes.MARK_MAGIC_PEN); r.setFive(Runes.MARK_MAGIC_PEN); r.setSix(Runes.MARK_MAGIC_PEN);
+                r.setSeven(Runes.MARK_MAGIC_PEN); r.setEight(Runes.MARK_MAGIC_PEN); r.setNine(Runes.MARK_MAGIC_PEN);
                 r.setTen(Runes.SEAL_MANA_REGEN); r.setEleven(Runes.SEAL_MANA_REGEN); r.setTwelve(Runes.SEAL_MANA_REGEN);
                 r.setThirteen(Runes.SEAL_MANA_REGEN); r.setFourteen(Runes.SEAL_MANA_REGEN); r.setFifteen(Runes.SEAL_MANA_REGEN);
                 r.setSixteen(Runes.SEAL_MANA_REGEN); r.setSeventeen(Runes.SEAL_MANA_REGEN); r.setEighteen(Runes.SEAL_MANA_REGEN);
@@ -272,9 +255,9 @@ public class GameManagerService {
                 r.setTwentyEight(Runes.QUINTESSENCE_AP); r.setTwentyNine(Runes.QUINTESSENCE_AP); r.setThirty(Runes.QUINTESSENCE_AP);
                 break;
             case "Support":
-                r.setOne(Runes.MARK_ARMOR); r.setTwo(Runes.MARK_ARMOR); r.setThree(Runes.MARK_ARMOR);
-                r.setFour(Runes.MARK_ARMOR); r.setFive(Runes.MARK_ARMOR); r.setSix(Runes.MARK_ARMOR);
-                r.setSeven(Runes.MARK_ARMOR); r.setEight(Runes.MARK_ARMOR); r.setNine(Runes.MARK_ARMOR);
+                r.setOne(Runes.MARK_MAGIC_PEN); r.setTwo(Runes.MARK_MAGIC_PEN); r.setThree(Runes.MARK_MAGIC_PEN);
+                r.setFour(Runes.MARK_MAGIC_PEN); r.setFive(Runes.MARK_MAGIC_PEN); r.setSix(Runes.MARK_MAGIC_PEN);
+                r.setSeven(Runes.MARK_MAGIC_PEN); r.setEight(Runes.MARK_MAGIC_PEN); r.setNine(Runes.MARK_MAGIC_PEN);
                 r.setTen(Runes.SEAL_HEALTH); r.setEleven(Runes.SEAL_HEALTH); r.setTwelve(Runes.SEAL_HEALTH);
                 r.setThirteen(Runes.SEAL_HEALTH); r.setFourteen(Runes.SEAL_HEALTH); r.setFifteen(Runes.SEAL_HEALTH);
                 r.setSixteen(Runes.SEAL_HEALTH); r.setSeventeen(Runes.SEAL_HEALTH); r.setEighteen(Runes.SEAL_HEALTH);
@@ -340,6 +323,23 @@ public class GameManagerService {
         return SummonerSpell.SUMMONER_TELEPORT.getGameServerName();
     }
 
+    /**
+     * Get standard S4 talent build for a bot role.
+     * Offense: 4211=双刃剑, 4212=狂暴, 4213=巫术, 4214=屠夫
+     *          4221=盛宴, 4222=蛮力, 4224=思想之力
+     *          4231=武术精通, 4232=法术编织, 4233=奥术精通, 4234=咒刃编织
+     *          4241=死神, 4242=危险游戏, 4243=毁灭攻势, 4244=浩劫
+     *          4251=狂战之怒, 4262=领主之令
+     * Defense: 4111=格挡, 4112=愈合, 4113=不屈, 4114=老兵伤痕
+     *          4121=压迫, 4122=硬化皮肤, 4123=刃甲, 4124=灵敏
+     *          4131=耐久, 4132=坚韧, 4133=符能盾甲, 4134=军旅之速
+     *          4141=传奇卫士, 4142=护卫, 4143=复苏之风, 4144=坚毅
+     *          4151=史诗级守卫, 4162=顽石誓约
+     * Utility: 4311=相位行走, 4312=飞毛腿, 4313=冥想, 4314=召唤师的感悟
+     *          4321=炼金术士, 4322=烹饪大师, 4323=符文亲和, 4324=吸血习性
+     *          4331=贪婪, 4333=冥想(升), 4343=智谋
+     *          4352=智谋(升), 4362=风暴骑士的涌动
+     */
     private Talents getTalentsForRole(String name) {
         Talents t = new Talents();
         if (name == null) {
@@ -349,72 +349,110 @@ public class GameManagerService {
         String role = detectRole(name);
         switch (role) {
             case "Mid":
-                t.setBrutalForce(0);
-                t.setSorcery(3);
-                t.setFeast(0);
-                t.setVeteranScars(0);
-                t.setMeditation(3);
-                t.setWrath(0);
-                t.setArcaneKnowledge(3);
+                // 21/0/0 AP carry: Sorcery+Butcher>Feast+MentalForce>MartialMastery+SpellWeaving+ArcaneMastery>Reaper+DangerousGame+Devastation+Havoc>Frenzy>WarlordsMandate
+                t.setSorcery(4);
+                t.setButcher(2);
+                t.setFeast(2);
+                t.setMentalForce(3);
+                t.setMartialMastery(2);
                 t.setSpellWeaving(1);
-                t.setSpellPiercing(3);
-                t.setArchmage(1);
-                t.setThunderlordsDecree(1);
+                t.setArcaneMastery(2);
+                t.setReaper(2);
+                t.setDangerousGame(1);
+                t.setDevastation(3);
+                t.setHavoc(1);
+                t.setFrenzy(1);
+                t.setWarlordsMandate(1);
                 break;
             case "Support":
-                t.setBrutalForce(0);
-                t.setSorcery(0);
-                t.setFeast(3);
-                t.setVeteranScars(3);
+                // 0/9/21 Support: Recovery+Block>VeteransScars+ToughSkin>Perseverance>LegendaryGuardian>BondOfStone
+                // + Meditation+FleetOfFoot+SummonersInsight>Alchemist+CulinaryMaster+RunicAffinity+Vampirism>Greed+MeditationUpgraded+Wealth>Intelligence+Wanderer>StormraidersSurge
+                t.setRecovery(2);
+                t.setBlock(2);
+                t.setVeteransScars(1);
+                t.setToughSkin(2);
+                t.setPerseverance(3);
+                t.setLegendaryGuardian(1);
+                t.setBondOfStone(1);
+                t.setFleetOfFoot(3);
                 t.setMeditation(3);
-                t.setWrath(0);
+                t.setSummonersInsight(2);
+                t.setAlchemist(1);
+                t.setCulinaryMaster(1);
+                t.setRunicAffinity(2);
+                t.setVampirism(1);
+                t.setGreed(3);
+                t.setWealth(1);
                 t.setIntelligence(3);
-                t.setHealingMastery(3);
-                t.setNaturalTalent(3);
-                t.setJuggernaut(3);
-                t.setTenacity(1);
-                t.setGraspOfTheUndying(1);
+                t.setStormraidersSurge(1);
                 break;
             case "ADC":
-                t.setBrutalForce(3);
-                t.setFury(3);
-                t.setFeast(3);
-                t.setVeteranScars(0);
-                t.setMeditation(0);
-                t.setVampirism(3);
-                t.setWrath(3);
-                t.setPrecision(3);
-                t.setDoubleEdgedSword(1);
-                t.setExecutioner(3);
-                t.setFervorOfBattle(1);
+                // 21/9/0 AD carry: Fury+Butcher>Feast+BruteForce>MartialMastery+BladeWeaving>Reaper+DangerousGame+Devastation+Havoc>Frenzy>WarlordsMandate
+                // + Block+Recovery>VeteransScars+ToughSkin>Perseverance
+                t.setFury(4);
+                t.setButcher(2);
+                t.setFeast(2);
+                t.setBruteForce(3);
+                t.setMartialMastery(2);
+                t.setBladeWeaving(1);
+                t.setReaper(2);
+                t.setDangerousGame(1);
+                t.setDevastation(3);
+                t.setHavoc(1);
+                t.setFrenzy(3);
+                t.setWarlordsMandate(1);
+                t.setBlock(2);
+                t.setRecovery(2);
+                t.setVeteransScars(1);
+                t.setToughSkin(2);
+                t.setPerseverance(3);
                 break;
             case "Jungle":
-                t.setBrutalForce(3);
-                t.setFury(3);
-                t.setFeast(3);
-                t.setVeteranScars(3);
-                t.setMeditation(3);
-                t.setWrath(3);
-                t.setPrecision(3);
-                t.setDoubleEdgedSword(1);
-                t.setExecutioner(3);
-                t.setAssassin(1);
-                t.setFervorOfBattle(1);
-                t.setJuggernaut(3);
+                // 21/9/0 AD jungler: Fury+Butcher>Feast+BruteForce>MartialMastery+BladeWeaving>Reaper+DangerousGame+Devastation+Havoc>Frenzy>WarlordsMandate
+                // + Block+Recovery>VeteransScars+ToughSkin>Perseverance
+                t.setFury(4);
+                t.setButcher(2);
+                t.setFeast(2);
+                t.setBruteForce(3);
+                t.setMartialMastery(2);
+                t.setBladeWeaving(1);
+                t.setReaper(2);
+                t.setDangerousGame(1);
+                t.setDevastation(3);
+                t.setHavoc(1);
+                t.setFrenzy(1);
+                t.setSpellWeavingUpgraded(1);
+                t.setBladeWeavingUpgraded(1);
+                t.setWarlordsMandate(1);
+                t.setBlock(2);
+                t.setRecovery(2);
+                t.setVeteransScars(1);
+                t.setToughSkin(2);
+                t.setPerseverance(3);
                 break;
             case "Top":
             default:
-                t.setBrutalForce(3);
-                t.setFury(3);
-                t.setFeast(3);
-                t.setVeteranScars(3);
-                t.setMeditation(3);
-                t.setWrath(3);
-                t.setPrecision(3);
-                t.setExecutioner(3);
-                t.setJuggernaut(3);
+                // 21/9/0 AD bruiser: Fury+DoubleEdgedSword>Feast+BruteForce>MartialMastery+BladeWeaving>Reaper+DangerousGame+Devastation+Havoc>Frenzy>WarlordsMandate
+                // + Block+Recovery>VeteransScars+ToughSkin>Perseverance
+                t.setFury(4);
                 t.setDoubleEdgedSword(1);
-                t.setFervorOfBattle(1);
+                t.setFeast(2);
+                t.setBruteForce(3);
+                t.setMartialMastery(2);
+                t.setBladeWeaving(1);
+                t.setReaper(2);
+                t.setDangerousGame(1);
+                t.setDevastation(3);
+                t.setHavoc(1);
+                t.setFrenzy(1);
+                t.setSpellWeavingUpgraded(1);
+                t.setBladeWeavingUpgraded(1);
+                t.setWarlordsMandate(1);
+                t.setBlock(2);
+                t.setRecovery(2);
+                t.setVeteransScars(1);
+                t.setToughSkin(2);
+                t.setPerseverance(3);
                 break;
         }
         return t;

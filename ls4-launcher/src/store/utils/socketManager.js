@@ -225,40 +225,23 @@ export default class SocketManager {
   startGame(data) {
     const { spawn } = require("child_process");
     let executablePath = this.state.config.path.client;
-    // let parameters = [
-    //   '"" "" "" "' +
-    //     data.ip +
-    //     " " +
-    //     data.port +
-    //     " " +
-    //     data.blowfish +
-    //     " " +
-    //     data.playerId
-    // ];
+    const connectionStr =
+      data.ip + " " + data.port + " " + data.blowfish + " " + data.playerId;
 
-    // const sub = spawn(executablePath, parameters, {
-    //   detached: true,
-    //   stdio: "ignore"
-    // });
-
-    // sub.unref();
-
-    spawn(
-      "cmd",
-      [
-        "/c",
-        "start",
-        "",
-        executablePath,
-        "8394",
-        "LoLLauncher.exe",
-        "",
-        data.ip + " " + data.port + " " + data.blowfish + " " + data.playerId
-      ],
+    const sub = spawn(
+      executablePath,
+      ["8394", "LoLLauncher.exe", "", connectionStr],
       {
-        cwd: path.dirname(executablePath)
+        cwd: path.dirname(executablePath),
+        detached: true,
+        stdio: "ignore"
       }
     );
+    sub.unref();
+
+    sub.on("error", err => {
+      console.error("Failed to start game client:", err);
+    });
   }
 
   /* MESSAGES */

@@ -1,48 +1,54 @@
 package de.jandev.ls4apiserver.model.game;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 public class Runes {
 
-    public static final int MARK_AD = 5245;
-    public static final int MARK_AP = 5275;
-    public static final int MARK_ARMOR = 5317;
-    public static final int MARK_MAGIC_RESIST = 5250;
-    public static final int MARK_ATTACK_SPEED = 5231;
-    public static final int MARK_CRIT_CHANCE = 5272;
-    public static final int MARK_ARMOR_PEN = 5224;
+    // === MARKS (印记) - Tier 3 ===
+    public static final int MARK_AD = 5245;            // 高级攻击力印记
+    public static final int MARK_ARMOR_PEN = 5253;     // 高级护甲穿透印记
+    public static final int MARK_MAGIC_PEN = 5273;     // 高级法术穿透印记
+    public static final int MARK_ATTACK_SPEED = 5247;   // 高级攻击速度印记
+    public static final int MARK_CRIT_CHANCE = 5251;    // 高级暴击几率印记
+    public static final int MARK_MAGIC_RESIST = 5259;   // 高级魔法抗性印记
+    public static final int MARK_COOLDOWN = 5265;       // 高级冷却缩减印记
+    public static final int MARK_HYBRID_PEN = 5402;     // 高级混合穿透印记
 
-    public static final int SEAL_ARMOR = 5317;
-    public static final int SEAL_HEALTH = 5340;
-    public static final int SEAL_MANA_REGEN = 5300;
-    public static final int SEAL_MAGIC_RESIST = 5302;
-    public static final int SEAL_HP_REGEN = 5327;
-    public static final int SEAL_MOVEMENT_SPEED = 5341;
+    // === SEALS (符印) - Tier 3 ===
+    public static final int SEAL_ARMOR = 5317;          // 高级护甲符印
+    public static final int SEAL_HEALTH = 5340;         // 高级生命值符印
+    public static final int SEAL_MANA_REGEN = 5300;     // 高级法力回复符印
+    public static final int SEAL_MAGIC_RESIST = 5302;   // 高级魔法抗性符印
+    public static final int SEAL_HP_REGEN = 5327;       // 高级生命回复符印
 
-    public static final int GLYPH_MAGIC_RESIST = 5289;
-    public static final int GLYPH_COOLDOWN = 5273;
-    public static final int GLYPH_AP = 5265;
-    public static final int GLYPH_MANA_REGEN = 5290;
-    public static final int GLYPH_MANA = 5270;
-    public static final int GLYPH_ATTACK_SPEED = 5299;
+    // === GLYPHS (雕文) - Tier 3 ===
+    public static final int GLYPH_MAGIC_RESIST = 5289;  // 高级魔法抗性雕文
+    public static final int GLYPH_COOLDOWN = 5295;      // 高级冷却缩减雕文
+    public static final int GLYPH_AP = 5297;            // 高级法术强度雕文
+    public static final int GLYPH_MANA_REGEN = 5290;    // 高级法力回复雕文
+    public static final int GLYPH_MANA = 5299;          // 高级法力值雕文
+    public static final int GLYPH_ATTACK_SPEED = 5277;  // 高级攻击速度雕文
 
-    public static final int QUINTESSENCE_AD = 5335;
-    public static final int QUINTESSENCE_AP = 5337;
-    public static final int QUINTESSENCE_MOVEMENT_SPEED = 5310;
-    public static final int QUINTESSENCE_LIFESTEAL = 5313;
-    public static final int QUINTESSENCE_ARMOR = 5357;
-    public static final int QUINTESSENCE_MAGIC_RESIST = 5359;
-    public static final int QUINTESSENCE_ATTACK_SPEED = 5338;
-    public static final int QUINTESSENCE_HP = 5342;
-    public static final int QUINTESSENCE_HP_REGEN = 5343;
+    // === QUINTESSENCES (精华) - Tier 3 ===
+    public static final int QUINTESSENCE_AD = 5335;            // 高级攻击力精华
+    public static final int QUINTESSENCE_AP = 5357;            // 高级法术强度精华
+    public static final int QUINTESSENCE_MOVEMENT_SPEED = 5365; // 高级移动速度精华
+    public static final int QUINTESSENCE_LIFESTEAL = 5412;     // 高级生命偷取精华
+    public static final int QUINTESSENCE_ARMOR = 5347;         // 高级护甲精华
+    public static final int QUINTESSENCE_MAGIC_RESIST = 5349;  // 高级魔法抗性精华
+    public static final int QUINTESSENCE_ATTACK_SPEED = 5337;  // 高级攻击速度精华
+    public static final int QUINTESSENCE_HP = 5345;            // 高级生命值精华
+    public static final int QUINTESSENCE_HP_REGEN = 5351;      // 高级生命回复精华
 
     @JsonProperty("1")
     private int one = MARK_AD;

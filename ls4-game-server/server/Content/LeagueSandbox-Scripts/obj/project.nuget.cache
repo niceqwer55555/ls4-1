@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "dgSpecHash": "+v/hsRSe2RA=",
+  "success": true,
+  "projectFilePath": "D:\\game\\ls4-1\\ls4-game-server\\Gameserver\\Content\\LeagueSandbox-Scripts\\LeagueSandbox-Scripts.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\555\\.nuget\\packages\\crc32.net\\1.2.0\\crc32.net.1.2.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\lenet\\1.0.1\\lenet.1.0.1.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\log4net\\2.0.14\\log4net.2.0.14.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.3\\microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\microsoft.codeanalysis.common\\4.1.0\\microsoft.codeanalysis.common.4.1.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.1.0\\microsoft.codeanalysis.csharp.4.1.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\netstandard.library\\2.0.0\\netstandard.library.2.0.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\optimizedpriorityqueue\\5.1.0\\optimizedpriorityqueue.5.1.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\royt.astar\\3.0.2\\royt.astar.3.0.2.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\system.configuration.configurationmanager\\4.5.0\\system.configuration.configurationmanager.4.5.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\system.security.cryptography.protecteddata\\4.5.0\\system.security.cryptography.protecteddata.4.5.0.nupkg.sha512",
+    "C:\\Users\\555\\.nuget\\packages\\system.security.permissions\\4.5.0\\system.security.permissions.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

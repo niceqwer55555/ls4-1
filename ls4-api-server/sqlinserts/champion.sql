@@ -246,3 +246,55 @@ INSERT INTO champion (id, display_name, price, title, availability)
 VALUES ('Ekko', 'Ekko', null, 'the Boy Who Shattered Time', 'PUBLIC');
 INSERT INTO champion (id, display_name, price, title, availability)
 VALUES ('Urf', 'Urf', null, 'the Manatee', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('AurelionSol', 'Aurelion Sol', null, 'The Star Forger', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Bard', 'Bard', null, 'The Wandering Caretaker', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Camille', 'Camille', null, 'The Steel Shadow', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Illaoi', 'Illaoi', null, 'The Kraken Priestess', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Ivern', 'Ivern', null, 'The Green Father', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Jhin', 'Jhin', null, 'The Virtuoso', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Kaisa', 'Kai''Sa', null, 'Daughter of the Void', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Kayn', 'Kayn', null, 'The Shadow Reaper', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Kindred', 'Kindred', null, 'The Eternal Hunters', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Kled', 'Kled', null, 'The Cantankerous Cavalier', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Naafiri', 'Naafiri', null, 'The Hound of a Hundred Bites', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Nilah', 'Nilah', null, 'The Joy Unbound', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Ornn', 'Ornn', null, 'The Fire Below the Mountain', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Pyke', 'Pyke', null, 'The Bloodharbor Ripper', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Rakan', 'Rakan', null, 'The Charmer', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('RekSai', 'Rek''Sai', null, 'The Void Burrower', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Rell', 'Rell', null, 'The Iron Maiden', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Senna', 'Senna', null, 'The Redeemer', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Seraphine', 'Seraphine', null, 'The Star of the Stage', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Sett', 'Sett', null, 'The Boss', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Smolder', 'Smolder', null, 'The Fiery Fledgling', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Sylas', 'Sylas', null, 'The Unshackled', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('TahmKench', 'Tahm Kench', null, 'The River King', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Taliyah', 'Taliyah', null, 'The Stoneweaver', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Xayah', 'Xayah', null, 'The Rebel', 'PUBLIC');
+INSERT INTO champion (id, display_name, price, title, availability)
+VALUES ('Zoe', 'Zoe', null, 'The Aspect of Twilight', 'PUBLIC');

@@ -10,7 +10,11 @@ public enum LobbyType {
     ARAM_BLIND(5, 0, 12),
     SUMMONERS_RIFT_BOT_BLIND(5, 0, 1), SUMMONERS_RIFT_BOT_DRAFT(5, 3, 1),
     ODIN_BOT_BLIND(5, 0, 8), ODIN_BOT_DRAFT(5, 3, 8),
-    ARAM_BOT_ARAM(5, 0, 12);
+    ARAM_BOT_ARAM(5, 0, 12),
+    SUMMONERS_RIFT_NEW_BLIND(5, 0, 11), SUMMONERS_RIFT_NEW_DRAFT(5, 3, 11),
+    TWISTED_TREELINE_OLD_BLIND(3, 0, 4),
+    SUMMONERS_RIFT_NEW_BOT_BLIND(5, 0, 11), SUMMONERS_RIFT_NEW_BOT_DRAFT(5, 3, 11),
+    TWISTED_TREELINE_OLD_BOT_BLIND(3, 0, 4);
     // CUSTOM SIZE IS ALWAYS 10 currently (Update: I have no clue what this means.)
 
     private final int teamSize;

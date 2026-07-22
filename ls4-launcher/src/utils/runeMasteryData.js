@@ -1,3 +1,11 @@
+import { getRuneById } from "./runeData";
+import { getMasteryById } from "./masteryData";
+
+/**
+ * Get default rune pages for S4
+ * Each page has 30 rune slots: 9 marks, 9 seals, 9 glyphs, 3 quintessences
+ * @returns {Array} Default rune pages
+ */
 export function getDefaultRunePages() {
   return [
     {
@@ -53,112 +61,158 @@ export function getDefaultRunePages() {
   ];
 }
 
+/**
+ * Get default mastery pages for S4
+ * @returns {Array} Default mastery pages
+ */
 export function getDefaultMasteryPages() {
   return [
     {
-      id: 1,
-      name: "ADC / Marksman",
-      masteries: {
-        6111: 1,
-        6113: 1,
-        6121: 1,
-        6131: 3,
-        6141: 1,
-        6151: 3,
-        6161: 1,
-        6171: 3,
-        6181: 1,
-        6191: 1,
-        6211: 1,
-        6222: 1,
-        6231: 3,
-        6251: 3,
-        6262: 1
-      }
+        "id": 1,
+        "name": "ADC / 物理输出",
+        "masteries": {
+            "4112": 2,
+            "4114": 1,
+            "4122": 2,
+            "4124": 2,
+            "4211": 1,
+            "4212": 4,
+            "4222": 3,
+            "4231": 2,
+            "4232": 1,
+            "4241": 2,
+            "4242": 1,
+            "4243": 3,
+            "4251": 3,
+            "4262": 1
+        }
     },
     {
-      id: 2,
-      name: "Mid / AP",
-      masteries: {
-        6111: 1,
-        6131: 3,
-        6151: 3,
-        6171: 3,
-        6211: 1,
-        6221: 1,
-        6231: 3,
-        6241: 1,
-        6251: 3,
-        6262: 1,
-        6311: 1,
-        6313: 1,
-        6321: 1,
-        6331: 3,
-        6351: 3
-      }
+        "id": 2,
+        "name": "Mid / 法师",
+        "masteries": {
+            "4112": 2,
+            "4114": 1,
+            "4122": 2,
+            "4124": 2,
+            "4131": 1,
+            "4213": 4,
+            "4221": 1,
+            "4224": 3,
+            "4233": 2,
+            "4234": 1,
+            "4241": 2,
+            "4242": 1,
+            "4243": 3,
+            "4244": 1,
+            "4262": 1
+        }
     },
     {
-      id: 3,
-      name: "Jungle / Bruiser",
-      masteries: {
-        6111: 1,
-        6113: 1,
-        6121: 1,
-        6131: 3,
-        6151: 3,
-        6171: 2,
-        6211: 1,
-        6212: 1,
-        6221: 1,
-        6231: 3,
-        6241: 1,
-        6251: 3,
-        6262: 1,
-        6271: 3,
-        6281: 1
-      }
+        "id": 3,
+        "name": "Jungle / 打野",
+        "masteries": {
+            "4112": 2,
+            "4114": 1,
+            "4122": 2,
+            "4124": 2,
+            "4131": 3,
+            "4211": 1,
+            "4212": 4,
+            "4222": 3,
+            "4231": 2,
+            "4241": 2,
+            "4242": 1,
+            "4243": 3,
+            "4262": 1
+        }
     },
     {
-      id: 4,
-      name: "Support / Tank",
-      masteries: {
-        6111: 1,
-        6131: 3,
-        6151: 3,
-        6171: 2,
-        6211: 1,
-        6212: 1,
-        6231: 3,
-        6241: 1,
-        6251: 3,
-        6262: 1,
-        6311: 1,
-        6313: 1,
-        6321: 1,
-        6331: 3,
-        6351: 3
-      }
+        "id": 4,
+        "name": "Support / 辅助",
+        "masteries": {
+            "4112": 2,
+            "4311": 2,
+            "4312": 3,
+            "4313": 3,
+            "4314": 2,
+            "4322": 1,
+            "4323": 2,
+            "4324": 1,
+            "4331": 3,
+            "4332": 1,
+            "4333": 3,
+            "4341": 1,
+            "4343": 3,
+            "4352": 1,
+            "4362": 1
+        }
     },
     {
-      id: 5,
-      name: "Top / Fighter",
-      masteries: {
-        6111: 1,
-        6113: 1,
-        6121: 1,
-        6131: 3,
-        6151: 3,
-        6171: 2,
-        6211: 1,
-        6221: 1,
-        6231: 3,
-        6241: 1,
-        6251: 3,
-        6262: 1,
-        6271: 3,
-        6281: 1,
-        6291: 1
-      }
+        "id": 5,
+        "name": "Top / 坦克",
+        "masteries": {
+            "4111": 2,
+            "4112": 2,
+            "4114": 1,
+            "4122": 2,
+            "4124": 2,
+            "4131": 3,
+            "4132": 3,
+            "4141": 3,
+            "4144": 1,
+            "4151": 1,
+            "4152": 1,
+            "4162": 1,
+            "4212": 4,
+            "4214": 2,
+            "4221": 1
+        }
     }
-  ];
+];
+}
+
+/**
+ * Get rune display info for a rune page
+ * @param {Object} runePage - Rune page object with runes map
+ * @returns {Array} Array of { slot, runeId, name, icon, stats }
+ */
+export function getRunePageDisplay(runePage) {
+  if (!runePage || !runePage.runes) return [];
+  const display = [];
+  for (let slot = 1; slot <= 30; slot++) {
+    const runeId = runePage.runes[slot];
+    if (runeId) {
+      const info = getRuneById(runeId);
+      display.push({
+        slot,
+        runeId,
+        name: info ? info.name : String(runeId),
+        icon: info ? info.icon : "",
+        stats: info ? info.stats : {}
+      });
+    }
+  }
+  return display;
+}
+
+/**
+ * Get mastery display info for a mastery page
+ * @param {Object} masteryPage - Mastery page object with masteries map
+ * @returns {Object} { offense, defense, utility } point counts and details
+ */
+export function getMasteryPageDisplay(masteryPage) {
+  if (!masteryPage || !masteryPage.masteries) return { offense: 0, defense: 0, utility: 0, details: [] };
+  let offense = 0, defense = 0, utility = 0;
+  const details = [];
+  for (const [id, rank] of Object.entries(masteryPage.masteries)) {
+    const info = getMasteryById(id);
+    if (info) {
+      if (info.tree === "offense") offense += rank;
+      else if (info.tree === "defense") defense += rank;
+      else if (info.tree === "utility") utility += rank;
+      details.push({ id, rank, ...info });
+    }
+  }
+  return { offense, defense, utility, total: offense + defense + utility, details };
 }

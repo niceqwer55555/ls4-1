@@ -1,6 +1,8 @@
 package de.jandev.ls4apiserver.model.lobby;
 
 import de.jandev.ls4apiserver.model.champselect.LobbyTeam;
+import de.jandev.ls4apiserver.model.game.Runes;
+import de.jandev.ls4apiserver.model.game.Talents;
 import de.jandev.ls4apiserver.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,6 +42,12 @@ public class Lobby {
     private boolean isCustom;
 
     private boolean alteredDuringAccept;
+
+    /** Temporary storage for rune page data per user, set when matchmaking starts */
+    private Map<String, Runes> memberRunePages = new ConcurrentHashMap<>();
+
+    /** Temporary storage for mastery page data per user, set when matchmaking starts */
+    private Map<String, Talents> memberMasteryPages = new ConcurrentHashMap<>();
 
     @Override
     public String toString() {

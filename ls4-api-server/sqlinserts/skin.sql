@@ -1340,3 +1340,55 @@ INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
 VALUES (670, 'PUBLIC', 'Project Ekko', 1, null, 'Ekko');
 INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
 VALUES (671, 'PUBLIC', 'default', 0, null, 'Urf');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (672, 'PUBLIC', 'default', 0, null, 'AurelionSol');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (673, 'PUBLIC', 'default', 0, null, 'Bard');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (674, 'PUBLIC', 'default', 0, null, 'Camille');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (675, 'PUBLIC', 'default', 0, null, 'Illaoi');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (676, 'PUBLIC', 'default', 0, null, 'Ivern');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (677, 'PUBLIC', 'default', 0, null, 'Jhin');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (678, 'PUBLIC', 'default', 0, null, 'Kaisa');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (679, 'PUBLIC', 'default', 0, null, 'Kayn');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (680, 'PUBLIC', 'default', 0, null, 'Kindred');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (681, 'PUBLIC', 'default', 0, null, 'Kled');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (682, 'PUBLIC', 'default', 0, null, 'Naafiri');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (683, 'PUBLIC', 'default', 0, null, 'Nilah');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (684, 'PUBLIC', 'default', 0, null, 'Ornn');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (685, 'PUBLIC', 'default', 0, null, 'Pyke');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (686, 'PUBLIC', 'default', 0, null, 'Rakan');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (687, 'PUBLIC', 'default', 0, null, 'RekSai');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (688, 'PUBLIC', 'default', 0, null, 'Rell');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (689, 'PUBLIC', 'default', 0, null, 'Senna');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (690, 'PUBLIC', 'default', 0, null, 'Seraphine');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (691, 'PUBLIC', 'default', 0, null, 'Sett');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (692, 'PUBLIC', 'default', 0, null, 'Smolder');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (693, 'PUBLIC', 'default', 0, null, 'Sylas');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (694, 'PUBLIC', 'default', 0, null, 'TahmKench');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (695, 'PUBLIC', 'default', 0, null, 'Taliyah');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (696, 'PUBLIC', 'default', 0, null, 'Xayah');
+INSERT INTO skin (id, availability, name, picture_id, price, champion_id)
+VALUES (697, 'PUBLIC', 'default', 0, null, 'Zoe');

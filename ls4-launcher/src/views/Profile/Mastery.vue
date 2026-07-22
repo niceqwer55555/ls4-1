@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div id="MasteryPage">
     <div class="runeMasteryContainer">
       <div class="pageHeader">
@@ -19,7 +19,7 @@
               @click="selectMasteryPage(index)"
               class="pageItem"
             >
-              <span class="pageName">{{ page.name || `Mastery Page ${index + 1}` }}</span>
+              <span class="pageName">{{ page.name || '天赋页' }}</span>
               <span v-if="index === currentMasteryPage" class="currentIndicator">✓</span>
             </div>
           </div>
@@ -61,18 +61,24 @@
                 <span class="treePoints">{{ attackPoints }}</span>
               </div>
               <div class="treeContent">
-                <div v-for="(row, rowIndex) in attackMasteries" :key="'attack-' + rowIndex" class="masteryRow">
+                <div v-for="(row, rowIndex) in attackMasteries" :key="'attack-' + rowIndex" class="masteryRow" :class="{ locked: !isTierUnlocked('offense', rowIndex) }">
                   <div
-                    v-for="(mastery, colIndex) in row"
-                    :key="'attack-' + rowIndex + '-' + colIndex"
+                    v-for="mastery in row"
+                    :key="mastery.id"
                     :class="{ selected: isMasterySelected(mastery.id) }"
-                    @click="toggleMastery(mastery.id)"
+                    @click="addMasteryPoint(mastery.id)"
+                    @contextmenu.prevent="removeMasteryPoint(mastery.id)"
                     class="masteryItem"
+                    :title="mastery.description"
                   >
-                    <div class="masteryIcon">{{ mastery.icon }}</div>
+                    <div class="masteryIconWrapper">
+                      <img :src="getMasteryImage(mastery.id)" :alt="mastery.name" class="masteryIconImg" />
+                      <span class="masteryRankBadge" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
+                        {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
+                      </span>
+                    </div>
                     <div class="masteryName">{{ mastery.name }}</div>
-                    <div class="masteryDescription">{{ mastery.description }}</div>
-                    <div v-if="isMasterySelected(mastery.id)" class="masteryRank">
+                    <div class="masteryRank" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
                       {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
                     </div>
                   </div>
@@ -87,18 +93,24 @@
                 <span class="treePoints">{{ defensePoints }}</span>
               </div>
               <div class="treeContent">
-                <div v-for="(row, rowIndex) in defenseMasteries" :key="'defense-' + rowIndex" class="masteryRow">
+                <div v-for="(row, rowIndex) in defenseMasteries" :key="'defense-' + rowIndex" class="masteryRow" :class="{ locked: !isTierUnlocked('defense', rowIndex) }">
                   <div
-                    v-for="(mastery, colIndex) in row"
-                    :key="'defense-' + rowIndex + '-' + colIndex"
+                    v-for="mastery in row"
+                    :key="mastery.id"
                     :class="{ selected: isMasterySelected(mastery.id) }"
-                    @click="toggleMastery(mastery.id)"
+                    @click="addMasteryPoint(mastery.id)"
+                    @contextmenu.prevent="removeMasteryPoint(mastery.id)"
                     class="masteryItem"
+                    :title="mastery.description"
                   >
-                    <div class="masteryIcon">{{ mastery.icon }}</div>
+                    <div class="masteryIconWrapper">
+                      <img :src="getMasteryImage(mastery.id)" :alt="mastery.name" class="masteryIconImg" />
+                      <span class="masteryRankBadge" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
+                        {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
+                      </span>
+                    </div>
                     <div class="masteryName">{{ mastery.name }}</div>
-                    <div class="masteryDescription">{{ mastery.description }}</div>
-                    <div v-if="isMasterySelected(mastery.id)" class="masteryRank">
+                    <div class="masteryRank" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
                       {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
                     </div>
                   </div>
@@ -113,18 +125,24 @@
                 <span class="treePoints">{{ utilityPoints }}</span>
               </div>
               <div class="treeContent">
-                <div v-for="(row, rowIndex) in utilityMasteries" :key="'utility-' + rowIndex" class="masteryRow">
+                <div v-for="(row, rowIndex) in utilityMasteries" :key="'utility-' + rowIndex" class="masteryRow" :class="{ locked: !isTierUnlocked('utility', rowIndex) }">
                   <div
-                    v-for="(mastery, colIndex) in row"
-                    :key="'utility-' + rowIndex + '-' + colIndex"
+                    v-for="mastery in row"
+                    :key="mastery.id"
                     :class="{ selected: isMasterySelected(mastery.id) }"
-                    @click="toggleMastery(mastery.id)"
+                    @click="addMasteryPoint(mastery.id)"
+                    @contextmenu.prevent="removeMasteryPoint(mastery.id)"
                     class="masteryItem"
+                    :title="mastery.description"
                   >
-                    <div class="masteryIcon">{{ mastery.icon }}</div>
+                    <div class="masteryIconWrapper">
+                      <img :src="getMasteryImage(mastery.id)" :alt="mastery.name" class="masteryIconImg" />
+                      <span class="masteryRankBadge" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
+                        {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
+                      </span>
+                    </div>
                     <div class="masteryName">{{ mastery.name }}</div>
-                    <div class="masteryDescription">{{ mastery.description }}</div>
-                    <div v-if="isMasterySelected(mastery.id)" class="masteryRank">
+                    <div class="masteryRank" :class="{ maxed: getMasteryRank(mastery.id) >= mastery.maxRank }">
                       {{ getMasteryRank(mastery.id) }}/{{ mastery.maxRank }}
                     </div>
                   </div>
@@ -146,51 +164,15 @@
       </div>
     </div>
   </div>
-</template>
-
-<script>
+</template><script>
 import { mapState, mapActions } from "vuex";
+import { MASTERY_TREES, MASTERY_DATA } from "@/utils/masteryData";
 
 export default {
   data() {
     return {
       currentPageName: "",
-      attackMasteries: [
-        [{ id: 6111, icon: "⚡", name: "Double-Edged Sword", description: "+3% damage, -1.5% damage taken", maxRank: 1 }],
-        [{ id: 6112, icon: "💪", name: "Sunder", description: "+5% armor penetration", maxRank: 1 }, { id: 6113, icon: "🔫", name: "Fury", description: "+10% attack speed", maxRank: 1 }],
-        [{ id: 6121, icon: "🔥", name: "Warlord", description: "Basic attacks restore 2% max HP", maxRank: 1 }, { id: 6122, icon: "⚔️", name: "Feast", description: "Kills restore 10% max HP", maxRank: 1 }],
-        [{ id: 6131, icon: "🎯", name: "Brute Force", description: "+5 AD", maxRank: 3 }, { id: 6132, icon: "💥", name: "Impact", description: "+6% armor pen", maxRank: 3 }],
-        [{ id: 6141, icon: "🏹", name: "Savage", description: "+3% damage to minions", maxRank: 1 }, { id: 6142, icon: "🗡️", name: "Bounty Hunter", description: "+2% damage per unique kill", maxRank: 1 }],
-        [{ id: 6151, icon: "💀", name: "Deadliness", description: "+5 AD, +8 AP", maxRank: 3 }],
-        [{ id: 6161, icon: "💢", name: "Executioner", description: "+5% damage to low HP targets", maxRank: 1 }, { id: 6162, icon: "🎰", name: "Oppressor", description: "+5% damage to slowed/immobilized", maxRank: 1 }],
-        [{ id: 6171, icon: "⚡", name: "Weapon Expertise", description: "+10% armor pen, +5% magic pen", maxRank: 3 }],
-        [{ id: 6181, icon: "💥", name: "Lethality", description: "Critical strikes deal 15% more damage", maxRank: 1 }],
-        [{ id: 6191, icon: "🔥", name: "Deathfire Touch", description: "Basic attacks and spells burn enemies", maxRank: 1 }]
-      ],
-      defenseMasteries: [
-        [{ id: 6211, icon: "🛡️", name: "Block", description: "Reduce auto damage by 3", maxRank: 1 }],
-        [{ id: 6212, icon: "💚", name: "Recovery", description: "+2 HP regen", maxRank: 1 }, { id: 6213, icon: "🔄", name: "Perseverance", description: "+10% HP regen when low", maxRank: 1 }],
-        [{ id: 6221, icon: "🎯", name: "Unyielding", description: "+5% tenacity", maxRank: 1 }, { id: 6222, icon: "💪", name: "Tough Skin", description: "+6 armor", maxRank: 1 }],
-        [{ id: 6231, icon: "🛡️", name: "Iron Skin", description: "+6 armor", maxRank: 3 }, { id: 6232, icon: "🔮", name: "Mirror Skin", description: "+6 MR", maxRank: 3 }],
-        [{ id: 6241, icon: "🌀", name: "Runic Affinity", description: "+15% duration of buffs", maxRank: 1 }, { id: 6242, icon: "⚡", name: "Reinforced Armor", description: "Reduce CC duration by 10%", maxRank: 1 }],
-        [{ id: 6251, icon: "💚", name: "Juggernaut", description: "+20 HP, +2 HP regen", maxRank: 3 }],
-        [{ id: 6261, icon: "🔥", name: "Resistance", description: "+10% damage reduction from DOT", maxRank: 1 }, { id: 6262, icon: "💪", name: "Veteran's Scars", description: "+60 HP", maxRank: 1 }],
-        [{ id: 6271, icon: "🛡️", name: "Defiance", description: "+5% armor and MR", maxRank: 3 }],
-        [{ id: 6281, icon: "🗡️", name: "Revenge", description: "+10% damage when below 50% HP", maxRank: 1 }],
-        [{ id: 6291, icon: "💀", name: "Stoneborn Pact", description: "Allies within 300 range gain +10% armor/MR", maxRank: 1 }]
-      ],
-      utilityMasteries: [
-        [{ id: 6311, icon: "💰", name: "Savings", description: "+15 gold at start", maxRank: 1 }],
-        [{ id: 6312, icon: "⚡", name: "Bandit", description: "2 gold per auto on champions", maxRank: 1 }, { id: 6313, icon: "🏃", name: "Swift", description: "+2% movement speed", maxRank: 1 }],
-        [{ id: 6321, icon: "💨", name: "Fleet of Foot", description: "+4% movement speed out of combat", maxRank: 1 }, { id: 6322, icon: "⚡", name: "Expanded Mind", description: "+10% max mana", maxRank: 1 }],
-        [{ id: 6331, icon: "🔮", name: "Meditation", description: "+1.5 MP regen", maxRank: 3 }, { id: 6332, icon: "💧", name: "Mana Font", description: "+50 max mana", maxRank: 3 }],
-        [{ id: 6341, icon: "⏱️", name: "Cognitive Flexibility", description: "+3% CDR", maxRank: 1 }, { id: 6342, icon: "🔥", name: "Burning Embers", description: "+5 AP", maxRank: 1 }],
-        [{ id: 6351, icon: "⚡", name: "Intelligence", description: "+5% CDR", maxRank: 3 }],
-        [{ id: 6361, icon: "🔮", name: "Arcane Knowledge", description: "+8% magic penetration", maxRank: 1 }, { id: 6362, icon: "💨", name: "Phase Rush", description: "+5% movement speed", maxRank: 1 }],
-        [{ id: 6371, icon: "✨", name: "Wanderer", description: "+2% movement speed", maxRank: 3 }],
-        [{ id: 6381, icon: "🌀", name: "Distortion", description: "+10% summoner spell CDR", maxRank: 1 }],
-        [{ id: 6391, icon: "🌟", name: "Thunderlord's Decree", description: "3 consecutive attacks/spells deal lightning damage", maxRank: 1 }]
-      ]
+      masteryTreeData: MASTERY_TREES
     };
   },
   computed: {
@@ -204,87 +186,66 @@ export default {
       return Object.values(currentPage.masteries).reduce((sum, rank) => sum + rank, 0);
     },
     attackPoints() {
-      const currentPage = this.masteryPages[this.currentMasteryPage];
-      if (!currentPage || !currentPage.masteries) return 0;
-      return this.attackMasteries.flat().reduce((sum, m) => sum + (currentPage.masteries[m.id] || 0), 0);
+      return this.getTreePoints("offense");
     },
     defensePoints() {
-      const currentPage = this.masteryPages[this.currentMasteryPage];
-      if (!currentPage || !currentPage.masteries) return 0;
-      return this.defenseMasteries.flat().reduce((sum, m) => sum + (currentPage.masteries[m.id] || 0), 0);
+      return this.getTreePoints("defense");
     },
     utilityPoints() {
-      const currentPage = this.masteryPages[this.currentMasteryPage];
-      if (!currentPage || !currentPage.masteries) return 0;
-      return this.utilityMasteries.flat().reduce((sum, m) => sum + (currentPage.masteries[m.id] || 0), 0);
+      return this.getTreePoints("utility");
+    },
+    attackMasteries() {
+      return this.getTreeMasteries("offense");
+    },
+    defenseMasteries() {
+      return this.getTreeMasteries("defense");
+    },
+    utilityMasteries() {
+      return this.getTreeMasteries("utility");
     },
     masteryEffects() {
       const effects = {};
       const currentPage = this.masteryPages[this.currentMasteryPage];
       if (!currentPage || !currentPage.masteries) return effects;
-
-      const masteryEffectsMap = {
-        6111: { "Damage": "+3%", "Damage Taken": "-1.5%" },
-        6112: { "Armor Penetration": "+5%" },
-        6113: { "Attack Speed": "+10%" },
-        6121: { "Lifesteal": "+2% max HP per auto" },
-        6122: { "HP Restore": "+10% max HP on kill" },
-        6131: { "Attack Damage": "+5 AD" },
-        6132: { "Armor Penetration": "+6%" },
-        6141: { "Minion Damage": "+3%" },
-        6142: { "Damage": "+2% per unique kill" },
-        6151: { "Attack Damage": "+5 AD", "Ability Power": "+8 AP" },
-        6161: { "Damage to Low HP": "+5%" },
-        6162: { "Damage to CC'd": "+5%" },
-        6171: { "Armor Pen": "+10%", "Magic Pen": "+5%" },
-        6181: { "Crit Damage": "+15%" },
-        6191: { "Burn Damage": "Active" },
-        6211: { "Auto Damage Reduction": "-3" },
-        6212: { "HP Regen": "+2" },
-        6213: { "Low HP Regen": "+10%" },
-        6221: { "Tenacity": "+5%" },
-        6222: { "Armor": "+6" },
-        6231: { "Armor": "+6" },
-        6232: { "Magic Resist": "+6" },
-        6241: { "Buff Duration": "+15%" },
-        6242: { "CC Duration": "-10%" },
-        6251: { "Health": "+20", "HP Regen": "+2" },
-        6261: { "DOT Reduction": "+10%" },
-        6262: { "Health": "+60" },
-        6271: { "Armor/MR": "+5%" },
-        6281: { "Damage When Low": "+10%" },
-        6291: { "Ally Armor/MR": "+10%" },
-        6311: { "Starting Gold": "+15" },
-        6312: { "Gold per Auto": "+2" },
-        6313: { "Movement Speed": "+2%" },
-        6321: { "Out of Combat MS": "+4%" },
-        6322: { "Max Mana": "+10%" },
-        6331: { "MP Regen": "+1.5" },
-        6332: { "Max Mana": "+50" },
-        6341: { "Cooldown Reduction": "+3%" },
-        6342: { "Ability Power": "+5" },
-        6351: { "Cooldown Reduction": "+5%" },
-        6361: { "Magic Penetration": "+8%" },
-        6362: { "Movement Speed": "+5%" },
-        6371: { "Movement Speed": "+2%" },
-        6381: { "Summoner CDR": "+10%" },
-        6391: { "Lightning Damage": "Active" }
-      };
-
       Object.keys(currentPage.masteries).forEach(id => {
         const rank = currentPage.masteries[id];
-        if (rank && masteryEffectsMap[id]) {
-          Object.entries(masteryEffectsMap[id]).forEach(([key, value]) => {
-            effects[key] = value;
-          });
+        if (rank) {
+          const m = MASTERY_DATA[id];
+          if (m) {
+            effects[m.name] = m.desc;
+          }
         }
       });
-
       return effects;
     }
   },
   methods: {
     ...mapActions(["selectMasteryPage", "addMasteryPage", "deleteMasteryPage"]),
+    getTreeMasteries(treeName) {
+      const tree = MASTERY_TREES[treeName];
+      if (!tree) return [];
+      return tree.tiers.map(tier => {
+        return tier.masteries.map(id => {
+          const m = MASTERY_DATA[id];
+          return m ? { id: parseInt(id), name: m.name, description: m.desc, maxRank: m.maxRanks, tree: m.tree, tier: m.tier } : null;
+        }).filter(Boolean);
+      });
+    },
+    getTreePoints(treeName) {
+      const currentPage = this.masteryPages[this.currentMasteryPage];
+      if (!currentPage || !currentPage.masteries) return 0;
+      const tree = MASTERY_TREES[treeName];
+      if (!tree) return 0;
+      const allIds = tree.tiers.flatMap(t => t.masteries);
+      return allIds.reduce((sum, id) => sum + (currentPage.masteries[id] || 0), 0);
+    },
+    isTierUnlocked(treeName, tierIndex) {
+      const tree = MASTERY_TREES[treeName];
+      if (!tree) return false;
+      const requiredPoints = tree.tiers[tierIndex].requiredPoints;
+      const treePoints = this.getTreePoints(treeName);
+      return treePoints >= requiredPoints;
+    },
     isMasterySelected(masteryId) {
       const currentPage = this.masteryPages[this.currentMasteryPage];
       if (!currentPage || !currentPage.masteries) return false;
@@ -295,30 +256,42 @@ export default {
       if (!currentPage || !currentPage.masteries) return 0;
       return currentPage.masteries[masteryId] || 0;
     },
-    toggleMastery(masteryId) {
+    addMasteryPoint(masteryId) {
       const currentPage = this.masteryPages[this.currentMasteryPage];
       if (!currentPage) return;
-
-      const mastery = [...this.attackMasteries, ...this.defenseMasteries, ...this.utilityMasteries]
-        .flat()
-        .find(m => m.id === masteryId);
-
-      if (!mastery) return;
-
+      const masteryInfo = MASTERY_DATA[String(masteryId)];
+      if (!masteryInfo) return;
+      if (!this.isTierUnlocked(masteryInfo.tree, masteryInfo.tier - 1)) return;
       const currentRank = currentPage.masteries[masteryId] || 0;
-      const pointsNeeded = currentRank < mastery.maxRank ? 1 : -1;
-
-      if (this.totalPointsUsed + pointsNeeded > 30) return;
-
+      if (currentRank >= masteryInfo.maxRanks) return;
+      if (this.totalPointsUsed >= 30) return;
       const updatedPages = [...this.masteryPages];
       updatedPages[this.currentMasteryPage] = {
         ...updatedPages[this.currentMasteryPage],
         masteries: {
           ...updatedPages[this.currentMasteryPage].masteries,
-          [masteryId]: Math.max(0, currentRank + pointsNeeded)
+          [masteryId]: currentRank + 1
         }
       };
-
+      this.$store.commit("setMasteryPages", updatedPages);
+      this.$store.dispatch("saveRuneMasteryPages");
+    },
+    removeMasteryPoint(masteryId) {
+      const currentPage = this.masteryPages[this.currentMasteryPage];
+      if (!currentPage) return;
+      const currentRank = currentPage.masteries[masteryId] || 0;
+      if (currentRank <= 0) return;
+      const updatedPages = [...this.masteryPages];
+      const newMasteries = { ...updatedPages[this.currentMasteryPage].masteries };
+      if (currentRank <= 1) {
+        delete newMasteries[masteryId];
+      } else {
+        newMasteries[masteryId] = currentRank - 1;
+      }
+      updatedPages[this.currentMasteryPage] = {
+        ...updatedPages[this.currentMasteryPage],
+        masteries: newMasteries
+      };
       this.$store.commit("setMasteryPages", updatedPages);
       this.$store.dispatch("saveRuneMasteryPages");
     },
@@ -332,6 +305,12 @@ export default {
         this.$store.commit("setMasteryPages", updatedPages);
         this.$store.dispatch("saveRuneMasteryPages");
       }
+    },
+    getMasteryImage(masteryId) {
+      const { host, port } = this.$store.state.config.download;
+      const isSelected = this.isMasterySelected(masteryId);
+      const prefix = isSelected ? "" : "gray_";
+      return `${host}:${port}/mastery/${prefix}${masteryId}.png`;
     }
   },
   mounted() {
@@ -344,13 +323,13 @@ export default {
   beforeMount() {
     this.$store.dispatch("changeBackgroundState", "PROFILE");
   }
-};
+}
 </script>
 
 <style lang="css" scoped>
 #MasteryPage {
   width: 100%;
-  height: calc(100% - 115px);
+  height: calc(100vh - 115px);
   margin-top: 77px;
   position: relative;
   display: flex;
@@ -359,20 +338,21 @@ export default {
 
 .runeMasteryContainer {
   width: 100%;
-  padding: 20px 30px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .pageHeader {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
 .pageHeader h2 {
   font-family: LoLFont2;
-  font-size: 26px;
+  font-size: clamp(18px, 2.5vw, 26px);
   color: #f2d030;
   margin: 0;
   -webkit-text-stroke: 1px black;
@@ -380,21 +360,22 @@ export default {
 
 .pageHeader p {
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: clamp(10px, 1.2vw, 13px);
   color: rgba(255, 255, 255, 0.7);
   margin: 3px 0 0 0;
 }
 
 .runeMasteryContent {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .masteryPagesList {
-  width: 180px;
-  min-width: 150px;
+  width: clamp(120px, 14vw, 180px);
+  min-width: 110px;
   background-color: rgba(5, 12, 20, 0.9);
   border: 1px solid rgba(100, 117, 137, 0.75);
   border-radius: 5px;
@@ -404,9 +385,9 @@ export default {
 }
 
 .listHeader {
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: 12px;
   background-image: linear-gradient(180deg, #192e49 0%, #192e49 40%, #172b46 50%, #142131 100%);
   border-bottom: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
@@ -427,9 +408,9 @@ export default {
 }
 
 .pageItem {
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-family: LoLFont2;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -451,18 +432,18 @@ export default {
 }
 
 .pageActions {
-  padding: 8px 12px;
+  padding: 6px 10px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   border-top: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
 }
 
 .actionBtn {
   flex: 1;
-  padding: 6px 10px;
+  padding: 5px 8px;
   font-family: LoLFont2;
-  font-size: 11px;
+  font-size: 10px;
   border: none;
   border-radius: 3px;
   cursor: pointer;
@@ -498,28 +479,29 @@ export default {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
 .editorHeader {
-  padding: 10px 15px;
+  padding: 8px 12px;
   background-image: linear-gradient(180deg, #192e49 0%, #192e49 40%, #172b46 50%, #142131 100%);
   border-bottom: 1px solid rgba(100, 117, 137, 0.75);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-  gap: 15px;
+  gap: 10px;
 }
 
 .pageNameInput {
   flex: 1;
-  padding: 6px 10px;
+  padding: 5px 8px;
   background-color: #0a1320;
   border: 1px solid #304b69;
   border-radius: 3px;
   color: white;
   font-family: LoLFont2;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   min-width: 0;
 }
@@ -530,8 +512,9 @@ export default {
 
 .masteryPoints {
   font-family: LoLFont2;
-  font-size: 13px;
+  font-size: 12px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pointsUsed {
@@ -544,21 +527,32 @@ export default {
 
 .masteryTrees {
   flex: 1;
-  padding: 10px 15px;
+  padding: 6px 8px;
   display: flex;
-  gap: 12px;
-  overflow: hidden;
+  gap: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+}
+
+.masteryTrees::-webkit-scrollbar {
+  width: 4px;
+}
+
+.masteryTrees::-webkit-scrollbar-thumb {
+  background: rgba(100, 117, 137, 0.5);
+  border-radius: 2px;
 }
 
 .treeContainer {
   flex: 1;
+  min-width: 0;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   border: 1px solid rgba(100, 117, 137, 0.5);
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  overflow: hidden;
 }
 
 .attackTree {
@@ -574,12 +568,12 @@ export default {
 }
 
 .treeHeader {
-  padding: 6px 10px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   font-family: LoLFont2;
-  font-size: 12px;
+  font-size: 11px;
   border-bottom: 1px solid rgba(100, 117, 137, 0.5);
   flex-shrink: 0;
 }
@@ -597,23 +591,24 @@ export default {
 }
 
 .treeIcon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .treeName {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .treePoints {
   margin-left: auto;
   color: #f2d030;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .treeContent {
   flex: 1;
-  padding: 8px 6px;
+  padding: 4px 3px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .treeContent::-webkit-scrollbar {
@@ -627,13 +622,13 @@ export default {
 
 .masteryRow {
   display: flex;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 3px;
+  margin-bottom: 3px;
 }
 
 .masteryItem {
   flex: 1;
-  padding: 5px 4px;
+  padding: 3px 2px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   cursor: pointer;
@@ -641,6 +636,12 @@ export default {
   border: 1px solid transparent;
   text-align: center;
   min-width: 0;
+  overflow: hidden;
+}
+
+.masteryRow.locked .masteryItem {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .masteryItem:hover {
@@ -652,15 +653,47 @@ export default {
   border-color: #306d32;
 }
 
-.masteryIcon {
-  font-size: 14px;
-  margin-bottom: 2px;
+.masteryRank.maxed {
+  color: #f2d030;
+  text-shadow: 0 0 6px rgba(242, 208, 48, 0.5);
+}
+
+.masteryIconWrapper {
+  position: relative;
+  width: clamp(28px, 4vw, 40px);
+  height: clamp(28px, 4vw, 40px);
+  margin: 0 auto 2px;
+}
+
+.masteryIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.masteryRankBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 7px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #f2d030;
+  padding: 1px 2px;
+  border-radius: 2px;
+  border: 1px solid rgba(100, 117, 137, 0.75);
+}
+
+.masteryRankBadge.maxed {
+  color: #50ff50;
+  border-color: #50ff50;
+  text-shadow: 0 0 4px rgba(80, 255, 80, 0.5);
 }
 
 .masteryName {
   font-family: LoLFont2;
-  font-size: 10px;
-  margin-bottom: 2px;
+  font-size: clamp(8px, 1vw, 10px);
+  margin-bottom: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -677,35 +710,46 @@ export default {
 
 .masteryRank {
   font-family: LoLFont2;
-  font-size: 9px;
+  font-size: clamp(8px, 0.9vw, 9px);
   color: #f2d030;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .masteryEffects {
-  padding: 8px 15px;
+  padding: 6px 12px;
   border-top: 1px solid rgba(100, 117, 137, 0.75);
   flex-shrink: 0;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.masteryEffects::-webkit-scrollbar {
+  width: 3px;
+}
+
+.masteryEffects::-webkit-scrollbar-thumb {
+  background: rgba(100, 117, 137, 0.5);
+  border-radius: 2px;
 }
 
 .effectsHeader {
   font-family: LoLFont2;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
+  margin-bottom: 4px;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .effectsList {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 20px;
+  gap: 6px 14px;
 }
 
 .effectItem {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   font-family: LoLFont2;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .effectName {
@@ -714,5 +758,58 @@ export default {
 
 .effectValue {
   color: #f2d030;
+}
+
+/* Responsive: narrow screens - stack trees vertically */
+@media (max-width: 900px) {
+  .masteryTrees {
+    flex-direction: column;
+  }
+  .treeContainer {
+    min-height: 0;
+  }
+  .runeMasteryContent {
+    flex-direction: column;
+  }
+  .masteryPagesList {
+    width: 100%;
+    min-width: 0;
+    max-height: 100px;
+  }
+  .pageList {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    padding: 4px;
+  }
+  .pageItem {
+    flex-shrink: 0;
+    border-bottom: none;
+    border-right: 1px solid rgba(100, 117, 137, 0.2);
+  }
+}
+
+@media (max-height: 700px) {
+  .runeMasteryContainer {
+    padding: 6px 10px;
+  }
+  .pageHeader {
+    margin-bottom: 4px;
+  }
+  .pageHeader h2 {
+    font-size: 16px;
+  }
+  .editorHeader {
+    padding: 4px 8px;
+  }
+  .masteryTrees {
+    padding: 4px;
+    gap: 4px;
+  }
+  .masteryEffects {
+    max-height: 60px;
+    padding: 4px 8px;
+  }
 }
 </style>

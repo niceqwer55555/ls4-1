@@ -1,0 +1,18 @@
+using LeagueSandbox.GameServer.API;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+
+namespace CharScripts
+{
+    /// <summary>
+    /// Elise - The Spider Queen
+    /// </summary>
+    public class CharScriptElise : ICharScript
+    {
+        public void OnActivate(ObjAIBase owner, Spell spell = null)
+        {
+            // Elise被动技能: Spider Swarm - 人形态获得额外小蜘蛛
+        }
+    }
+}
