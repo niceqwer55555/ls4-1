@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -64,7 +64,7 @@ namespace Spells
             var spellLevel = owner.Spells[3].CastInfo.SpellLevel;
             float AP = owner.Stats.AbilityPower.Total * 0.3f;
             float AD = owner.Stats.AttackDamage.Total * (0.1f + (0.1f * spellLevel));
-            float totalDamage = 20 + (80 * spellLevel) + AP + AD;
+            float[] baseDamage = { 80f, 130f, 170f }; float totalDamage = baseDamage[spellLevel - 1] + AP + AD;
 
             var targets = GetUnitsInRange(target.Position, 75.0f, true);
             foreach (var unit in targets)
@@ -83,3 +83,4 @@ namespace Spells
         }
     }
 }
+

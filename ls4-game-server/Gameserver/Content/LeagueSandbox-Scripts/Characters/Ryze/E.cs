@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -42,7 +42,7 @@ namespace Spells
         {
 
             ap = spell.CastInfo.Owner.Stats.AbilityPower.Total;
-            dmg = 30 + (float)(ap / 3) + spell.CastInfo.SpellLevel * 20;
+            float[] baseDamage = { 50f, 70f, 90f, 110f, 130f }; dmg = baseDamage[spell.CastInfo.SpellLevel - 1] + (float)(ap * 0.35);
 
             _targ = spell.CastInfo.Targets[0].Unit;
             var x = _owner.GetSpell("SpellFlux").CreateSpellMissile(ScriptMetadata.MissileParameters);

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using GameServerCore;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
@@ -21,8 +21,8 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var armor = owner.Stats.Armor.Total;
-            var damage = spell.CastInfo.SpellLevel * 40 + armor * 0.2f;
-            var reduce = spell.CastInfo.SpellLevel * 5 + armor * 0.05f;
+            float[] baseDamage = { 40f, 80f, 120f, 160f, 200f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + armor * 0.2f;
+            float[] armorReduce = { 5f, 10f, 15f, 20f, 25f }; var reduce = armorReduce[spell.CastInfo.SpellLevel - 1] + armor * 0.05f;
             AddParticleTarget(owner, owner, "Shatter_nova", owner);
 
             foreach (var enemy in GetUnitsInRange(owner.Position, 375, true)
@@ -54,3 +54,5 @@ namespace Spells
         }
     }
 }
+
+

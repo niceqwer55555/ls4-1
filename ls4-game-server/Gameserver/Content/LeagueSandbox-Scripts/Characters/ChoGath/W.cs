@@ -52,7 +52,7 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
 
             var ap = owner.Stats.AbilityPower.Total * 0.7f;
-            var damage = 75 + spell.CastInfo.SpellLevel * 50 + ap;
+            float[] baseDamage = { 80f, 135f, 190f, 245f, 305f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
         }

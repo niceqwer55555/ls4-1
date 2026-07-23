@@ -12,6 +12,11 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// KogMaw Q - Caustic Spittle Missile
+    /// Damage: 80/130/180/230/280 (+50% AP) magic damage
+    /// Reduces target armor and MR by 10/15/20/25/30 for 4 seconds
+    /// </summary>
     public class KogMawQMis : ISpellScript
     {
         ObjAIBase Owner;
@@ -32,10 +37,12 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var APratio = owner.Stats.AbilityPower.Total * 0.5f;
-            var damage = 80 * (spell.CastInfo.SpellLevel - 0) + APratio;
+            // Damage: 80/130/180/230/280 (+50% AP)
+            float[] baseDamage = { 80f, 130f, 180f, 230f, 280f };
+            float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AbilityPower.Total * 0.5f;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+            AddParticleTarget(owner, target, "KogMaw_Base_Q_Tar.troy", target);
 
             missile.SetToRemove();
         }

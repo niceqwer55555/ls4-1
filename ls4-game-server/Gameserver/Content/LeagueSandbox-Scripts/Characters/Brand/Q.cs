@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
@@ -12,6 +12,11 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// Brand Q - Sear
+    /// Damage: 80/120/160/200/240 (+65% AP)
+    /// Stuns targets afflicted by Brand passive (blaze)
+    /// </summary>
     public class BrandBlaze : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
@@ -19,14 +24,14 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner as Champion;
-            var ownerSkinID = owner.SkinID;
             var targetPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             var distance = Vector2.Distance(owner.Position, targetPos);
             FaceDirection(targetPos, owner);
@@ -34,19 +39,15 @@ namespace Spells
             {
                 targetPos = GetPointFromUnit(owner, 1100.0f);
             }
-            if (ownerSkinID == 5)
-            {
-                SpellCast(owner, 3, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
-            }
-            else
-            {
-                SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
-            }
+            SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
         }
     }
+
+    /// <summary>
+    /// Brand Q Missile
+    /// </summary>
     public class BrandBlazeMissile : ISpellScript
     {
-        ObjAIBase Owner;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             MissileParameters = new MissileParameters
@@ -55,19 +56,25 @@ namespace Spells
             },
             IsDamagingSpell = true
         };
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var APratio = owner.Stats.AbilityPower.Total * 0.65f;
-            var damage = 80 * (spell.CastInfo.SpellLevel - 0) + APratio;
+            // Damage: 80/120/160/200/240 (+65% AP)
+            float[] baseDamage = { 80f, 120f, 160f, 200f, 240f };
+            float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AbilityPower.Total * 0.65f;
+
+            // Stun if target has Brand passive (blaze)
             if (target.HasBuff("BrandPassive"))
             {
                 AddBuff("Stun", 2f, 1, spell, target, owner);
             }
+
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
             AddParticleTarget(owner, target, "BrandBlaze_mis.troy", target, 1f, 1f);
             AddBuff("BrandPassive", 4f, 1, spell, target, owner, false);

@@ -1,4 +1,4 @@
-using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+﻿using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
 using GameServerCore.Enums;
@@ -10,11 +10,14 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
-using static LENet.Protocol;
-
 
 namespace Spells
 {
+    /// <summary>
+    /// KogMaw E - Void Ooze Missile
+    /// Damage: 60/110/160/210/260 (+70% AP) magic damage
+    /// Slows enemies by 20/28/36/44/52% for 4 seconds
+    /// </summary>
     public class KogMawVoidOozeMissile : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -25,7 +28,6 @@ namespace Spells
                 Type = MissileType.Circle
             },
             IsDamagingSpell = true
-            // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
@@ -38,9 +40,13 @@ namespace Spells
             if (target.Team != spell.CastInfo.Owner.Team)
             {
                 var owner = spell.CastInfo.Owner;
-                var ad = owner.Stats.AbilityPower.Total * 0.65 + spell.CastInfo.Owner.GetSpell("KogMawVoidOoze").CastInfo.SpellLevel * 40 + 40;
-                target.TakeDamage(owner, (float)ad, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                // Damage: 60/110/160/210/260 (+70% AP)
+                float[] baseDamage = { 60f, 110f, 160f, 210f, 260f };
+                float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AbilityPower.Total * 0.7f;
+
+                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
                 AddBuff("KogmawSlow", 4.0f, 1, spell, target, owner);
+                AddParticleTarget(owner, target, "KogMaw_Base_E_Tar.troy", target);
             }
         }
     }

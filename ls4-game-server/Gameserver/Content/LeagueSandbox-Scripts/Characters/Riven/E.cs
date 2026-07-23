@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -14,6 +14,10 @@ using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
+    /// <summary>
+    /// Riven E - Valor
+    /// Dashes toward cursor and gains a shield that absorbs 90/120/150/180/210 (+100% bonus AD) damage for 1.5s
+    /// </summary>
     public class RivenFeint : ISpellScript
     {
         Spell Feint;
@@ -21,8 +25,9 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Feint = spell;
@@ -33,7 +38,7 @@ namespace Spells
         public void OnSpellPostCast(Spell spell)
         {
             PlayAnimation(Riven, "Spell3", 0.25f);
-            AddBuff("RivenFeint", 3f, 1, spell, Riven, Riven);
+            AddBuff("RivenFeint", 1.5f, 1, spell, Riven, Riven);
             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             FaceDirection(spellPos, Riven, true);
             var trueCoords = GetPointFromUnit(Riven, spell.SpellData.CastRangeDisplayOverride);

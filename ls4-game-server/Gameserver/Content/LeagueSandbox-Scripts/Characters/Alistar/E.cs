@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
@@ -8,48 +8,47 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using System.Numerics;
+using System;
 
 namespace Spells
 {
+    /// <summary>
+    /// Alistar E - Triumphant Roar
+    /// Heals self and nearby allied units for 60/90/120/150/180 (+20% AP)
+    /// </summary>
     public class TriumphantRoar : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = false
         };
 
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
-        }
+        public void OnActivate(ObjAIBase owner, Spell spell) { }
+        public void OnDeactivate(ObjAIBase owner, Spell spell) { }
 
         public void OnSpellPostCast(Spell spell)
         {
-            var sector = spell.CreateSpellSector(new SectorParameters
-            {
-                Length = 300f,
-                SingleTick = true,
-                Type = SectorType.Area
-            });
-        }
-        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
-        {
             var owner = spell.CastInfo.Owner;
-            var AP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.3f;
-            var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-            var damage = 40 + spell.CastInfo.SpellLevel * 30 + AP + AD;
-            var MarkAPratio = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.5f;
-            var MarkDamage = 45 + 25 * (owner.GetSpell("AkaliMota").CastInfo.SpellLevel - 1) + MarkAPratio;
+            // Heal: 60/90/120/150/180 (+20% AP)
+            float[] baseHeal = { 60f, 90f, 120f, 150f, 180f };
+            float ap = owner.Stats.AbilityPower.Total * 0.2f;
+            float healAmount = baseHeal[spell.CastInfo.SpellLevel - 1] + ap;
 
-            if (target.HasBuff("AkaliMota"))
+            // Heal self
+            owner.Stats.CurrentHealth = Math.Min(owner.Stats.CurrentHealth + healAmount, owner.Stats.HealthPoints.Total);
+
+            // Heal nearby allies
+            foreach (var unit in GetUnitsInRange(owner.Position, 575f, true))
             {
-                target.TakeDamage(owner, MarkDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_PROC, false);
-                AddParticleTarget(owner, target, "akali_mark_impact_tar", target, 1f);
-                RemoveBuff(target, "AkaliMota");
+                if (unit.Team == owner.Team && unit != owner)
+                {
+                    unit.Stats.CurrentHealth = Math.Min(unit.Stats.CurrentHealth + healAmount, unit.Stats.HealthPoints.Total);
+                }
             }
-            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-            AddParticleTarget(owner, target, "akali_shadowSwipe_tar", target, 1f);
+
+            AddParticleTarget(owner, owner, "TriumphantRoar_cas.troy", owner, lifetime: 1f);
         }
     }
 }

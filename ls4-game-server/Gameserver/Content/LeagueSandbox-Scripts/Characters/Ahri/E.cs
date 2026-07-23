@@ -13,6 +13,12 @@ using System;
 
 namespace Spells
 {
+    /// <summary>
+    /// Ahri E - Charm
+    /// Fires a kiss that damages and charms an enemy
+    /// Damage: 60/90/120/150/180 (+35% AP)
+    /// Charm duration: 1/1.25/1.5/1.75/2 seconds
+    /// </summary>
     public class AhriSeduce : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -38,7 +44,7 @@ namespace Spells
 
         public void OnSpellPostCast(Spell spell)
         {
-            var endPos = GetPointFromUnit(spell.CastInfo.Owner, 10);
+            var endPos = GetPointFromUnit(spell.CastInfo.Owner, 1075f);
             SpellCast(spell.CastInfo.Owner, 4, SpellSlotType.ExtraSlots, endPos, endPos, true, Vector2.Zero);
         }
 
@@ -59,6 +65,9 @@ namespace Spells
         }
     }
 
+    /// <summary>
+    /// Ahri E - Charm Missile
+    /// </summary>
     public class AhriSeduceMissile : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -68,9 +77,10 @@ namespace Spells
             {
                 Type = MissileType.Circle
             }
-            // TODO
         };
-        ObjAIBase _owner;
+
+        private ObjAIBase _owner;
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             _owner = owner;
@@ -95,41 +105,53 @@ namespace Spells
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            if (missile is SpellCircleMissile skillshot)
+            var owner = spell.CastInfo.Owner;
+
+            // Damage: 60/90/120/150/180 (+35% AP)
+            float[] baseDamage = { 60f, 90f, 120f, 150f, 180f };
+            float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AbilityPower.Total * 0.35f;
+            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+
+            // Charm: 1/1.25/1.5/1.75/2 seconds
+            float[] charmDuration = { 1.0f, 1.25f, 1.5f, 1.75f, 2.0f };
+            float charmTime = charmDuration[spell.CastInfo.SpellLevel - 1];
+
+            // Apply charm - force walk toward Ahri
+            FaceDirection(owner.Position, target);
+            var walkTarget = GetPointFromUnit(target, 300f);
+            var targetAI = target as ObjAIBase;
+            if (targetAI != null)
             {
-                var owner = spell.CastInfo.Owner;
-                var hitobj = skillshot.ObjectsHit.Count;
-                //target.TakeDamage(owner, 50, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_RAW, true);
-                var ap = owner.Stats.AbilityPower.Total * 0.30;
-                float damage = (float)(ap + 50 + (owner.Spells[2].CastInfo.SpellLevel * 25));
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-                missile.SetToRemove();
-                FaceDirection(owner.Position, target);
-                var x = GetPointFromUnit(target, 300);
-                var xy = target as ObjAIBase;
-                xy.SetTargetUnit(null);
-                ForceMovement(target, "run", x, 10, 0, 0, 0);
-                AddBuff("VeigarEventHorizon", 2.0f, 1, spell, target, owner);
-                AddBuff("AhriSoulCrusherCounter", float.MaxValue, 1, spell, spell.CastInfo.Owner, spell.CastInfo.Owner);
+                targetAI.SetTargetUnit(null, true);
+            }
+            ForceMovement(target, "RUN", walkTarget, 10, 0, 0, 0);
 
-                if (spell.CastInfo.Owner.GetBuffWithName("AhriSoulCrusherCounter").StackCount == 9)
-                {
-                    PerformHeal(spell.CastInfo.Owner, spell, spell.CastInfo.Owner);
-                    CreateTimer(0.1f, () => { RemoveStacks(9); });
-                }
+            // Stun/charm buff
+            AddBuff("AhriSeduce", charmTime, 1, spell, target, owner);
 
+            AddParticleTarget(owner, target, "Ahri_Seduce_tar.troy", target);
+            missile.SetToRemove();
+
+            // Passive stack for healing
+            AddBuff("AhriSoulCrusherCounter", float.MaxValue, 1, spell, owner, owner);
+
+            if (owner.GetBuffWithName("AhriSoulCrusherCounter") != null
+                && owner.GetBuffWithName("AhriSoulCrusherCounter").StackCount >= 9)
+            {
+                PerformHeal(owner, spell, owner);
+                CreateTimer(0.1f, () => { RemovePassiveStacks(9); });
             }
         }
 
-        public void RemoveStacks(int var)
+        private void RemovePassiveStacks(int count)
         {
-            int x = 0;
-            foreach (var swag in _owner.GetBuffsWithName("AhriSoulCrusherCounter"))
+            int removed = 0;
+            foreach (var buff in _owner.GetBuffsWithName("AhriSoulCrusherCounter"))
             {
-                if (x < var)
+                if (removed < count)
                 {
-                    x++;
-                    swag.DeactivateBuff();
+                    removed++;
+                    buff.DeactivateBuff();
                 }
             }
         }
@@ -137,7 +159,7 @@ namespace Spells
         private void PerformHeal(ObjAIBase owner, Spell spell, AttackableUnit target)
         {
             var ap = owner.Stats.AbilityPower.Total * spell.SpellData.MagicDamageCoefficient;
-            float healthGain = 15 + (spell.CastInfo.SpellLevel * 45) + ap;
+            float[] healPerLevel = { 15f, 30f, 45f, 60f, 75f }; float healthGain = healPerLevel[spell.CastInfo.SpellLevel - 1] + (float)ap;
             if (target.HasBuff("HealCheck"))
             {
                 healthGain *= 0.5f;
@@ -163,3 +185,4 @@ namespace Spells
         }
     }
 }
+

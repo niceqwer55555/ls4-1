@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -75,19 +75,17 @@ namespace Spells
     {
     }
 
+    /// <summary>
+    /// Ezreal Q Missile - Mystic Shot
+    /// Damage: 35/55/75/95/115 (+110% AD) (+40% AP)
+    /// </summary>
     public class EzrealMysticShotMissile : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            },
+            MissileParameters = new MissileParameters { Type = MissileType.Circle },
             IsDamagingSpell = true
-            // TODO
         };
-
-        //Vector2 direction;
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
@@ -97,15 +95,16 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AttackDamage.Total * spell.SpellData.AttackDamageCoefficient;
-            var ap = owner.Stats.AbilityPower.Total * spell.SpellData.MagicDamageCoefficient;
-            var damage = 15 + (spell.CastInfo.SpellLevel * 20) + ad + ap;
+            // Damage: 35/55/75/95/115 (+110% AD) (+40% AP)
+            float[] baseDamage = { 35f, 55f, 75f, 95f, 115f };
+            var ad = owner.Stats.AttackDamage.Total * 1.1f;
+            var ap = owner.Stats.AbilityPower.Total * 0.4f;
+            var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ad + ap;
 
             IEventSource source = owner.SkinID == 5
                 ? new AbilityInfo(266740993, HashString("EzrealMysticShot"))
-                : (IEventSource)new AbilityInfo(3693728257, HashString("EzrealMysticShot")); // The hash of the current script name does not match the replays.
-                                                                                            //                      But this is not a problem as long as the parent skill name hash matches.
-                                                                                            //IEventSource source = new EventSource(spell.ScriptNameHash, HashString("EzrealMysticShot"));
+                : (IEventSource)new AbilityInfo(3693728257, HashString("EzrealMysticShot"));
+
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false, source);
 
             for (byte i = 0; i < 4; i++)
@@ -115,8 +114,6 @@ namespace Spells
 
             AddParticleTarget(owner, target, "Ezreal_mysticshot_tar", target);
             missile.SetToRemove();
-
-            // SpellBuffAdd EzrealRisingSpellForce
         }
     }
 }

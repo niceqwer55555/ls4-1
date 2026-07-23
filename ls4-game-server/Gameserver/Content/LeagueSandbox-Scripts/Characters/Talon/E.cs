@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
@@ -14,6 +14,10 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
 
 namespace Spells
 {
+    /// <summary>
+    /// Talon E - Cutthroat
+    /// Blinks behind target, silencing for 1 second and increasing damage taken by 3/6/9/12/15%
+    /// </summary>
     public class TalonCutthroat : ISpellScript
     {
         string P1;
@@ -25,7 +29,7 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
@@ -51,6 +55,7 @@ namespace Spells
             AddParticle(Talon, null, P3, Talon.Position, lifetime: 1f);
             if (Talon.HasBuff("TalonShadowAssaultBuff")) { Talon.RemoveBuffsWithName("TalonShadowAssaultBuff"); }
         }
+
         public void OnSpellCast(Spell spell)
         {
             var targetPos = GetPointFromUnit(Talon, System.Math.Abs(Vector2.Distance(Target.Position, Talon.Position)) + 125);

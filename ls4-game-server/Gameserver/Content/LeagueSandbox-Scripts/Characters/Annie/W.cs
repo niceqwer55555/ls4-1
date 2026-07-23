@@ -12,6 +12,10 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// Annie W - Incinerate
+    /// Damage: 70/115/160/205/250 (+85% AP)
+    /// </summary>
     public class Incinerate : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -19,7 +23,6 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
             NotSingleTargetSpell = true
-            // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
@@ -30,7 +33,6 @@ namespace Spells
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-
             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             FaceDirection(spellPos, owner, false);
 
@@ -49,9 +51,10 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-
-            var ap = owner.Stats.AbilityPower.Total * 0.8f;
-            var damage = 70 + (spell.CastInfo.SpellLevel * 45) + ap;
+            // Damage: 70/115/160/205/250 (+85% AP)
+            float[] baseDamage = { 70f, 115f, 160f, 205f, 250f };
+            var ap = owner.Stats.AbilityPower.Total * 0.85f;
+            var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
         }

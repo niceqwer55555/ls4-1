@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
@@ -34,7 +34,7 @@ namespace Spells
             if (target == null) return;
 
             // 基础伤害
-            float baseDamage = 25f + (spell.CastInfo.SpellLevel * 20f);
+            float[] baseDmg = { 20f, 35f, 50f, 65f, 80f }; float baseDamage = baseDmg[spell.CastInfo.SpellLevel - 1];
             float adBonus = owner.Stats.AttackDamage.Total * 0.85f;
             float damage = baseDamage + adBonus;
 

@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using GameServerCore.Scripting.CSharp;
@@ -53,7 +53,7 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             var AP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.25f;
             var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-            float damage = 5f + spell.CastInfo.SpellLevel * 35f + AP + AD;
+            float[] baseDamage = { 40f, 75f, 110f, 145f, 180f }; float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + AP + AD;
             var MarkAP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.15f;
             float MarkDamage = 15f * (owner.GetSpell("KatarinaQ").CastInfo.SpellLevel) + MarkAP;
 

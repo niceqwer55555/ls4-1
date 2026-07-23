@@ -1,4 +1,4 @@
-using GameServerCore;
+﻿using GameServerCore;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using GameServerCore.Enums;
@@ -47,7 +47,7 @@ namespace Spells
             AddBuff("ShenVorpalStar", 5f, 1, spell, target, Shen);
             AddParticleTarget(Shen, target, "shen_vorpalStar_tar", target);
             Health = 2 + (4 * Shen.Spells[0].CastInfo.SpellLevel) + (Shen.Stats.HealthPoints.Total * 0.015f);
-            Damage = 20f + (Shen.Spells[0].CastInfo.SpellLevel * 40f) + (Shen.Stats.AbilityPower.Total * 0.6f);
+            float[] baseDamage = { 60f, 100f, 140f, 180f, 220f }; Damage = baseDamage[Shen.Spells[0].CastInfo.SpellLevel - 1] + (Shen.Stats.AbilityPower.Total * 0.6f);
             target.TakeDamage(Shen, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
             if (target.IsDead) { Shen.TakeHeal(Shen, Health, spell); }
         }

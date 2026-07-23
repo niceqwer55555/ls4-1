@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -36,7 +36,7 @@ namespace Spells
             FaceDirection(castPos, owner, true);
 
             // 伤害计算
-            float baseDamage = 100f + (spell.CastInfo.SpellLevel * 150f);
+            float[] baseDmg = { 50f, 75f, 125f }; float baseDamage = baseDmg[spell.CastInfo.SpellLevel - 1];
             float adBonus = owner.Stats.AttackDamage.Total * 1.2f;
             float damage = baseDamage + adBonus;
 

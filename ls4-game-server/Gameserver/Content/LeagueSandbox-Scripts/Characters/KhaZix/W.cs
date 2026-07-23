@@ -1,4 +1,4 @@
-using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+﻿using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
@@ -13,6 +13,11 @@ using System.Numerics;
 
 namespace Spells
 {
+    /// <summary>
+    /// KhaZix W - Void Spike
+    /// Fires spikes dealing 80/110/140/170/200 (+100% bonus AD) physical damage
+    /// Also slows by 20% for 2 seconds
+    /// </summary>
     public class KhazixW : ISpellScript
     {
         ObjAIBase Khazix;
@@ -22,6 +27,7 @@ namespace Spells
             IsDamagingSpell = true,
             TriggersSpellCasts = true
         };
+
         public void OnSpellPostCast(Spell spell)
         {
             Khazix = spell.CastInfo.Owner as Champion;
@@ -30,6 +36,10 @@ namespace Spells
             SpellCast(Khazix, 0, SpellSlotType.ExtraSlots, TargetPos, TargetPos, true, Vector2.Zero);
         }
     }
+
+    /// <summary>
+    /// KhaZix W Missile
+    /// </summary>
     public class KhazixWMissile : ISpellScript
     {
         float Damage;
@@ -41,33 +51,31 @@ namespace Spells
             IsDamagingSpell = true,
             TriggersSpellCasts = true
         };
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Khazix = spell.CastInfo.Owner as Champion;
             Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, OverrideEndPosition = end });
         }
+
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            missile.SetToRemove();
-            AddParticle(Khazix, null, "Khazix_Base_W_Tar", missile.Position);
+            // Damage: 80/110/140/170/200 (+100% bonus AD)
+            float[] baseDamage = { 80f, 110f, 140f, 170f, 200f };
+            Damage = baseDamage[spell.CastInfo.SpellLevel - 1] + Khazix.Stats.AttackDamage.FlatBonus * 1.0f;
 
-            float[] baseDamage = { 75f, 110f, 145f, 180f, 215f };
-            float ad = Khazix.Stats.AttackDamage.Total;
-            Damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ad;
-
-            var units = GetUnitsInRange(missile.Position, 200f, true);
-            for (int i = 0; i < units.Count; i++)
+            if (target.Team != Khazix.Team && !(target is ObjBuilding || target is BaseTurret))
             {
-                if (units[i].Team != Khazix.Team && !(units[i] is ObjBuilding || units[i] is BaseTurret))
-                {
-                    units[i].TakeDamage(Khazix, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                    AddBuff("Slow", 2f, 1, spell, units[i], Khazix, false);
-                }
+                target.TakeDamage(Khazix, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                AddBuff("Slow", 2f, 1, spell, target, Khazix, false);
+                AddParticleTarget(Khazix, target, "Khazix_Base_W_Tar", target);
             }
+            missile.SetToRemove();
         }
     }
 }

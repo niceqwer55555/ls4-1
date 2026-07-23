@@ -11,8 +11,9 @@ namespace Spells
             DoesntBreakShields = true,
             TriggersSpellCasts = true,
             CastingBreaksStealth = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
     }
 }
+
 

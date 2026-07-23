@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -43,7 +43,7 @@ namespace Spells
                 {
                     if (affectEnemys is AttackableUnit && affectEnemys.Team != owner.Team)
                     {
-                        affectEnemys.TakeDamage(owner, spell.CastInfo.SpellLevel * 20f + owner.Stats.AttackDamage.Total, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                        affectEnemys.TakeDamage(owner, new float[] { 20f, 40f, 60f, 80f, 100f }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
                         AddParticleTarget(owner, owner, "Yasuo_Base_Q_hit_tar", affectEnemys);
                     }
                 }
@@ -62,7 +62,7 @@ namespace Spells
         public void ApplyEffects(ObjAIBase owner, AttackableUnit target, Spell spell, SpellMissile missile)
         {
             AddParticleTarget(owner, owner, "Yasuo_Base_Q_hit_tar", target);
-            target.TakeDamage(owner, spell.CastInfo.SpellLevel * 20f + owner.Stats.AttackDamage.Total,DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+            target.TakeDamage(owner, new float[] { 20f, 40f, 60f, 80f, 100f }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total,DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
             if (!HasBuff(owner, "YasuoQ02"))
             {
                 AddBuff("YasuoQ02", 6f, 1, spell, owner, owner);
@@ -71,3 +71,4 @@ namespace Spells
         }
     }
 }
+

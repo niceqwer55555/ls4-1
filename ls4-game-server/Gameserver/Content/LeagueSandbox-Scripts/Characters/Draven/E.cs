@@ -96,8 +96,8 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AbilityPower.Total * 0.65 + spell.CastInfo.Owner.GetSpell("DravenSpinning").CastInfo.SpellLevel * 40 + 40;
-            target.TakeDamage(owner, (float)ad, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            float[] baseDamage = { 70f, 105f, 140f, 175f, 210f }; var ad = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.FlatBonus * 0.5f;
+            target.TakeDamage(owner, (float)ad, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             AddBuff("Pulverize", 1.0f, 1, spell, target, spell.CastInfo.Owner);
             AddBuff("DravenDoubleBump", 2.0f, 1, spell, target, spell.CastInfo.Owner);
         }

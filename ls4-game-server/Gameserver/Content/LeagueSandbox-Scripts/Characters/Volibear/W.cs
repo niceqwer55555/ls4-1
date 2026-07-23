@@ -55,7 +55,7 @@ namespace Spells
         {
             var ap = own.Stats.HealthPoints.FlatBonus * 0.15f;
             LogDebug("HP: " + ap.ToString());
-            float damage = (float)(ap + 35 + (own.Spells[1].CastInfo.SpellLevel * 45));
+            float[] baseDamage = { 80f, 125f, 170f, 215f, 260f }; float damage = baseDamage[own.Spells[1].CastInfo.SpellLevel - 1] + ap;
             spell.CastInfo.Targets[0].Unit.TakeDamage(own, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_PROC, false);
             SealSpellSlot(own, SpellSlotType.SpellSlots, 1, SpellbookType.SPELLBOOK_CHAMPION, true);
             hit = 0;

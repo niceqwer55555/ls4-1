@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -19,7 +19,7 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
         public void OnActivate(ObjAIBase owner, Spell spell)
         {

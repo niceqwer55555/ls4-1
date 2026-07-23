@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
@@ -18,6 +18,11 @@ using System.Numerics;
 
 namespace Spells
 {
+    /// <summary>
+    /// Twitch W - Venom Cask
+    /// Throws a cask that explodes, applying 2 stacks of Deadly Venom
+    /// and slowing enemies by 25/30/35/40/45% for 3 seconds
+    /// </summary>
     public class TwitchVenomCask : ISpellScript
     {
         ObjAIBase Twitch;
@@ -25,8 +30,9 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
+
         public void OnSpellPostCast(Spell spell)
         {
             Twitch = spell.CastInfo.Owner as Champion;
@@ -46,6 +52,10 @@ namespace Spells
             SpellCast(Twitch, 1, SpellSlotType.ExtraSlots, Truecoords, Truecoords, true, Vector2.Zero);
         }
     }
+
+    /// <summary>
+    /// Twitch W Missile - applies venom and slow on landing
+    /// </summary>
     public class TwitchVenomCaskMissile : ISpellScript
     {
         private Spell Cask;
@@ -53,7 +63,7 @@ namespace Spells
         private SpellMissile Missile;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             TriggersSpellCasts = true
         };
 
@@ -67,9 +77,27 @@ namespace Spells
 
         public void OnMissileEnd(SpellMissile missile)
         {
-            Missile = missile;
-            Minion W = AddMinion(Twitch, "TestCubeRender", "TestCubeRender", Missile.Position, Twitch.Team, Twitch.SkinID, true, false);
+            // Apply slow and venom to all enemies in the area
+            var spellLevel = Twitch.Spells[1].CastInfo.SpellLevel;
+            float[] slowPercent = { 25f, 30f, 35f, 40f, 45f };
+
+            foreach (var unit in GetUnitsInRange(missile.Position, 275f, true))
+            {
+                if (unit.Team != Twitch.Team)
+                {
+                    // Apply 2 stacks of Deadly Venom
+                    AddBuff("TwitchDeadlyVenom", 6f, 2, Cask, unit, Twitch);
+                    // Slow
+                    AddBuff("TwitchVenomCask", 3f, 1, Cask, unit, Twitch);
+                }
+            }
+
+            AddParticle(Twitch, null, "Twitch_Base_W_Aoe.troy", missile.Position);
+
+            // Spawn a visible minion at the landing point for the AoE effect
+            Minion W = AddMinion(Twitch, "TestCubeRender", "TestCubeRender", missile.Position, Twitch.Team, Twitch.SkinID, true, false);
             AddBuff("TwitchVenomCask", 3f, 1, Cask, W, Twitch, false);
         }
     }
 }
+

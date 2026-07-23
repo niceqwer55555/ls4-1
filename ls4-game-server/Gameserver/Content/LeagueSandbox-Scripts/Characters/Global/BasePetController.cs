@@ -17,7 +17,7 @@ namespace Spells
             NotSingleTargetSpell = true,
             DoesntBreakShields = true,
             TriggersSpellCasts = false,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             SpellDamageRatio = 0.5f,
             IsPetDurationBuff = true
         };
@@ -57,3 +57,4 @@ namespace Spells
         }
     }
 }
+

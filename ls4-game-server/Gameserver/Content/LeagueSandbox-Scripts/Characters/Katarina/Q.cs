@@ -34,7 +34,7 @@ namespace Spells
         }
         public void TargetExecute(SpellMissile missile, AttackableUnit target)
         {
-            Damage = 45f + (QMis.CastInfo.SpellLevel * 35f) + (Katarina.Stats.AbilityPower.Total * 0.5f);
+            float[] baseDamage = { 60f, 85f, 110f, 135f, 160f }; Damage = baseDamage[QMis.CastInfo.SpellLevel - 1] + (Katarina.Stats.AbilityPower.Total * 0.45f);
             target.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             //AddParticleTarget(owner, target, "katarina_bouncingBlades_tar.troy", target);
             AddBuff("KatarinaQMark", 4f, 1, QMis, target, Katarina, false);

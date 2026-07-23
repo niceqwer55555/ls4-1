@@ -1,4 +1,4 @@
-using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+﻿using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
@@ -20,12 +20,14 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Target = target;
             FioraDash = spell;
             Fiora = owner = spell.CastInfo.Owner as Champion;
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             Fiora.CancelAutoAttack(true);
@@ -34,10 +36,13 @@ namespace Spells
         }
     }
 
+    /// <summary>
+    /// Fiora Q Lunge
+    /// Damage: 20/50/80/110/140 (+100% bonus AD)
+    /// </summary>
     public class FioraQLunge : ISpellScript
     {
         float Dist;
-        float Damage;
         Vector2 TargetPos;
         private ObjAIBase Fiora;
         private Spell FioraDash;
@@ -47,6 +52,7 @@ namespace Spells
             IsDamagingSpell = true,
             TriggersSpellCasts = true
         };
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Target = target;
@@ -56,6 +62,7 @@ namespace Spells
             SetStatus(Fiora, StatusFlags.Ghosted, true);
             Fiora.CancelAutoAttack(true);
         }
+
         public void OnSpellCast(Spell spell)
         {
             ApiEventManager.OnMoveEnd.AddListener(this, Fiora, OnMoveEnd, true);
@@ -68,10 +75,13 @@ namespace Spells
             AddParticleTarget(Fiora, Fiora, "FioraQLunge_dashtrail.troy", Fiora);
             ForceMovement(Fiora, null, TargetPos, 2200, 0, 0, 0, movementOrdersType: ForceMovementOrdersType.CANCEL_ORDER);
         }
+
         public void OnMoveSuccess(AttackableUnit unit)
         {
             Fiora.SetDashingState(false);
-            Damage = 15 + (25f * Fiora.Spells[0].CastInfo.SpellLevel) + (Fiora.Stats.AttackDamage.FlatBonus * 1.2f);
+            // Damage: 20/50/80/110/140 (+100% bonus AD)
+            float[] baseDamage = { 20f, 50f, 80f, 110f, 140f };
+            float Damage = baseDamage[Fiora.Spells[0].CastInfo.SpellLevel - 1] + (Fiora.Stats.AttackDamage.FlatBonus * 1.0f);
             Target.TakeDamage(Fiora, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             AddParticleTarget(Fiora, Target, "FioraQLunge_tar", Target);
             if (Fiora.Team != Target.Team && Target is Champion)
@@ -80,6 +90,7 @@ namespace Spells
                 Fiora.UpdateMoveOrder(OrderType.AttackTo, true);
             }
         }
+
         public void OnMoveEnd(AttackableUnit owner)
         {
             Fiora.SetDashingState(false);

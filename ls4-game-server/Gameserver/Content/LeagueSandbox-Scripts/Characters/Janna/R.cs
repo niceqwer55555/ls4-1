@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
@@ -13,14 +13,14 @@ namespace Spells
 {
     /// <summary>
     /// Janna R - Monsoon
-    /// 击退周围敌人并治疗友军
+    /// Knocks back enemies and heals allies for 90/150/210 (+50% AP) per half-second for 3 seconds
     /// </summary>
     public class JannaR : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             NotSingleTargetSpell = true
         };
 
@@ -29,24 +29,37 @@ namespace Spells
             var owner = spell.CastInfo.Owner as Champion;
             if (owner == null) return;
 
-            // 每0.5秒治疗: 35/55/75 (+0.175 AP)
-            float[] healAmount = { 35f, 55f, 75f };
-            float ap = owner.Stats.AbilityPower.Total * 0.175f;
+            // Heal per tick: 90/150/210 (+50% AP)
+            float[] healAmount = { 90f, 150f, 210f };
+            float ap = (float)owner.Stats.AbilityPower.Total * 0.5f;
             float heal = healAmount[spell.CastInfo.SpellLevel - 1] + ap;
 
-            // 对敌人造成伤害
+            // Knock back enemies
             foreach (var unit in GetUnitsInRange(owner.Position, 725f, true))
             {
                 if (unit.Team != owner.Team)
                 {
-                    // 击退效果
                     AddBuff("JannaR", 0.5f, 1, spell, unit, owner);
                 }
-                else if (unit.Team == owner.Team && unit is Champion)
+            }
+
+            // Heal allies over 3 seconds (6 ticks of 0.5s)
+            for (int i = 0; i < 6; i++)
+            {
+                var delay = 0.5f * (i + 1);
+                CreateTimer(delay, () =>
                 {
-                    // 治疗友军
-                    unit.Stats.CurrentHealth = Math.Min(unit.Stats.CurrentHealth + heal, unit.Stats.HealthPoints.Total);
-                }
+                    if (owner != null && !owner.IsDead)
+                    {
+                        foreach (var unit in GetUnitsInRange(owner.Position, 725f, true))
+                        {
+                            if (unit.Team == owner.Team)
+                            {
+                                unit.Stats.CurrentHealth = Math.Min(unit.Stats.CurrentHealth + heal, unit.Stats.HealthPoints.Total);
+                            }
+                        }
+                    }
+                });
             }
 
             AddParticle(owner, owner, "JannaR_cas", owner.Position);

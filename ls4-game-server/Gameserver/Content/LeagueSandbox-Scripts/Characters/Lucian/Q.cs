@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -67,10 +67,11 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
 
-            var damage = owner.Stats.AttackDamage.Total * (0.45f + spell.CastInfo.SpellLevel * 0.15f) + (50 + spell.CastInfo.SpellLevel * 30);
+            float[] baseDamage = { 80f, 110f, 140f, 170f, 200f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total * 0.6f;
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL,
                 false);
             AddParticleTarget(owner, target, "Lucian_Q_tar", target, 1.0f);
         }
     }
 }
+

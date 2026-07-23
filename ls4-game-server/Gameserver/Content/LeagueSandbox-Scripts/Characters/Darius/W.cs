@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -12,6 +12,10 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// Darius W - Decimate / Noxian Tactics
+    /// Next attack deals 20/25/30/35/40% bonus AD bonus physical damage and slows
+    /// </summary>
     public class DariusNoxianTacticsONH : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
@@ -25,11 +29,17 @@ namespace Spells
             owner.CancelAutoAttack(true);
             AddBuff("DariusNoxianTacticsONH", 6.0f, 1, spell, owner, owner);
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             spell.SetCooldown(0, true);
         }
     }
+
+    /// <summary>
+    /// Darius W - empowered attack
+    /// Damage: 20/25/30/35/40% of total AD as bonus physical damage
+    /// </summary>
     public class DariusNoxianTacticsONHAttack : ISpellScript
     {
         float WDamage;
@@ -46,9 +56,13 @@ namespace Spells
             Target = target;
             Darius = owner = spell.CastInfo.Owner as Champion;
         }
+
         public void OnSpellCast(Spell spell)
         {
-            WDamage = Darius.Spells[1].CastInfo.SpellLevel * Darius.Stats.AttackDamage.Total * 0.2f;
+            // Damage: 20/25/30/35/40% of total AD
+            float[] damagePercent = { 0.20f, 0.25f, 0.30f, 0.35f, 0.40f };
+            WDamage = Darius.Stats.AttackDamage.Total * damagePercent[Darius.Spells[1].CastInfo.SpellLevel - 1];
+
             if (Darius.IsNextAutoCrit)
             {
                 Target.TakeDamage(Darius, WDamage * 2, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);

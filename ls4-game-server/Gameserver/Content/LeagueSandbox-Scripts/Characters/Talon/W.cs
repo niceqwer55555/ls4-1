@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
@@ -9,12 +9,10 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
-using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace Spells
 {
@@ -27,15 +25,18 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             Rake = spell;
             Talon = owner = spell.CastInfo.Owner as Champion;
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             if (Talon.HasBuff("TalonShadowAssaultBuff")) { Talon.RemoveBuffsWithName("TalonShadowAssaultBuff"); }
         }
+
         public void OnSpellCast(Spell spell)
         {
             for (int bladeCount = 0; bladeCount <= 2; bladeCount++)
@@ -46,6 +47,10 @@ namespace Spells
         }
     }
 
+    /// <summary>
+    /// Talon W - Rake Outgoing Missile
+    /// Damage: 30/55/80/105/130 (+60% bonus AD), applies slow
+    /// </summary>
     public class TalonRakeMissileOne : ISpellScript
     {
         float Damage;
@@ -63,6 +68,7 @@ namespace Spells
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
@@ -74,7 +80,10 @@ namespace Spells
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            Damage = 5 + (25f * Talon.Spells[1].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+            // Outgoing damage: 30/55/80/105/130 (+60% bonus AD)
+            float[] baseDamage = { 30f, 55f, 80f, 105f, 130f };
+            Damage = baseDamage[Talon.Spells[1].CastInfo.SpellLevel - 1] + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+
             if (target.HasBuff("TalonDamageAmp")) { Damage = Damage + (Damage * 0.03f * Talon.Spells[2].CastInfo.SpellLevel); }
             if (!UnitsHit.Contains(target) && target != Talon && target.Team != Talon.Team && !(target is ObjBuilding || target is BaseTurret))
             {
@@ -90,6 +99,11 @@ namespace Spells
             SpellCast(Talon, 2, SpellSlotType.ExtraSlots, true, Talon, missile.Position);
         }
     }
+
+    /// <summary>
+    /// Talon W - Rake Return Missile
+    /// Damage: 90/130/170/215/260 (+60% bonus AD), applies slow
+    /// </summary>
     public class TalonRakeMissileTwo : ISpellScript
     {
         float Damage;
@@ -107,6 +121,7 @@ namespace Spells
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
@@ -114,9 +129,13 @@ namespace Spells
             Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle });
             if (Missile != null) { AddParticleTarget(Talon, Missile, "Talon_Skin29_B_T.troy", Missile, 25000f); }
         }
+
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            Damage = 5 + (25f * Talon.Spells[1].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+            // Return damage: 90/130/170/215/260 (+60% bonus AD)
+            float[] baseDamage = { 90f, 130f, 170f, 215f, 260f };
+            Damage = baseDamage[Talon.Spells[1].CastInfo.SpellLevel - 1] + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+
             if (target.HasBuff("TalonDamageAmp")) { Damage = Damage + (Damage * 0.03f * Talon.Spells[2].CastInfo.SpellLevel); }
             if (!UnitsHit.Contains(target) && target != Talon && target.Team != Talon.Team && !(target is ObjBuilding || target is BaseTurret))
             {

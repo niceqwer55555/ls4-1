@@ -12,6 +12,12 @@ using System.Collections.Generic;
 
 namespace Spells
 {
+    /// <summary>
+    /// Fiora R - Blade Waltz
+    /// Attacks target 5 times over 2.25 seconds
+    /// Each strike deals 130/150/170 (+120% bonus AD) physical damage
+    /// Repeated hits on same target deal 25% damage
+    /// </summary>
     public class FioraDance : ISpellScript
     {
         ObjAIBase Fiora;
@@ -23,6 +29,7 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnSpellPostCast(Spell spell)
         {
             UnitsHit.Clear();
@@ -30,11 +37,12 @@ namespace Spells
             Fiora = spell.CastInfo.Owner as Champion;
             Fiora.SetTargetUnit(null, true);
             AddBuff("FioraDance", 2.25f, 1, spell, Fiora, Fiora);
-            //ForceMovement(Fiora, null, new Vector2(Fiora.Position.X + 8f, Fiora.Position.Y + 8f), 13f, 0, 16.5f, 0);
-            //TargetPos = GetPointFromUnit(Fiora,Abs(Vector2.Distance(Target.Position, Fiora.Position)) + 250); 
-            //TeleportTo(Fiora, TargetPos.X, TargetPos.Y);  	
         }
     }
+
+    /// <summary>
+    /// Fiora R Strike
+    /// </summary>
     public class FioraDanceStrike : ISpellScript
     {
         float Damage;
@@ -50,6 +58,7 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Dance = spell;
@@ -59,22 +68,28 @@ namespace Spells
             AddParticleTarget(Fiora, Fiora, "Fiora_Dance_windup", Fiora);
             ForceMovement(Fiora, null, new Vector2(Fiora.Position.X + 40f, Fiora.Position.Y + 40f), 110f, 0, 150f, 0);
             TargetPos = GetPointFromUnit(Fiora, System.Math.Abs(Vector2.Distance(Target.Position, Fiora.Position)) + 175);
-
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             Fiora.SetDashingState(false);
             PlayAnimation(Fiora, "spell4c", 0.3f);
             TeleportTo(Fiora, TargetPos.X, TargetPos.Y);
             AddParticleTarget(Fiora, Target, "Fiora_Dance_tar", Target);
+
+            // Damage: 130/150/170 (+120% bonus AD)
+            float[] baseDamage = { 130f, 150f, 170f };
+            float fullDamage = baseDamage[Fiora.Spells[3].CastInfo.SpellLevel - 1] + Fiora.Stats.AttackDamage.FlatBonus * 1.2f;
+
             if (!UnitsHit.Contains(Target))
             {
                 UnitsHit.Add(Target);
-                Damage = (Fiora.Stats.AttackDamage.FlatBonus * 1.2f) + (130f * Fiora.Spells[3].CastInfo.SpellLevel) - 5;
+                Damage = fullDamage;
             }
             else
             {
-                Damage = ((Fiora.Stats.AttackDamage.FlatBonus * 1.2f) + (130f * Fiora.Spells[3].CastInfo.SpellLevel) - 5) * 0.25f;
+                // Repeated hits deal 25% damage
+                Damage = fullDamage * 0.25f;
             }
             Target.TakeDamage(Fiora, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
         }

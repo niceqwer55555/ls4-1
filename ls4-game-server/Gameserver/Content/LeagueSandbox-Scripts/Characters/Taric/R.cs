@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using GameServerCore;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
@@ -25,7 +25,7 @@ namespace Spells
             var p2 = AddParticleTarget(owner, owner, "TaricHammerSmash_shatter", owner);
             var hasbuff = owner.HasBuff("Radiance");
             var ap = owner.Stats.AbilityPower.Total * 0.5f;
-            var damage = 50 + spell.CastInfo.SpellLevel * 100 + ap;
+            float[] baseDamage = { 150f, 250f, 350f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
 
             foreach (var enemyTarget in GetUnitsInRange(owner.Position, 375, true)
                 .Where(x => x.Team == CustomConvert.GetEnemyTeam(owner.Team)))
@@ -72,3 +72,4 @@ namespace Spells
         }
     }
 }
+

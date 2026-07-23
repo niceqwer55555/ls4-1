@@ -102,7 +102,7 @@ namespace Spells
 
             var owner = spell.CastInfo.Owner;
             var ad = owner.Stats.AttackDamage.Total * spell.SpellData.AttackDamageCoefficient;
-            var damage = spell.CastInfo.SpellLevel * 10 + ad;
+            float[] baseDamage = { 10f, 60f, 110f, 160f, 210f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ad;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
 

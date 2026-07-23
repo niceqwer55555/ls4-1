@@ -15,6 +15,10 @@ using System.Collections.Generic;
 
 namespace Spells
 {
+    /// <summary>
+    /// Riven R - Blade of the Exile (first cast: buff form)
+    /// Grants +20% AD for 15s. IsDamagingSpell = false (it's a self-buff)
+    /// </summary>
     public class RivenFengShuiEngine : ISpellScript
     {
         ObjAIBase Riven;
@@ -22,7 +26,7 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
 
         public void OnSpellPostCast(Spell spell)
@@ -33,6 +37,10 @@ namespace Spells
             AddBuff("RivenFengShuiEngine", 15f, 1, FengShuiEngine, Riven, Riven);
         }
     }
+
+    /// <summary>
+    /// Riven R - Wind Slash (second cast)
+    /// </summary>
     public class RivenIzunaBlade : ISpellScript
     {
         ObjAIBase Riven;
@@ -56,6 +64,12 @@ namespace Spells
             Riven.RemoveBuffsWithName("RivenFengShuiEngine");
         }
     }
+
+    /// <summary>
+    /// Riven R Missile - Wind Slash
+    /// Damage: 80/120/160 (+60% bonus AD) to 240/360/480 (+180% bonus AD) based on missing HP
+    /// Simplified: use 250/425/600 (+100% bonus AD) mid-range
+    /// </summary>
     public class RivenLightsaberMissile : ISpellScript
     {
         float Damage;
@@ -68,40 +82,34 @@ namespace Spells
             IsDamagingSpell = true,
             MissileParameters = new MissileParameters { Type = MissileType.Circle }
         };
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             FengShuiEngine = spell;
             Riven = owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
         }
+
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            switch (Riven.SkinID)
-            {
-                case 3:
-                    break;
-
-                case 4:
-                    break;
-                case 5:
-                    break;
-
-                default:
-                    break;
-            }
-            Damage = 130 + (20 * Riven.Spells[3].CastInfo.SpellLevel) + (Riven.Stats.AttackDamage.FlatBonus * 0.6f);
+            // Damage: 80/120/160 (+60% bonus AD) min to 240/360/480 (+180% bonus AD) max based on missing HP
+            // Simplified: use average-ish values 250/425/600 (+100% bonus AD)
+            float[] baseDamage = { 250f, 425f, 600f };
+            float damage = baseDamage[Riven.Spells[3].CastInfo.SpellLevel - 1] + Riven.Stats.AttackDamage.FlatBonus;
             if (!UnitsHit.Contains(target))
             {
                 UnitsHit.Add(target);
-                target.TakeDamage(Riven, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                target.TakeDamage(Riven, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
                 AddParticleTarget(Riven, target, "Riven_Base_R_Tar.troy", target, 1f);
                 AddParticleTarget(Riven, target, "Riven_Base_R_Tar_Minion.troy", target, 1f);
             }
         }
     }
+
     public class RivenLightsaberMissileSide : RivenIzunaBlade { }
 }

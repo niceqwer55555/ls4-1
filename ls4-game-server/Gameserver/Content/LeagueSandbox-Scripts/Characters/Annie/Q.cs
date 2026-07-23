@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
@@ -11,16 +11,17 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// Annie Q - Disintegrate
+    /// Damage: 80/115/150/185/220 (+80% AP)
+    /// </summary>
     public class Disintegrate : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Target
-            }
+            MissileParameters = new MissileParameters { Type = MissileType.Target }
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
@@ -31,13 +32,14 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner as Champion;
-            var ownerSkinID = owner.SkinID;
-            var ap = owner.Stats.AbilityPower.Total * spell.SpellData.MagicDamageCoefficient;
-            var damage = 45 + (spell.CastInfo.SpellLevel * 35) + ap;
+            // Damage: 80/115/150/185/220 (+80% AP)
+            float[] baseDamage = { 80f, 115f, 150f, 185f, 220f };
+            var ap = owner.Stats.AbilityPower.Total * 0.8f;
+            var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 
-            if (ownerSkinID == 5)
+            if (owner.SkinID == 5)
             {
                 AddParticleTarget(owner, target, "DisintegrateHit_tar_frost", target);
             }

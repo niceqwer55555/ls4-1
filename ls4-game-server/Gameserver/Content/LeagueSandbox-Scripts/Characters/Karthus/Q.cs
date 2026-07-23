@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Linq;
@@ -36,7 +36,7 @@ namespace Spells
             GameObject m = AddParticle(owner, null, "Karthus_Base_Q_Explosion", spellPos);
             var affectedUnits = GetUnitsInRange(m.Position, 150, true);
             var ap = spell.CastInfo.Owner.Stats.AbilityPower.Total;
-            var damage = 20f + spell.CastInfo.SpellLevel * 20f + ap * 0.3f;
+            float[] baseDamage = { 40f, 60f, 80f, 100f, 120f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap * 0.3f;
             if (affectedUnits.Count == 0)
             {
                 AddParticle(owner, null, "Karthus_Base_Q_Hit_Miss", spellPos);
@@ -64,3 +64,4 @@ namespace Spells
         }
     }
 }
+

@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
@@ -34,15 +34,15 @@ namespace Spells
         {
             var time = 1.1f + 0.1f * spell.CastInfo.SpellLevel;
             var ap = owner.Stats.AbilityPower.Total;
-            var damage = 10 + spell.CastInfo.SpellLevel * 30 + ap * 0.2f;
+            float[] baseDamage = { 40f, 70f, 100f, 130f, 160f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap * 0.2f;
             var dist = Vector2.DistanceSquared(owner.Position, target.Position);
             if (dist <= 460 * 460)
             {
-                damage = 15 + spell.CastInfo.SpellLevel * 45 + ap * 0.3f;
+                float[] baseDamage2 = { 80f, 140f, 200f, 260f, 320f }; damage = baseDamage2[spell.CastInfo.SpellLevel - 1] + ap * 0.4f;
             }
             if (dist <= 295 * 295)
             {
-                damage = 20 + spell.CastInfo.SpellLevel * 60 + ap * 0.4f;
+                float[] baseDamage3 = { 80f, 140f, 200f, 260f, 320f }; damage = baseDamage3[spell.CastInfo.SpellLevel - 1] + ap * 0.4f;
             }
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
@@ -61,3 +61,6 @@ namespace Spells
         }
     }
 }
+
+
+

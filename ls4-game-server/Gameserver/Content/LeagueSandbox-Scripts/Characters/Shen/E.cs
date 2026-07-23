@@ -1,4 +1,4 @@
-using GameServerCore;
+﻿using GameServerCore;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using GameServerCore.Enums;
@@ -54,7 +54,7 @@ namespace Spells
         }
         public void OnCollision(GameObject owner, GameObject target)
         {
-            Damage = 15f + (Shen.Spells[2].CastInfo.SpellLevel * 35f) + (Shen.Stats.AbilityPower.Total * 0.5f);
+            float[] baseDamage = { 50f, 50f, 50f, 50f, 50f }; Damage = baseDamage[Shen.Spells[2].CastInfo.SpellLevel - 1] + (Shen.Stats.AbilityPower.Total * 0.5f);
             if ((target as AttackableUnit).Team != Shen.Team)
             {
                 if (!UnitsHit.Contains(target as AttackableUnit))

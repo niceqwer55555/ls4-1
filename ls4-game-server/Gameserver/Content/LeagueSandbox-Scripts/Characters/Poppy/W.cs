@@ -16,6 +16,11 @@ using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Spells
 {
+    /// <summary>
+    /// Poppy W - Paragon of Demacia / Steadfast Presence
+    /// Passive: Gains armor and AD when auto-attacked or attacking
+    /// Active: Gains movement speed for 5 seconds
+    /// </summary>
     public class PoppyParagonOfDemacia : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -23,13 +28,12 @@ namespace Spells
             TriggersSpellCasts = true,
             CastingBreaksStealth = true,
             DoesntBreakShields = true,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             NotSingleTargetSpell = true,
         };
-        
+
         ObjAIBase daowner;
         Spell daspell;
-        public SpellSector DamageSector;
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
@@ -37,14 +41,12 @@ namespace Spells
             daspell = spell;
             ApiEventManager.OnHitUnit.AddListener(this, owner, GivePoppySomething, false);
         }
+
         public void GivePoppySomething(DamageData damage)
         {
             AddBuff("PoppyParagonManager", 5f, 1, daspell, daowner, daowner, false);
         }
-        public void AddPoppyWPassive(Spell spell)
-        {
-            AddBuff("PoppyParagonManager", 5f, 1, spell, daowner, daowner, false);
-        }
+
         public void OnSpellCast(Spell spell)
         {
             ApiEventManager.OnHitUnit.RemoveListener(this, daowner);
@@ -55,10 +57,10 @@ namespace Spells
                 AddBuff("PoppyParagonManager", 5f, 1, spell, daowner, daowner, false);
             }
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             ApiEventManager.OnHitUnit.AddListener(this, daowner, GivePoppySomething, false);
-
         }
     }
 }

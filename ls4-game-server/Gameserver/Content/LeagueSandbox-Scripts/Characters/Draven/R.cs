@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using GameServerCore.Scripting.CSharp;
@@ -131,7 +131,7 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AttackDamage.Total * 1.1f + (spell.CastInfo.Owner.GetSpell("DravenDoubleShot").CastInfo.SpellLevel * 100) + 40;
+            float[] baseDamage = { 175f, 275f, 375f }; var ad = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total * 1.1f;
             target.TakeDamage(owner, (float)ad, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
         }
 
@@ -162,3 +162,4 @@ namespace Spells
         }
     }
 }
+

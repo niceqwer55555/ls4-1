@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -47,7 +47,7 @@ namespace Spells
 
             var owner = spell.CastInfo.Owner;
             var ap = owner.Stats.AbilityPower.Total * 0.5f;
-            var damage = 50 + spell.CastInfo.SpellLevel * 100 + ap;
+            float[] baseDamage = { 150f, 250f, 350f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
 
             foreach (var champion in champs)
             {

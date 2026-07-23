@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -33,7 +33,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner as Champion;
             var ap = owner.Stats.AbilityPower.Total * 0.45f;
-            var damage = ap + owner.Spells[2].CastInfo.SpellLevel * 20f;
+            float[] baseDamage = { 50f, 70f, 90f, 110f, 130f }; var damage = baseDamage[owner.Spells[2].CastInfo.SpellLevel - 1] + ap;
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
         }
 

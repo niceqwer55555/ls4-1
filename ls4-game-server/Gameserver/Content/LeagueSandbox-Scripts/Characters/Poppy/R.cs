@@ -22,7 +22,7 @@ namespace Spells
             TriggersSpellCasts = true,
             CastingBreaksStealth = true,
             DoesntBreakShields = true,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             NotSingleTargetSpell = true,
         };
 

@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -32,7 +32,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var APratio = owner.Stats.AbilityPower.Total * 0.7f;
-            var damage = 300 + spell.CastInfo.SpellLevel * 175 + APratio;
+            float[] baseDamage = { 300f, 475f, 650f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + APratio;
             var damageMM = 1000 + APratio;
 
             Target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_SPELL, false);
@@ -50,3 +50,4 @@ namespace Spells
         }
     }
 }
+

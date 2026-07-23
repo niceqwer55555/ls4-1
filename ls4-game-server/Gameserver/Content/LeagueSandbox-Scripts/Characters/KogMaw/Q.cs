@@ -17,7 +17,7 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
 
         public void OnSpellCast(Spell spell)
@@ -46,3 +46,4 @@ namespace Spells
 
     }
 }
+

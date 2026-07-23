@@ -14,6 +14,10 @@ using System.Collections.Generic;
 
 namespace Spells
 {
+    /// <summary>
+    /// Lissandra Q - Ice Shard
+    /// Deals 70/100/130/160/190 (+65% AP) magic damage and splits into shards
+    /// </summary>
     public class LissandraQ : ISpellScript
     {
         private Spell Ice;
@@ -24,15 +28,18 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
+
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             Ice = spell;
             Lissandra = owner = spell.CastInfo.Owner as Champion;
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             FaceDirection(start, Lissandra, true);
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             TargetPos = GetPointFromUnit(Lissandra, 850f);
@@ -40,6 +47,9 @@ namespace Spells
         }
     }
 
+    /// <summary>
+    /// Lissandra Q Missile - main shard
+    /// </summary>
     public class LissandraQMissile : ISpellScript
     {
         float Damage;
@@ -57,6 +67,7 @@ namespace Spells
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             UnitsHit.Clear();
@@ -69,13 +80,21 @@ namespace Spells
             Missile = missile;
             UnitsHit.Add(target);
             Missile.SetToRemove();
+            // Slow: 16/19/22/25/28%
             AddBuff("LissandraQ", 1.5f, 1, spell, target, Lissandra, false);
             AddParticleTarget(Lissandra, target, "Lissandra_Base_Q_tar", target, 1f);
-            Damage = 40 + (35f * Lissandra.Spells[0].CastInfo.SpellLevel) + (Lissandra.Stats.AbilityPower.Total * 0.65f);
+            // Damage: 70/100/130/160/190 (+65% AP)
+            float[] baseDamage = { 70f, 100f, 130f, 160f, 190f };
+            Damage = baseDamage[Lissandra.Spells[0].CastInfo.SpellLevel - 1] + (float)(Lissandra.Stats.AbilityPower.Total * 0.65);
             target.TakeDamage(Lissandra, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            // Split into shards
             SpellCast(Lissandra, 4, SpellSlotType.ExtraSlots, GetPointFromUnit(Missile, 700), Vector2.Zero, true, Missile.Position);
         }
     }
+
+    /// <summary>
+    /// Lissandra Q Shards - split projectiles
+    /// </summary>
     public class LissandraQShards : ISpellScript
     {
         float Damage;
@@ -93,6 +112,7 @@ namespace Spells
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Lissandra = owner = spell.CastInfo.Owner as Champion;
@@ -101,8 +121,9 @@ namespace Spells
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            Missile = missile;
-            Damage = 40 + (35f * Lissandra.Spells[0].CastInfo.SpellLevel) + (Lissandra.Stats.AbilityPower.Total * 0.65f);
+            // Same damage as main shard
+            float[] baseDamage = { 70f, 100f, 130f, 160f, 190f };
+            Damage = baseDamage[Lissandra.Spells[0].CastInfo.SpellLevel - 1] + (float)(Lissandra.Stats.AbilityPower.Total * 0.65);
             if (!UnitsHit.Contains(target) && target != Lissandra && target.Team != Lissandra.Team && !(target is ObjBuilding || target is BaseTurret))
             {
                 target.TakeDamage(Lissandra, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);

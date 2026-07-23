@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -12,14 +12,14 @@ namespace Spells
 {
     /// <summary>
     /// Singed Q - Poison Trail
-    /// 留下毒迹，对经过的敌人造成持续魔法伤害
+    /// Toggle: Leaves a poison trail dealing 22/34/46/58/70 (+30% AP) magic damage per second
     /// </summary>
     public class SingedQ : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             NotSingleTargetSpell = true
         };
 
@@ -28,12 +28,7 @@ namespace Spells
             var owner = spell.CastInfo.Owner as Champion;
             if (owner == null) return;
 
-            // 每秒魔法伤害: 44/68/92/116/140 (+0.5 AP)
-            float[] dpsDamage = { 44f, 68f, 92f, 116f, 140f };
-            float ap = owner.Stats.AbilityPower.Total * 0.5f;
-            float dps = dpsDamage[spell.CastInfo.SpellLevel - 1] + ap;
-
-            // 毒迹持续3秒，每0.5秒造成一次伤害
+            // Toggle poison trail on
             AddBuff("PoisonTrail", 3f, 1, spell, owner, owner);
         }
     }

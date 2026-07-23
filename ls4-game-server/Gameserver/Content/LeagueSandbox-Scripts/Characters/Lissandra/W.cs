@@ -40,9 +40,10 @@ namespace Spells
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            AddBuff("LissandraW", 1 + (Lissandra.Spells[1].CastInfo.SpellLevel * 0.1f), 1, spell, target, Lissandra);
-            Damage = 30f + (Lissandra.Spells[1].CastInfo.SpellLevel * 40f) + (Lissandra.Stats.AbilityPower.Total * 0.4f);
+            float[] rootDur = { 1.1f, 1.2f, 1.3f, 1.4f, 1.5f }; AddBuff("LissandraW", rootDur[Lissandra.Spells[1].CastInfo.SpellLevel - 1], 1, spell, target, Lissandra);
+            float[] baseDamage = { 70f, 110f, 150f, 190f, 230f }; Damage = baseDamage[Lissandra.Spells[1].CastInfo.SpellLevel - 1] + (Lissandra.Stats.AbilityPower.Total * 0.4f);
             target.TakeDamage(Lissandra, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
         }
     }
 }
+

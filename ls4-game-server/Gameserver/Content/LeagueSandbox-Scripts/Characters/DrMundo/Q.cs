@@ -1,4 +1,5 @@
-﻿using GameServerCore.Enums;
+﻿using System;
+using GameServerCore.Enums;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using GameServerCore.Scripting.CSharp;
@@ -14,6 +15,10 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// DrMundo Q - Infected Cleaver (cast)
+    /// Self-damage: 40/50/60/70/80 health cost
+    /// </summary>
     public class InfectedCleaverMissileCast : ISpellScript
     {
         private ObjAIBase Owner;
@@ -45,7 +50,9 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner as Champion;
             var targetPos = GetPointFromUnit(owner, 975f);
-            float SelfDamage = 40 + 10f * spell.CastInfo.SpellLevel;
+            // Self damage: 40/50/60/70/80
+            float[] selfDamage = { 40f, 50f, 60f, 70f, 80f };
+            float SelfDamage = selfDamage[spell.CastInfo.SpellLevel - 1];
 
             FaceDirection(targetPos, owner);
             SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
@@ -75,14 +82,20 @@ namespace Spells
 
         public void OnUpdate(float diff)
         {
+            // Passive: Mundo regenerates 0.3% max HP per second
             if (Owner != null)
             {
                 Owner.Stats.HealthRegeneration.FlatBonus = (Owner.Stats.HealthPoints.Total / 100f) * 0.3f;
-                //Double Check if that's right
             }
         }
     }
 
+    /// <summary>
+    /// DrMundo Q - Infected Cleaver (missile)
+    /// Damage: 15/18/21/23/25% of target current HP (magic damage)
+    /// Minimum damage: 80/130/180/230/280
+    /// Heal on hit: 50/60/70/80/90
+    /// </summary>
     public class InfectedCleaverMissile : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
@@ -92,10 +105,7 @@ namespace Spells
                 Type = MissileType.Circle
             },
             IsDamagingSpell = true
-            // TODO
         };
-
-        //Vector2 direction;
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
@@ -106,20 +116,25 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var spellLevel = owner.GetSpell("InfectedCleaverMissileCast").CastInfo.SpellLevel;
-            var damage = target.Stats.CurrentHealth * (0.12f + 0.03f * spellLevel);
-            float minimunDamage = 30f + (50f * spellLevel);
-            float maxDamageMonsters = 200 + 100f * spellLevel;
-            float Heal = 20 + 5f * spellLevel;
-            //TODO: Implement max damage when monsters gets added.
 
+            // Damage: 15/18/21/23/25% of target current HP
+            float[] hpPercent = { 0.15f, 0.18f, 0.21f, 0.23f, 0.25f };
+            var damage = target.Stats.CurrentHealth * hpPercent[spellLevel - 1];
+
+            // Minimum damage: 80/130/180/230/280
+            float[] minDamage = { 80f, 130f, 180f, 230f, 280f };
+            float minimunDamage = minDamage[spellLevel - 1];
             if (damage < minimunDamage)
             {
                 damage = minimunDamage;
             }
 
+            // Heal: 50/60/70/80/90
+            float[] healAmount = { 50f, 60f, 70f, 80f, 90f };
+            float Heal = healAmount[spellLevel - 1];
+
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-            owner.Stats.CurrentHealth += Heal;
-            AddParticleTarget(owner, null, "dr_mundo_as_mundo_infected_cleaver_tar.troy", target);
+            owner.Stats.CurrentHealth = Math.Min(owner.Stats.CurrentHealth + Heal, owner.Stats.HealthPoints.Total);
             AddParticleTarget(owner, null, "dr_mundo_infected_cleaver_tar.troy", target);
             AddBuff("InfectedCleaverMissile", 2f, 1, spell, target, owner);
 
@@ -159,3 +174,4 @@ namespace Spells
         }
     }
 }
+

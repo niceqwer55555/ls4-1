@@ -32,7 +32,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner as Champion;
             var APratio = owner.Stats.AbilityPower.Total;
-            var damage = 30 + spell.CastInfo.SpellLevel * 25 + APratio;
+            float[] baseDamage = { 55f, 80f, 105f, 130f, 155f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + APratio;
             //todo  amplifying her Poison ,  poison damage against the target by 20%, stacking up to two times.
 
             AddParticleTarget(owner, target, "Cassiopeia_Base_E_TwinFang_tar.troy", target, 1f);

@@ -12,14 +12,20 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
 namespace Spells
 {
+    /// <summary>
+    /// Twitch Q - Ambush
+    /// After 1 second, becomes stealthed for 4/5/6/7/8 seconds
+    /// Gains 20% movement speed while stealthed
+    /// </summary>
     public class TwitchHideInShadows : ISpellScript
     {
         ObjAIBase Twitch;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = false
         };
+
         public void OnSpellPostCast(Spell spell)
         {
             Twitch = spell.CastInfo.Owner as Champion;
@@ -28,7 +34,10 @@ namespace Spells
             CreateTimer(1, () =>
             {
                 Twitch.SetTargetUnit(null, true);
-                AddBuff("TwitchHideInShadows", Twitch.Spells[0].CastInfo.SpellLevel + 9f, 1, spell, Twitch, Twitch);
+                // Stealth duration: 4/5/6/7/8 seconds
+                float[] stealthDuration = { 4f, 5f, 6f, 7f, 8f };
+                float duration = stealthDuration[spell.CastInfo.SpellLevel - 1];
+                AddBuff("TwitchHideInShadows", duration, 1, spell, Twitch, Twitch);
             });
         }
     }

@@ -1,4 +1,4 @@
-using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+﻿using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using System.Numerics;
 using GameServerCore.Enums;
@@ -20,7 +20,7 @@ namespace Spells
         {
             TriggersSpellCasts = true,
 
-            IsDamagingSpell = true
+            IsDamagingSpell = false
             // TODO
         };
 

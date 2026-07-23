@@ -39,7 +39,7 @@ namespace Spells
         public void ApplyEffects(ObjAIBase owner, AttackableUnit target, Spell spell, SpellMissile missile)
         {
             var ap = owner.Stats.AbilityPower.Total;
-            var basedamage = 25 + spell.CastInfo.SpellLevel * 55 + ap;
+            float[] baseDamage = { 50f, 75f, 100f, 125f, 150f }; var basedamage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
             var hitcoords = missile.Position;
             var distance = Math.Sqrt(Math.Pow(castcoords.X - hitcoords.X, 2) + Math.Pow(castcoords.Y - hitcoords.Y, 2));
             if (Math.Abs(distance) <= 525f)
@@ -65,4 +65,5 @@ namespace Spells
         }
     }
 }
+
 

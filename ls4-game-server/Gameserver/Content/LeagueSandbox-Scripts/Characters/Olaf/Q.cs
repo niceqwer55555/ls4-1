@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -44,9 +44,10 @@ namespace Spells
             AddParticleTarget(owner, target, "olaf_axeThrow_tar", target);
             var ad = owner.Stats.AttackDamage.Total * 1.1f;
             var ap = owner.Stats.AttackDamage.Total * 0.0f;
-            var damage = 15 + spell.CastInfo.SpellLevel * 20 + ad + ap;
+            float[] baseDamage = { 70f, 115f, 160f, 205f, 250f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ad + ap;
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
         }
     }
 }
+
 

@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -85,7 +85,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var ADratio = owner.Stats.AttackDamage.Total;
-            var Damage = ADratio + (spell.CastInfo.SpellLevel * 20);
+            float[] baseDamage = { 30f, 60f, 90f, 120f, 150f }; var Damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ADratio;
             target.TakeDamage(owner, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 			owner.Stats.CurrentMana += 10f;
             AddParticleTarget(owner, target, "Renekton_Base_E_tar.troy", target);
@@ -182,7 +182,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var ADratio = owner.Stats.AttackDamage.Total;
-            var Damage = ADratio + (spell.CastInfo.SpellLevel * 20);
+            float[] baseDamage = { 30f, 60f, 90f, 120f, 150f }; var Damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ADratio;
             target.TakeDamage(owner, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             AddParticleTarget(owner, target, "Renekton_Base_E_tar.troy", target);
         }
@@ -210,3 +210,5 @@ namespace Spells
         }
     }
 }
+
+

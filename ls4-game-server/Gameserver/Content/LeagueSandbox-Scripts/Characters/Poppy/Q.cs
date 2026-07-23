@@ -15,6 +15,10 @@ using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
+    /// <summary>
+    /// Poppy Q - Devastating Blow
+    /// Next basic attack deals 20/40/60/80/100 (+60% AD) + 8/7/6/5/4% target max HP bonus physical damage
+    /// </summary>
     public class PoppyDevastatingBlow : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
@@ -22,9 +26,10 @@ namespace Spells
             TriggersSpellCasts = true,
             CastingBreaksStealth = true,
             DoesntBreakShields = true,
-            IsDamagingSpell = true,
+            IsDamagingSpell = false,
             NotSingleTargetSpell = true,
         };
+
         public void OnSpellCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
@@ -33,3 +38,4 @@ namespace Spells
         }
     }
 }
+

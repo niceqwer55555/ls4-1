@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
@@ -43,7 +43,7 @@ namespace Spells
                 {
                     if (affectEnemys is AttackableUnit && affectEnemys.Team != owner.Team)
                     {
-                        affectEnemys.TakeDamage(owner, spell.CastInfo.SpellLevel * 20f + owner.Stats.AttackDamage.Total, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                        affectEnemys.TakeDamage(owner, new float[] { 20f, 40f, 60f, 80f, 100f }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
                         AddParticleTarget(owner, owner, "Yasuo_Base_Q_WindStrike", affectEnemys);
                         AddParticleTarget(owner, owner, "Yasuo_Base_Q_windstrike_02", affectEnemys);
                         AddParticleTarget(owner, owner, "Yasuo_Base_Q_hit_tar", affectEnemys);
@@ -70,8 +70,9 @@ namespace Spells
             AddParticleTarget(owner, owner, "Yasuo_Base_Q_WindStrike", target);
             AddParticleTarget(owner, owner, "Yasuo_Base_Q_windstrike_02", target);
             AddParticleTarget(owner, owner, "Yasuo_Base_Q_hit_tar", target);
-            target.TakeDamage(owner, spell.CastInfo.SpellLevel * 20f + owner.Stats.AttackDamage.Total,DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+            target.TakeDamage(owner, new float[] { 20f, 40f, 60f, 80f, 100f }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total,DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
             ForceMovement(target, "RUN", new Vector2(target.Position.X + 10f, target.Position.Y + 10f), 13f, 0, 16.5f, 0);
         }
     }
 }
+

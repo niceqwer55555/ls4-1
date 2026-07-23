@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using GameServerCore;
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
@@ -29,7 +29,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var ap = owner.Stats.AbilityPower.Total;
-            var damage = 100 + spell.CastInfo.SpellLevel * 150 + ap * 0.6f;
+            float[] baseDamage = { 250f, 400f, 550f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap * 0.6f;
             foreach (var enemyTarget in GetChampionsInRange(owner.Position, 20000, true)
                 .Where(x => x.Team == CustomConvert.GetEnemyTeam(owner.Team)))
             {
@@ -39,3 +39,4 @@ namespace Spells
         }
     }
 }
+

@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
@@ -26,7 +26,7 @@ namespace Spells
 
         public void ApplyEffects(ObjAIBase owner, AttackableUnit target, Spell spell, SpellMissile missile)
         {
-            float damage = 20 + (spell.CastInfo.SpellLevel * 40) + owner.Stats.AbilityPower.Total * 0.9f;
+            float[] baseDamage = { 60f, 100f, 140f, 180f, 220f }; float damage = baseDamage[spell.CastInfo.SpellLevel - 1] + owner.Stats.AbilityPower.Total * 0.9f;
             target.TakeDamage(owner, damage, GameServerCore.Enums.DamageType.DAMAGE_TYPE_MAGICAL, GameServerCore.Enums.DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
         }
     }

@@ -74,7 +74,7 @@ namespace Spells
         {
             var owner = spell.CastInfo.Owner;
             var ap = owner.Stats.AbilityPower.Total * spell.SpellData.MagicDamageCoefficient;
-            var damage = 25 + spell.CastInfo.SpellLevel * 55 + ap;
+            float[] baseDamage = { 80f, 135f, 190f, 245f, 300f }; var damage = baseDamage[spell.CastInfo.SpellLevel - 1] + ap;
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
 
             AddBuff("GalioResoluteSmite", 2.5f, 1, spell, target, owner);
