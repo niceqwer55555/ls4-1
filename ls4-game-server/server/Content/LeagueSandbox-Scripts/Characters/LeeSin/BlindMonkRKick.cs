@@ -1,0 +1,42 @@
+using GameServerCore.Enums;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using LeagueSandbox.GameServer.Scripting.CSharp;
+using System.Numerics;
+using LeagueSandbox.GameServer.API;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+
+namespace Spells
+{
+    public class BlindMonkRKick : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        {
+            IsDamagingSpell = true,
+            TriggersSpellCasts = true
+        };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
+        }
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+        }
+
+        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
+        {
+            var owner = spell.CastInfo.Owner;
+            if (owner != null && target != null)
+            {
+                float damage = 150 + 100 * spell.CastInfo.SpellLevel + owner.Stats.AttackDamage.Total * 1.0f;
+                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            }
+        }
+    }
+}
