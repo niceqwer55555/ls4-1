@@ -242,7 +242,7 @@ export default {
     return {
       clientpath: "",
       cdnserverhost: "127.0.0.1:8081/cdn", //"cdn.leagues4.com",
-      apiserverhost: "127.0.0.1:3000", //"api.leagues4.com",
+      apiserverhost: "127.0.0.1:8080", //"api.leagues4.com",
       langcode: "en_US",
       logindata: {
         username: "",
