@@ -67,20 +67,21 @@ export default {
         const token = user.token;
         commit("setUser", user);
         commit("setToken", token);
-        if (rememberme) {
-          state.rememberTokenPath.then(result => {
-            fs.writeFileSync(
-              result,
-              JSON.stringify({
+       if (rememberme) {
+         state.rememberTokenPath.then(result => {
+           fs.writeFileSync(
+             result,
+             JSON.stringify({
                 token: token,
                 clientpath: clientpath,
                 cdnserverhost: cdnserverhost,
                 apiserverhost: apiserverhost,
-                langcode: langcode
+                langcode: langcode,
+                username: username
               })
-            );
-          });
-        }
+           );
+         });
+       }
 
         console.log("new socket manager");
         let socketManager = new SocketManager(user, state, dispatch, vm);

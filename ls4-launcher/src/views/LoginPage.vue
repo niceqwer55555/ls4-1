@@ -265,24 +265,30 @@ export default {
   created() {
     const router = this.$router;
     this.$store.dispatch("readRememberToken").then(loadedData => {
-      if (loadedData && loadedData.token) {
-        this.$store
-          .dispatch("validateToken", {
-            token: loadedData.token
-          })
-          .then(() => {
-            router.push("/LoggedIn/home");
-          })
-          .catch(() => {
-            //Invalid / Expired remember token
-          });
-      } else if (loadedData) {
-        console.log(loadedData);
-        this.clientpath = loadedData.clientpath;
-        this.apiserverhost = loadedData.apiserverhost;
-        this.cdnserverhost = loadedData.cdnserverhost;
-        this.langcode = loadedData.langcode;
-      }
+     if (loadedData && loadedData.token) {
+       if (loadedData.username) {
+         this.logindata.username = loadedData.username;
+       }
+       this.$store
+         .dispatch("validateToken", {
+           token: loadedData.token
+         })
+         .then(() => {
+           router.push("/LoggedIn/home");
+         })
+         .catch(() => {
+           //Invalid / Expired remember token
+         });
+     } else if (loadedData) {
+       console.log(loadedData);
+       this.clientpath = loadedData.clientpath;
+       this.apiserverhost = loadedData.apiserverhost;
+       this.cdnserverhost = loadedData.cdnserverhost;
+       this.langcode = loadedData.langcode;
+       if (loadedData.username) {
+         this.logindata.username = loadedData.username;
+       }
+     }
     });
 
     ipcRenderer.on("update", (event, info) => {

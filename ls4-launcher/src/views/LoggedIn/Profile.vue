@@ -59,6 +59,7 @@ export default {};
 
 .page-content {
   flex: 1;
-  padding: 20px;
+  padding: 6px 10px;
+  overflow: hidden;
 }
 </style>

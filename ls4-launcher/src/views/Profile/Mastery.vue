@@ -329,8 +329,7 @@ export default {
 <style lang="css" scoped>
 #MasteryPage {
   width: 100%;
-  height: calc(100vh - 115px);
-  margin-top: 77px;
+  height: 100%;
   position: relative;
   display: flex;
   overflow: hidden;
@@ -338,7 +337,7 @@ export default {
 
 .runeMasteryContainer {
   width: 100%;
-  padding: 12px 16px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
