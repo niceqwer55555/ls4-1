@@ -6,40 +6,48 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
+    /// <summary>
+    /// Teemo E - Toxic Shot (passive)
+    /// Toxic Shot is a passive ability triggered by auto-attacks.
+    /// The actual on-hit damage is handled by ToxicShotAttack.cs.
+    /// This script only manages the passive buff on Teemo himself.
+    /// </summary>
     public class ToxicShot : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
+            TriggersSpellCasts = false,
+            NotSingleTargetSpell = true
         };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            // Passive is active as long as the spell is learned
+        }
+
+        public void OnDeactivate(ObjAIBase owner, Spell spell)
+        {
+        }
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, System.Numerics.Vector2 start, System.Numerics.Vector2 end)
+        {
+        }
+
+        public void OnSpellCast(Spell spell)
+        {
+        }
 
         public void OnSpellPostCast(Spell spell)
         {
-            // 被动技能，不需要主动施放
+            // Passive skill - no active cast behavior
         }
 
-        public void ApplyEffects(AttackableUnit target, Spell spell)
+        public void OnUpdate(float diff)
         {
-            var owner = spell.CastInfo.Owner;
-
-            // 每秒魔法伤害: 6/12/18/24/30 (+10% AP)
-            float[] damagePerSecond = { 6f, 12f, 18f, 24f, 30f };
-            float ap = owner.Stats.AbilityPower.Total * 0.1f;
-            float dps = damagePerSecond[spell.CastInfo.SpellLevel - 1] + ap;
-
-            // 立即附加伤害: 10/20/30/40/50 (+30% AP)
-            float[] initialDamage = { 10f, 20f, 30f, 40f, 50f };
-            float initialAp = owner.Stats.AbilityPower.Total * 0.3f;
-            float initial = initialDamage[spell.CastInfo.SpellLevel - 1] + initialAp;
-
-            // 立即附加初始伤害
-            target.TakeDamage(owner, initial, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLPERSIST, false);
-
-            // 添加持续伤害buff (4秒)
-            AddBuff("ToxicShot", 4f, 1, spell, target, owner);
         }
     }
 }

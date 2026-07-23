@@ -6,6 +6,7 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
@@ -19,21 +20,19 @@ namespace Spells
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-            
-            // 被动移动速度加成: 10/14/18/22/26%
-            float[] passiveMoveSpeed = { 0.10f, 0.14f, 0.18f, 0.22f, 0.26f };
-            
-            // 主动移动速度加成: 20/28/36/44/52%
-            float[] activeMoveSpeed = { 0.20f, 0.28f, 0.36f, 0.44f, 0.52f };
-            
-            float passiveSpeed = passiveMoveSpeed[spell.CastInfo.SpellLevel - 1];
-            float activeSpeed = activeMoveSpeed[spell.CastInfo.SpellLevel - 1];
-            
-            // 添加被动移动速度buff
-            AddBuff("MoveQuickPassive", float.MaxValue, 1, spell, owner, owner);
-            
-            // 添加主动冲刺buff
+            var spellLevel = spell.CastInfo.SpellLevel;
+
+            // Remove passive buff before applying active buff to avoid stacking
+            if (owner.HasBuff("MoveQuickPassive"))
+            {
+                owner.RemoveBuffsWithName("MoveQuickPassive");
+            }
+
+            // Active move speed bonus: 20/28/36/44/52% for 3 seconds
             AddBuff("MoveQuickActive", 3f, 1, spell, owner, owner);
+
+            // Add particle effect
+            AddParticleTarget(owner, owner, "MoveQuick_buf.troy", owner);
         }
     }
 }

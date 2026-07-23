@@ -9,21 +9,17 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
 namespace Spells
 {
+    /// <summary>
+    /// MasterYi W - Meditate
+    /// Channels for 4 seconds, healing and reducing damage.
+    /// </summary>
     public class Meditate : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             NotSingleTargetSpell = true,
             TriggersSpellCasts = true,
-            ChannelDuration = 4f,
-            AutoCooldownByLevel = new float[]
-            {
-                50f,
-                50f,
-                50f,
-                50f,
-                50f
-            }
+            ChannelDuration = 4f
         };
 
         ObjAIBase Owner;
@@ -50,15 +46,6 @@ namespace Spells
 
         public void OnSpellPostChannel(Spell spell)
         {
-            //float[] finalHeal = new float[]
-            //{
-            //    25f,
-            //    50f,
-            //    83.3f,
-            //    125f,
-            //    183.3f
-            //};
-            //Owner.Stats.CurrentHealth = Math.Min(Owner.Stats.CurrentHealth, finalHeal[spell.CastInfo.SpellLevel]);
             RemoveBuff(Owner, "Meditate");
         }
     }

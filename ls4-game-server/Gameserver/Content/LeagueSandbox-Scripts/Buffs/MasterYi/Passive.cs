@@ -1,67 +1,50 @@
 ﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
-using            GameServerLib.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using GameServerCore.Scripting.CSharp;
-using System;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 
 namespace Buffs
 {
+    /// <summary>
+    /// MasterYi Passive - Double Strike tracker.
+    /// Stacks up to 3. At 3 stacks, next attack triggers Double Strike.
+    /// </summary>
     internal class MasterYiPassive : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffType = BuffType.DAMAGE,
             BuffAddType = BuffAddType.STACKS_AND_RENEWS,
-            MaxStacks = 4
+            MaxStacks = 3
         };
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
-        Particle p;
-        Particle p1;
-        Particle p2;
         Spell spell;
-        AttackableUnit Unit;
+        ObjAIBase ownerUnit;
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            Unit = unit;
+            ownerUnit = ownerSpell.CastInfo.Owner;
             spell = ownerSpell;
-            switch (buff.StackCount)
-            {
-                case 1:
 
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    AddBuff("MasterYiDoubleStrike", 3.1f, 1, spell, spell.CastInfo.Owner, spell.CastInfo.Owner);
-                    break;
-                case 4:
-                    //spell.CastInfo.Owner.SetAutoAttackSpell("MasterYiDoubleStrike", false);               		
-                    buff.DeactivateBuff();
-                    break;
+            // At max stacks (3), trigger Double Strike
+            if (buff.StackCount >= 3)
+            {
+                AddBuff("MasterYiDoubleStrike", 3.0f, 1, spell, ownerUnit, ownerUnit);
+                // Remove all stacks to reset
+                buff.DeactivateBuff();
             }
         }
 
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            if (buff.TimeElapsed >= buff.Duration)
-            {
-                RemoveBuff(unit, "MasterYiPassive");
-            }
-            RemoveBuff(unit, "AatroxWONHLifeBuff");
-            RemoveParticle(p);
-            RemoveParticle(p1);
-            RemoveParticle(p2);
         }
 
         public void OnUpdate(float diff)

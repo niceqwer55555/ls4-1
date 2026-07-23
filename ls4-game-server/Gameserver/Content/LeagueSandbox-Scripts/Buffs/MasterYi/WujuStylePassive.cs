@@ -2,49 +2,39 @@
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.Scripting.CSharp;
-using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
-using System.Numerics;
+using LeagueSandbox.GameServer.API;
 
 namespace Buffs
 {
     /// <summary>
-    /// AlphaStrike teleport buff - makes Yi untargetable during Q animation.
-    /// This buff is no longer the primary mechanism (Q.cs handles teleport directly),
-    /// but kept for compatibility if referenced by other systems.
+    /// MasterYi E Passive - Wuju Style passive AD bonus (+10% AD).
+    /// Always active when E skill is learned.
     /// </summary>
-    internal class AlphaStrikeTeleport : IBuffGameScript
+    internal class WujuStylePassive : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
+            BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
-
-        private ObjAIBase Owner;
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            Owner = unit as ObjAIBase;
-            if (Owner == null)
-            {
-                Owner = ownerSpell.CastInfo.Owner;
-            }
-            SetStatus(unit, StatusFlags.NoRender, true);
-            SetStatus(unit, StatusFlags.Ghosted, true);
-            SetStatus(unit, StatusFlags.Targetable, false);
+            // Passive: +10% AD (always active when E is learned)
+            StatsModifier.AttackDamage.PercentBonus = 0.10f;
+            unit.AddStatModifier(StatsModifier);
         }
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            SetStatus(unit, StatusFlags.NoRender, false);
-            SetStatus(unit, StatusFlags.Ghosted, false);
-            SetStatus(unit, StatusFlags.Targetable, true);
-            SetStatus(unit, StatusFlags.CanAttack, true);
+            unit.RemoveStatModifier(StatsModifier);
         }
 
         public void OnUpdate(float diff)

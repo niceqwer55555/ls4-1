@@ -1,4 +1,4 @@
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using GameServerCore.Scripting.CSharp;
@@ -6,37 +6,56 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
+    /// <summary>
+    /// Teemo E - Toxic Shot on-hit effect.
+    /// Applies poison on auto-attack hits.
+    /// </summary>
     public class ToxicShotAttack : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
+            TriggersSpellCasts = false,
+            NotSingleTargetSpell = true
         };
 
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-            var target = spell.CastInfo.Targets[0].Unit;
+            if (spell.CastInfo.Targets == null || spell.CastInfo.Targets.Count == 0)
+            {
+                return;
+            }
 
-            // 被动技能：攻击时附加毒液伤害
-            // 每秒魔法伤害: 6/12/18/24/30 (+10% AP)
-            float[] damagePerSecond = { 6f, 12f, 18f, 24f, 30f };
-            float ap = owner.Stats.AbilityPower.Total * 0.1f;
-            float dps = damagePerSecond[spell.CastInfo.SpellLevel - 1] + ap;
+            var target = spell.CastInfo.Targets[0]?.Unit;
+            if (target == null)
+            {
+                return;
+            }
 
-            // 立即附加伤害: 10/20/30/40/50 (+30% AP)
+            // Get ToxicShot (E) spell level from the owner
+            var toxicShotSpell = owner.GetSpell("ToxicShot");
+            int spellLevel = toxicShotSpell?.CastInfo.SpellLevel ?? 1;
+            if (spellLevel <= 0)
+            {
+                return;
+            }
+
+            float ap = owner.Stats.AbilityPower.Total;
+
+            // On-hit magic damage: 10/20/30/40/50 (+30% AP)
             float[] initialDamage = { 10f, 20f, 30f, 40f, 50f };
-            float initialAp = owner.Stats.AbilityPower.Total * 0.3f;
-            float initial = initialDamage[spell.CastInfo.SpellLevel - 1] + initialAp;
-
-            // 立即附加初始伤害
+            float initial = initialDamage[spellLevel - 1] + (ap * 0.3f);
             target.TakeDamage(owner, initial, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLPERSIST, false);
 
-            // 添加持续伤害buff (4秒)
-            AddBuff("ToxicShot", 4f, 1, spell, target, owner);
+            // Poison DoT: 6/12/18/24/30 (+10% AP) per second for 4 seconds
+            AddBuff("ToxicShot", 4f, 1, toxicShotSpell, target, owner);
+
+            // Add poison particle effect
+            AddParticleTarget(owner, target, "ToxicShot_tar.troy", target);
         }
     }
 }
